@@ -60,6 +60,13 @@ display_errors() {
 #
 
 read_commit_message() {
+  # ignore if this is a merge commit
+  PARENTS="$(git show --summary --format="%P" HEAD)"
+  PARENTS_ARRAY=($PARENTS)
+  if [ ${#PARENTS_ARRAY[@]} -gt "1" ]; then
+      return;
+  fi
+
   # reset commit_msg_lines
   COMMIT_MSG_LINES=()
 
