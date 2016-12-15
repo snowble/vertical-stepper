@@ -36,6 +36,9 @@ captures/
 *.iml
 .idea/workspace.xml
 .idea/libraries
+# In theory, misc.xml shouldn't be ignored
+# but it constantly changes between jdk 1.8<->1.7
+.idea/misc.xml
 
 # Keystore files
 *.jks
