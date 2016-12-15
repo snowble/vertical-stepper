@@ -18,9 +18,7 @@ android:
 
 script:
   - ./tools/commit-validator.sh
-  # Workaround for constraintlayout - https://code.google.com/p/android/issues/detail?id=212128
-  # Otherwise, this would just be assembleDebug
-  - ./gradlew dependencies || true && ./gradlew assembleDebug
+  - ./gradlew assembleDebug
 
 notifications:
   email: false
