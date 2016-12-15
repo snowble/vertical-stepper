@@ -10,9 +10,9 @@ android:
     - android-25
     - extra-android-m2repository
 
-before_install: ./tools/commit-validator.sh
-
-script: ./gradlew assembleDebug
+script:
+  - ./tools/commit-validator.sh
+  - ./gradlew assembleDebug
 
 notifications:
   slack:
