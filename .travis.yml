@@ -15,6 +15,7 @@ script:
   - ./gradlew assembleDebug
 
 notifications:
+  email: false
   slack:
     rooms:
       - snowble:ZxXOtqnP8tNUs2feEobXB6kh#buildstatus
