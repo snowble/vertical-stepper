@@ -17,12 +17,13 @@ import android.view.ViewGroup;
 public class VerticalStepper extends ViewGroup {
 
     private Context context;
+    private Resources resources;
+
     private int stepIconDimension;
-    private TextPaint stepIconTextPaint;
-    private int stepIconTextHeight;
     private Paint stepIconBackgroundPaint;
     private RectF stepIconRect;
-    private Resources resources;
+    private TextPaint stepIconTextPaint;
+    private int stepIconTextHeight;
 
     public VerticalStepper(Context context) {
         super(context);
