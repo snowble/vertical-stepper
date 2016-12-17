@@ -14,6 +14,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 
+import java.util.Locale;
+
 public class VerticalStepper extends ViewGroup {
 
     private Context context;
@@ -143,8 +145,9 @@ public class VerticalStepper extends ViewGroup {
             if (isFirstChild) {
                 canvas.translate(outerHorizontalMargin, outerVerticalMargin);
             }
-            String iconNumber = "1";
-            drawIcon(canvas, iconNumber);
+            int stepNumber = i + 1;
+            String stepNumberString = String.format(Locale.getDefault(), "%d", stepNumber);
+            drawIcon(canvas, stepNumberString);
         }
     }
 
