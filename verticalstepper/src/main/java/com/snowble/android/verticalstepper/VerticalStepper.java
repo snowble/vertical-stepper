@@ -19,11 +19,15 @@ public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
 
+    private int outerHorizontalMargin;
+    private int outerVerticalMargin;
+
     private int stepIconDimension;
     private Paint stepIconBackgroundPaint;
     private RectF stepIconRect;
     private TextPaint stepIconTextPaint;
     private int stepIconTextHeight;
+
 
     public VerticalStepper(Context context) {
         super(context);
@@ -52,7 +56,13 @@ public class VerticalStepper extends ViewGroup {
         context = getContext();
         resources = getResources();
 
+        initMargins();
         initStepIconProperties();
+    }
+
+    private void initMargins() {
+        outerHorizontalMargin = resources.getDimensionPixelSize(R.dimen.stepper_margin_horizontal);
+        outerVerticalMargin = resources.getDimensionPixelSize(R.dimen.stepper_margin_vertical);
     }
 
     private void initStepIconProperties() {
@@ -62,7 +72,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initStepIconDimension() {
-        stepIconDimension = resources.getDimensionPixelSize(R.dimen.step_icon);
+        stepIconDimension = resources.getDimensionPixelSize(R.dimen.step_icon_diameter);
         stepIconRect = new RectF(0, 0, stepIconDimension, stepIconDimension);
     }
 
@@ -87,10 +97,10 @@ public class VerticalStepper extends ViewGroup {
         stepIconTextPaint.setAntiAlias(true);
         int stepIconTextSize = resources.getDimensionPixelSize(R.dimen.step_icon_font_size);
         stepIconTextPaint.setTextSize(stepIconTextSize);
-        // TODO Is using default font ok?
 
         final Rect bounds = new Rect();
         stepIconTextPaint.getTextBounds("1", 0, 1, bounds);
+        // TODO This height needs to be updated for each child
         stepIconTextHeight = bounds.height();
     }
 
@@ -98,27 +108,29 @@ public class VerticalStepper extends ViewGroup {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // TODO respect measure specs
-        int width = stepIconDimension;
-        int height = 0;
+        int width = outerHorizontalMargin;
+        int height = outerVerticalMargin;
 
-        int xPadding = getPaddingLeft() + getPaddingRight();
-        int yPadding = getPaddingTop() + getPaddingBottom();
-
+        width += stepIconDimension;
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             height += stepIconDimension;
             // TODO Measure child and add that to our height
         }
 
+        int xPadding = getPaddingLeft() + getPaddingRight();
+        int yPadding = getPaddingTop() + getPaddingBottom();
         width += xPadding;
         height += yPadding;
         setMeasuredDimension(width, height);
     }
 
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
+            // TODO Update l,t,r,b based on translations
             getChildAt(i).layout(left, top, right, bottom);
         }
     }
@@ -128,6 +140,10 @@ public class VerticalStepper extends ViewGroup {
         super.onDraw(canvas);
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
+            boolean isFirstChild = i == 0;
+            if (isFirstChild) {
+                canvas.translate(outerHorizontalMargin, outerVerticalMargin);
+            }
             String iconNumber = "1";
             drawStepIcon(canvas, iconNumber);
         }
