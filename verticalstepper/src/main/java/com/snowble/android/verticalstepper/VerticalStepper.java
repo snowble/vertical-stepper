@@ -146,26 +146,29 @@ public class VerticalStepper extends ViewGroup {
                 canvas.translate(outerHorizontalMargin, outerVerticalMargin);
             }
             int stepNumber = i + 1;
-            String stepNumberString = String.format(Locale.getDefault(), "%d", stepNumber);
-            drawIcon(canvas, stepNumberString);
+            drawIcon(canvas, stepNumber);
         }
     }
 
-    private void drawIcon(Canvas canvas, String iconNumber) {
+    private void drawIcon(Canvas canvas, int stepNumber) {
         drawIconBackground(canvas);
-        drawIconText(canvas, iconNumber);
+        drawIconText(canvas, stepNumber);
     }
 
     private void drawIconBackground(Canvas canvas) {
         canvas.drawArc(iconBackgroundRect, 0f, 360f, true, iconBackgroundPaint);
     }
 
-    private void drawIconText(Canvas canvas, String iconNumber) {
-        float width = iconTextPaint.measureText(iconNumber);
+    private void drawIconText(Canvas canvas, int stepNumber) {
+        String stepNumberString = String.format(Locale.getDefault(), "%d", stepNumber);
+
+        float width = iconTextPaint.measureText(stepNumberString);
         float centeredTextX = (iconDimension / 2) - (width / 2);
-        iconTextPaint.getTextBounds(iconNumber, 0, 1, iconTextRect);
-        int centeredTextY = (iconDimension / 2) + (iconTextRect.height() / 2);
-        canvas.drawText(iconNumber, centeredTextX, centeredTextY, iconTextPaint);
+
+        iconTextPaint.getTextBounds(stepNumberString, 0, 1, iconTextRect);
+        float centeredTextY = (iconDimension / 2) + (iconTextRect.height() / 2);
+
+        canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
     @Override
