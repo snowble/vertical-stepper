@@ -74,11 +74,6 @@ public class VerticalStepper extends ViewGroup {
         initIconRectsForReuse();
     }
 
-    private void initIconRectsForReuse() {
-        iconBackgroundRect = new RectF(0, 0, iconDimension, iconDimension);
-        iconTextRect = new Rect();
-    }
-
     private void initIconDimension() {
         iconDimension = resources.getDimensionPixelSize(R.dimen.icon_diameter);
     }
@@ -104,6 +99,11 @@ public class VerticalStepper extends ViewGroup {
         iconTextPaint.setAntiAlias(true);
         int iconTextSize = resources.getDimensionPixelSize(R.dimen.icon_font_size);
         iconTextPaint.setTextSize(iconTextSize);
+    }
+
+    private void initIconRectsForReuse() {
+        iconBackgroundRect = new RectF(0, 0, iconDimension, iconDimension);
+        iconTextRect = new Rect();
     }
 
     @Override
