@@ -26,6 +26,7 @@ android {
 dependencies {
     compile project(':verticalstepper')
 
+    debugCompile 'com.facebook.stetho:stetho:1.4.2'
     compile 'com.android.support:appcompat-v7:25.1.0'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
