@@ -22,11 +22,11 @@ public class VerticalStepper extends ViewGroup {
     private int outerHorizontalMargin;
     private int outerVerticalMargin;
 
-    private int stepIconDimension;
-    private Paint stepIconBackgroundPaint;
-    private RectF stepIconRect;
-    private TextPaint stepIconTextPaint;
-    private int stepIconTextHeight;
+    private int iconDimension;
+    private Paint iconBackgroundPaint;
+    private RectF iconRect;
+    private TextPaint iconTextPaint;
+    private int iconTextHeight;
 
 
     public VerticalStepper(Context context) {
@@ -57,51 +57,51 @@ public class VerticalStepper extends ViewGroup {
         resources = getResources();
 
         initMargins();
-        initStepIconProperties();
+        initIconProperties();
     }
 
     private void initMargins() {
-        outerHorizontalMargin = resources.getDimensionPixelSize(R.dimen.stepper_margin_horizontal);
-        outerVerticalMargin = resources.getDimensionPixelSize(R.dimen.stepper_margin_vertical);
+        outerHorizontalMargin = resources.getDimensionPixelSize(R.dimen.outer_margin_horizontal);
+        outerVerticalMargin = resources.getDimensionPixelSize(R.dimen.outer_margin_vertical);
     }
 
-    private void initStepIconProperties() {
-        initStepIconDimension();
-        initStepIconBackground();
-        initStepIconTextPaint();
+    private void initIconProperties() {
+        initIconDimension();
+        initIconBackground();
+        initIconTextPaint();
     }
 
-    private void initStepIconDimension() {
-        stepIconDimension = resources.getDimensionPixelSize(R.dimen.step_icon_diameter);
-        stepIconRect = new RectF(0, 0, stepIconDimension, stepIconDimension);
+    private void initIconDimension() {
+        iconDimension = resources.getDimensionPixelSize(R.dimen.icon_diameter);
+        iconRect = new RectF(0, 0, iconDimension, iconDimension);
     }
 
-    private void initStepIconBackground() {
+    private void initIconBackground() {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        int stepIconBackground;
+        int iconBackground;
         if (value.type != TypedValue.TYPE_NULL) {
-            stepIconBackground = value.data;
+            iconBackground = value.data;
         } else {
             //noinspection deprecation
-            stepIconBackground = resources.getColor(R.color.bg_step_icon);
+            iconBackground = resources.getColor(R.color.bg_icon);
         }
-        stepIconBackgroundPaint = new Paint();
-        stepIconBackgroundPaint.setColor(stepIconBackground);
-        stepIconBackgroundPaint.setAntiAlias(true);
+        iconBackgroundPaint = new Paint();
+        iconBackgroundPaint.setColor(iconBackground);
+        iconBackgroundPaint.setAntiAlias(true);
     }
 
-    private void initStepIconTextPaint() {
-        stepIconTextPaint = new TextPaint();
-        stepIconTextPaint.setColor(Color.WHITE);
-        stepIconTextPaint.setAntiAlias(true);
-        int stepIconTextSize = resources.getDimensionPixelSize(R.dimen.step_icon_font_size);
-        stepIconTextPaint.setTextSize(stepIconTextSize);
+    private void initIconTextPaint() {
+        iconTextPaint = new TextPaint();
+        iconTextPaint.setColor(Color.WHITE);
+        iconTextPaint.setAntiAlias(true);
+        int iconTextSize = resources.getDimensionPixelSize(R.dimen.icon_font_size);
+        iconTextPaint.setTextSize(iconTextSize);
 
         final Rect bounds = new Rect();
-        stepIconTextPaint.getTextBounds("1", 0, 1, bounds);
+        iconTextPaint.getTextBounds("1", 0, 1, bounds);
         // TODO This height needs to be updated for each child
-        stepIconTextHeight = bounds.height();
+        iconTextHeight = bounds.height();
     }
 
     @Override
@@ -111,10 +111,10 @@ public class VerticalStepper extends ViewGroup {
         int width = outerHorizontalMargin;
         int height = outerVerticalMargin;
 
-        width += stepIconDimension;
+        width += iconDimension;
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            height += stepIconDimension;
+            height += iconDimension;
             // TODO Measure child and add that to our height
         }
 
@@ -124,7 +124,6 @@ public class VerticalStepper extends ViewGroup {
         height += yPadding;
         setMeasuredDimension(width, height);
     }
-
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -145,16 +144,16 @@ public class VerticalStepper extends ViewGroup {
                 canvas.translate(outerHorizontalMargin, outerVerticalMargin);
             }
             String iconNumber = "1";
-            drawStepIcon(canvas, iconNumber);
+            drawIcon(canvas, iconNumber);
         }
     }
 
-    private void drawStepIcon(Canvas canvas, String iconNumber) {
-        canvas.drawArc(stepIconRect, 0f, 360f, true, stepIconBackgroundPaint);
-        float width = stepIconTextPaint.measureText(iconNumber);
-        float centeredTextX = stepIconDimension / 2 - (width / 2);
-        int centeredTextY = stepIconDimension / 2 + stepIconTextHeight / 2;
-        canvas.drawText(iconNumber, centeredTextX, centeredTextY, stepIconTextPaint);
+    private void drawIcon(Canvas canvas, String iconNumber) {
+        canvas.drawArc(iconRect, 0f, 360f, true, iconBackgroundPaint);
+        float width = iconTextPaint.measureText(iconNumber);
+        float centeredTextX = iconDimension / 2 - (width / 2);
+        int centeredTextY = iconDimension / 2 + iconTextHeight / 2;
+        canvas.drawText(iconNumber, centeredTextX, centeredTextY, iconTextPaint);
     }
 
     @Override
