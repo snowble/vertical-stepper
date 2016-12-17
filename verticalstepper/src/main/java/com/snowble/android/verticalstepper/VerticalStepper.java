@@ -152,7 +152,15 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIcon(Canvas canvas, String iconNumber) {
+        drawIconBackground(canvas);
+        drawIconText(canvas, iconNumber);
+    }
+
+    private void drawIconBackground(Canvas canvas) {
         canvas.drawArc(iconRect, 0f, 360f, true, iconBackgroundPaint);
+    }
+
+    private void drawIconText(Canvas canvas, String iconNumber) {
         float width = iconTextPaint.measureText(iconNumber);
         float centeredTextX = iconDimension / 2 - (width / 2);
         int centeredTextY = iconDimension / 2 + iconTextHeight / 2;
