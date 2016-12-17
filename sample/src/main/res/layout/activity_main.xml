@@ -11,4 +11,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.snowble.android.verticalstepper.sample.MainActivity">
 
+    <View
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 </com.snowble.android.verticalstepper.VerticalStepper>
