@@ -120,10 +120,6 @@ public class VerticalStepper extends ViewGroup {
             // TODO Measure child and add that to our height
         }
 
-        int xPadding = getPaddingLeft() + getPaddingRight();
-        int yPadding = getPaddingTop() + getPaddingBottom();
-        width += xPadding;
-        height += yPadding;
         setMeasuredDimension(width, height);
     }
 
