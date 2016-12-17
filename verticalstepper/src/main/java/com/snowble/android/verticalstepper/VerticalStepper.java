@@ -26,9 +26,9 @@ public class VerticalStepper extends ViewGroup {
 
     private int iconDimension;
     private Paint iconBackgroundPaint;
-    private RectF iconRect;
+    private RectF iconBackgroundRect;
     private TextPaint iconTextPaint;
-    private int iconTextHeight;
+    private Rect iconTextRect;
 
 
     public VerticalStepper(Context context) {
@@ -71,11 +71,16 @@ public class VerticalStepper extends ViewGroup {
         initIconDimension();
         initIconBackground();
         initIconTextPaint();
+        initIconRectsForReuse();
+    }
+
+    private void initIconRectsForReuse() {
+        iconBackgroundRect = new RectF(0, 0, iconDimension, iconDimension);
+        iconTextRect = new Rect();
     }
 
     private void initIconDimension() {
         iconDimension = resources.getDimensionPixelSize(R.dimen.icon_diameter);
-        iconRect = new RectF(0, 0, iconDimension, iconDimension);
     }
 
     private void initIconBackground() {
@@ -99,11 +104,6 @@ public class VerticalStepper extends ViewGroup {
         iconTextPaint.setAntiAlias(true);
         int iconTextSize = resources.getDimensionPixelSize(R.dimen.icon_font_size);
         iconTextPaint.setTextSize(iconTextSize);
-
-        final Rect bounds = new Rect();
-        iconTextPaint.getTextBounds("1", 0, 1, bounds);
-        // TODO This height needs to be updated for each child
-        iconTextHeight = bounds.height();
     }
 
     @Override
@@ -157,13 +157,14 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIconBackground(Canvas canvas) {
-        canvas.drawArc(iconRect, 0f, 360f, true, iconBackgroundPaint);
+        canvas.drawArc(iconBackgroundRect, 0f, 360f, true, iconBackgroundPaint);
     }
 
     private void drawIconText(Canvas canvas, String iconNumber) {
         float width = iconTextPaint.measureText(iconNumber);
-        float centeredTextX = iconDimension / 2 - (width / 2);
-        int centeredTextY = iconDimension / 2 + iconTextHeight / 2;
+        float centeredTextX = (iconDimension / 2) - (width / 2);
+        iconTextPaint.getTextBounds(iconNumber, 0, 1, iconTextRect);
+        int centeredTextY = (iconDimension / 2) + (iconTextRect.height() / 2);
         canvas.drawText(iconNumber, centeredTextX, centeredTextY, iconTextPaint);
     }
 
