@@ -125,6 +125,10 @@ public class VerticalStepper extends ViewGroup {
             // TODO Measure child and add that to our height
         }
 
+        int xPadding = getPaddingLeft() + getPaddingRight();
+        int yPadding = getPaddingTop() + getPaddingBottom();
+        width += xPadding;
+        height += yPadding;
         setMeasuredDimension(width, height);
     }
 
@@ -140,6 +144,7 @@ public class VerticalStepper extends ViewGroup {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.translate(getPaddingBottom(), getPaddingTop());
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             boolean isFirstChild = i == 0;
