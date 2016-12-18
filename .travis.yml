@@ -1,18 +1,6 @@
-language: android
-jdk: oraclejdk8
-sudo: false
-
-android:
-  components:
-    - platform-tools
-    - tools
-    - build-tools-25.0.2
-    - android-25
-    - extra-android-m2repository
-
 script:
-  - ./tools/commit-validator.sh
-  - ./gradlew assembleDebug
+  - true
+  - ./tools/commit-validator.sh && false
 
 notifications:
   email: false
