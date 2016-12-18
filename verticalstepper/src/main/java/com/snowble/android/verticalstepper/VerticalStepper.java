@@ -114,7 +114,6 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // TODO respect measure specs
         int width = outerHorizontalMargin;
         int height = outerVerticalMargin;
