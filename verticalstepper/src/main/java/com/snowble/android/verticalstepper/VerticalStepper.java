@@ -26,9 +26,9 @@ public class VerticalStepper extends ViewGroup {
 
     private int iconDimension;
     private Paint iconBackgroundPaint;
-    private RectF iconBackgroundRect;
+    private RectF reuseRectIconBackground;
     private TextPaint iconTextPaint;
-    private Rect iconTextRect;
+    private Rect reuseRectIconText;
 
 
     public VerticalStepper(Context context) {
@@ -102,8 +102,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconRectsForReuse() {
-        iconBackgroundRect = new RectF(0, 0, iconDimension, iconDimension);
-        iconTextRect = new Rect();
+        reuseRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
+        reuseRectIconText = new Rect();
     }
 
     @Override
@@ -152,7 +152,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIconBackground(Canvas canvas) {
-        canvas.drawArc(iconBackgroundRect, 0f, 360f, true, iconBackgroundPaint);
+        canvas.drawArc(reuseRectIconBackground, 0f, 360f, true, iconBackgroundPaint);
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -161,8 +161,8 @@ public class VerticalStepper extends ViewGroup {
         float width = iconTextPaint.measureText(stepNumberString);
         float centeredTextX = (iconDimension / 2) - (width / 2);
 
-        iconTextPaint.getTextBounds(stepNumberString, 0, 1, iconTextRect);
-        float centeredTextY = (iconDimension / 2) + (iconTextRect.height() / 2);
+        iconTextPaint.getTextBounds(stepNumberString, 0, 1, reuseRectIconText);
+        float centeredTextY = (iconDimension / 2) + (reuseRectIconText.height() / 2);
 
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
