@@ -79,15 +79,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconBackground() {
-        TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        int iconBackground;
-        if (value.type != TypedValue.TYPE_NULL) {
-            iconBackground = value.data;
-        } else {
-            //noinspection deprecation
-            iconBackground = resources.getColor(R.color.bg_icon);
-        }
+        //noinspection deprecation
+        int defaultColor = resources.getColor(R.color.bg_icon);
+        int iconBackground = getResolvedAttributeData(R.attr.colorPrimary, defaultColor, true);
         iconBackgroundPaint = new Paint();
         iconBackgroundPaint.setColor(iconBackground);
         iconBackgroundPaint.setAntiAlias(true);
@@ -104,6 +98,18 @@ public class VerticalStepper extends ViewGroup {
     private void initIconRectsForReuse() {
         reuseRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
         reuseRectIconText = new Rect();
+    }
+
+    private int getResolvedAttributeData(int attr, int defaultData, boolean resolveRefs) {
+        TypedValue value = new TypedValue();
+        context.getTheme().resolveAttribute(attr, value, resolveRefs);
+        int resolvedAttributeData;
+        if (value.type != TypedValue.TYPE_NULL) {
+            resolvedAttributeData = value.data;
+        } else {
+            resolvedAttributeData = defaultData;
+        }
+        return resolvedAttributeData;
     }
 
     @Override
