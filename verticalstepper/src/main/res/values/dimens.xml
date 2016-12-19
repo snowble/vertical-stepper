@@ -5,4 +5,6 @@
 
     <dimen name="outer_margin_horizontal">24dp</dimen>
     <dimen name="outer_margin_vertical">24dp</dimen>
+
+    <dimen name="touch_height">72dp</dimen>
 </resources>
