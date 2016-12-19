@@ -12,14 +12,19 @@ import android.os.Build;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class VerticalStepper extends ViewGroup {
 
     private Context context;
     private Resources resources;
+
+    private List<View> stepViews;
 
     private int outerHorizontalMargin;
     private int outerVerticalMargin;
@@ -30,6 +35,8 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint iconTextPaint;
     private Rect reuseRectIconText;
 
+    private int touchViewHeight;
+    private int touchViewBackground;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -60,6 +67,7 @@ public class VerticalStepper extends ViewGroup {
 
         initMargins();
         initIconProperties();
+        initTouchViewProperties();
     }
 
     private void initMargins() {
@@ -100,6 +108,11 @@ public class VerticalStepper extends ViewGroup {
         reuseRectIconText = new Rect();
     }
 
+    private void initTouchViewProperties() {
+        touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
+        touchViewBackground = getResolvedAttributeData(R.attr.selectableItemBackground, 0, false);
+    }
+
     private int getResolvedAttributeData(int attr, int defaultData, boolean resolveRefs) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(attr, value, resolveRefs);
@@ -113,31 +126,82 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        int childCount = getChildCount();
+        stepViews = new ArrayList<>(childCount);
+        for (int i = 0; i < childCount; i++) {
+            initStepView(getChildAt(i));
+        }
+
+        for (View v : stepViews) {
+            InternalTouchView touchView = getTouchView(v);
+            initTouchView(touchView);
+        }
+    }
+
+    private void initStepView(final View stepView) {
+        stepView.setVisibility(View.GONE);
+        stepViews.add(stepView);
+
+        createAndAttachTouchView(stepView);
+    }
+
+    private void createAndAttachTouchView(final View stepView) {
+        final InternalTouchView touchView = new InternalTouchView(context);
+        getInternalLayoutParams(stepView).touchView = touchView;
+    }
+
+    private void initTouchView(InternalTouchView touchView) {
+        touchView.setBackgroundResource(touchViewBackground);
+        // TODO See if the anonymous inner class can be avoided
+        touchView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO Make step view visible.
+            }
+        });
+        addView(touchView);
+        LayoutParams lp = (LayoutParams) touchView.getLayoutParams();
+        lp.width = LayoutParams.MATCH_PARENT;
+        lp.height = touchViewHeight;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // TODO respect measure specs
         int width = outerHorizontalMargin;
         int height = outerVerticalMargin;
 
-        width += iconDimension;
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            height += iconDimension;
-            // TODO Measure child and add that to our height
-        }
-
         int xPadding = getPaddingLeft() + getPaddingRight();
         int yPadding = getPaddingTop() + getPaddingBottom();
         width += xPadding;
         height += yPadding;
+
+        width += iconDimension;
+        for (View v : stepViews) {
+            height += iconDimension;
+
+            // TODO Measure child and add that to our height
+
+            int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+            int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
+            getTouchView(v).measure(wms, hms);
+            height = Math.max(height, touchViewHeight);
+        }
+        // TODO Account for min suggested width/height
         setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        for (View v : stepViews) {
             // TODO Update l,t,r,b based on translations
-            getChildAt(i).layout(left, top, right, bottom);
+            int leftPos = left + getPaddingLeft();
+            int rightPos = right - left - getPaddingRight();
+            int topPos = top + getPaddingTop();
+            int bottomPos = bottom - top - getPaddingBottom();
+            getTouchView(v).layout(leftPos, topPos, rightPos, bottomPos);
         }
     }
 
@@ -145,8 +209,7 @@ public class VerticalStepper extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         canvas.save();
         canvas.translate(getPaddingBottom(), getPaddingTop());
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        for (int i = 0; i < stepViews.size(); i++) {
             boolean isFirstChild = i == 0;
             if (isFirstChild) {
                 canvas.translate(outerHorizontalMargin, outerVerticalMargin);
@@ -178,6 +241,14 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
+    private static InternalTouchView getTouchView(View stepView) {
+        return getInternalLayoutParams(stepView).touchView;
+    }
+
+    private static LayoutParams getInternalLayoutParams(View stepView) {
+        return (LayoutParams) stepView.getLayoutParams();
+    }
+
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
         return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -199,6 +270,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     public static class LayoutParams extends MarginLayoutParams {
+        InternalTouchView touchView;
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
@@ -209,6 +282,12 @@ public class VerticalStepper extends ViewGroup {
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+    }
+
+    private static class InternalTouchView extends View {
+        public InternalTouchView(Context context) {
+            super(context);
         }
     }
 }
