@@ -143,7 +143,7 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+        canvas.save();
         canvas.translate(getPaddingBottom(), getPaddingTop());
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -154,6 +154,7 @@ public class VerticalStepper extends ViewGroup {
             int stepNumber = i + 1;
             drawIcon(canvas, stepNumber);
         }
+        canvas.restore();
     }
 
     private void drawIcon(Canvas canvas, int stepNumber) {
