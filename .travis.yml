@@ -1,21 +1,18 @@
 language: android
 jdk: oraclejdk8
 sudo: false
-
 android:
   components:
-    - platform-tools
-    - tools
-    - build-tools-25.0.2
-    - android-25
-    - extra-android-m2repository
-
+  - platform-tools
+  - tools
+  - build-tools-25.0.2
+  - android-25
+  - extra-android-m2repository
 script:
-  - ./tools/commit-validator.sh
-  - ./gradlew assembleDebug
-
+- "./tools/commit-validator.sh"
+- "./gradlew assembleDebug"
 notifications:
   email: false
   slack:
     rooms:
-      - snowble:ZxXOtqnP8tNUs2feEobXB6kh#buildstatus
+      secure: VVoTF2mNDr1k/ROIoTqq+DfiatrcpH+nwyCzCsKlslmsxOgHhEWUBCT7pSfHqUb2solO/pDSDjNzdUHHyWl2FLbkWCnuf2/d7z8H2QU9BTVtIWNv4Y4HOsHnKU44Mp93vsHUqKhyziKy8TdF4cM98nVol2ToUCWZQNixxS1WDkh8Y7H7/vmXPQlaE7QXqAFVYXoKg7dkwTTmXKwj7vKEx6GItRP5HNvt/QOD2tSTB3ovoV/W4myUVYoQ4E1natutuw/z0H+kU68T4FmC5OI6XDEJzGoYAHS0JLO0+a19qjEzafPDMdl0Rtmr0V5U6m/rxbubM3zlxZAw3wav9Tfgm/BguBgxHwmWIZ+ZayneN3eWlQ5RrcfT6sDhkVlVyJar8MqhsA3SdN2XcdRg6TG/U5G5+nppD6bb5qtpH2CI6VKkzKQPrsYLheV2LylKJHB4OG6DsUU3ws4SYk6D7kGfV0louNhwxVYil8mYIcpessHONL+aJCC/gUDpfIS/8M0hDui+jSL0Uky9veQTIoZY1T8PN9NRKD+QQX45ofqWTrlRfFnG6AuPobrK+qs+RtGjkl3Op387TCFSPYMRJhvWfXPCDZ8l2CjaL8/h//mZb/G0c5r0cUAB2rdmIPdRgW53tG4uT1bjcuo0/fALE5640wPXEDbjz+tBxTbncBt8DYA=
