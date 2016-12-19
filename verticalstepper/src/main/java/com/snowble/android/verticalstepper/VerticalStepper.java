@@ -148,8 +148,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void createAndAttachTouchView(final View stepView) {
-        final InternalTouchView touchView = new InternalTouchView(context);
-        getInternalLayoutParams(stepView).touchView = touchView;
+        getInternalLayoutParams(stepView).touchView = new InternalTouchView(context);
     }
 
     private void initTouchView(InternalTouchView touchView) {
@@ -169,27 +168,59 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // TODO respect measure specs
-        int width = outerHorizontalMargin;
-        int height = outerVerticalMargin;
+        int wSizeFromSpec = MeasureSpec.getSize(widthMeasureSpec);
+        int wModeFromSpec = MeasureSpec.getMode(widthMeasureSpec);
 
-        int xPadding = getPaddingLeft() + getPaddingRight();
-        int yPadding = getPaddingTop() + getPaddingBottom();
-        width += xPadding;
-        height += yPadding;
+        int hSizeFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+        int hModeFromSpec = MeasureSpec.getMode(heightMeasureSpec);
 
-        width += iconDimension;
+        int width;
+        int height;
+
+        boolean measureWidth = wModeFromSpec != MeasureSpec.EXACTLY;
+        boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
+
+        if (measureWidth) {
+            width = outerHorizontalMargin + getPaddingLeft() + getPaddingRight();
+        } else {
+            width = wSizeFromSpec;
+        }
+
+        if (measureHeight) {
+            height = outerVerticalMargin + getPaddingTop() + getPaddingBottom();
+        } else {
+            height = hSizeFromSpec;
+        }
+
         for (View v : stepViews) {
-            height += iconDimension;
+            int stepWidth = 0;
+            int stepHeight = 0;
+            if (measureWidth) {
+                stepWidth += iconDimension;
+                width = Math.max(width, stepWidth);
+            }
 
-            // TODO Measure child and add that to our height
+            if (measureHeight) {
+                stepHeight += iconDimension;
+                height += stepHeight;
+                height = Math.max(height, touchViewHeight);
+            }
 
+            // TODO Measure active child and add that to our measurements
+        }
+
+        width = Math.max(width, getSuggestedMinimumWidth());
+        height = Math.max(height, getSuggestedMinimumHeight());
+
+        width = resolveSize(width, widthMeasureSpec);
+        height = resolveSize(height, heightMeasureSpec);
+
+        for (View v : stepViews) {
             int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
             int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
             getTouchView(v).measure(wms, hms);
-            height = Math.max(height, touchViewHeight);
         }
-        // TODO Account for min suggested width/height
+
         setMeasuredDimension(width, height);
     }
 
@@ -200,8 +231,8 @@ public class VerticalStepper extends ViewGroup {
             int leftPos = left + getPaddingLeft();
             int rightPos = right - left - getPaddingRight();
             int topPos = top + getPaddingTop();
-            int bottomPos = bottom - top - getPaddingBottom();
-            getTouchView(v).layout(leftPos, topPos, rightPos, bottomPos);
+            InternalTouchView touchView = getTouchView(v);
+            touchView.layout(leftPos, topPos, rightPos, topPos + touchView.getMeasuredHeight());
         }
     }
 
