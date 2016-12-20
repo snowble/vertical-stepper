@@ -140,11 +140,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconTextPaint() {
-        iconTextPaint = new TextPaint();
-        iconTextPaint.setColor(Color.WHITE);
-        iconTextPaint.setAntiAlias(true);
-        int iconTextSize = resources.getDimensionPixelSize(R.dimen.icon_font_size);
-        iconTextPaint.setTextSize(iconTextSize);
+        iconTextPaint = createTextPaint(R.color.white, R.dimen.icon_font_size);
     }
 
     private void initIconRectsForReuse() {
@@ -167,6 +163,25 @@ public class VerticalStepper extends ViewGroup {
             resolvedAttributeData = defaultData;
         }
         return resolvedAttributeData;
+    }
+
+    private TextPaint createTextPaint(int colorRes, int fontDimenRes) {
+        TextPaint textPaint = new TextPaint();
+        setTextColor(textPaint, colorRes);
+        textPaint.setAntiAlias(true);
+        int titleTextSize = resources.getDimensionPixelSize(fontDimenRes);
+        textPaint.setTextSize(titleTextSize);
+        return textPaint;
+    }
+
+    private void setTextColor(TextPaint paint, int colorRes) {
+        int color;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            color = resources.getColor(colorRes, context.getTheme());
+        } else {
+            color = resources.getColor(colorRes);
+        }
+        paint.setColor(color);
     }
 
     @Override
