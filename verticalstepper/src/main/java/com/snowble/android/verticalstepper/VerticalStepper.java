@@ -78,9 +78,9 @@ public class VerticalStepper extends ViewGroup {
 
         context = getContext();
         resources = getResources();
-        initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
 
-        initMargins();
+        initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
+        initPadding();
         initIconProperties();
         initTouchViewProperties();
     }
@@ -108,7 +108,7 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void initMargins() {
+    private void initPadding() {
         if (useSuggestedPadding) {
             outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
             outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
