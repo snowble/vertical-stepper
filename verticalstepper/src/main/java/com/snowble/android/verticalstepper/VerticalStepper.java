@@ -30,6 +30,7 @@ public class VerticalStepper extends ViewGroup {
 
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
+    private boolean useSuggestedPadding;
 
     private int iconDimension;
     private Paint iconBackgroundPaint;
@@ -39,7 +40,6 @@ public class VerticalStepper extends ViewGroup {
 
     private int touchViewHeight;
     private int touchViewBackground;
-    private boolean useSuggestedPadding;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -287,23 +287,20 @@ public class VerticalStepper extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         for (View v : stepViews) {
             // TODO Update l,t,r,b based on translations
-            int leftPos = left + getPaddingLeft();
-            int rightPos = right - left - getPaddingRight();
-            int topPos = top + getPaddingTop();
             InternalTouchView touchView = getTouchView(v);
-            touchView.layout(leftPos, topPos, rightPos, topPos + touchView.getMeasuredHeight());
+            touchView.layout(left, top, right - left, top + touchView.getMeasuredHeight());
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.save();
-        canvas.translate(getPaddingBottom(), getPaddingTop());
+        if (useSuggestedPadding) {
+            canvas.translate(outerHorizontalPadding, outerVerticalPadding);
+        } else {
+            canvas.translate(getPaddingBottom(), getPaddingTop());
+        }
         for (int i = 0; i < stepViews.size(); i++) {
-            boolean isFirstChild = i == 0;
-            if (isFirstChild) {
-                canvas.translate(outerHorizontalPadding, outerVerticalPadding);
-            }
             int stepNumber = i + 1;
             drawIcon(canvas, stepNumber);
         }
