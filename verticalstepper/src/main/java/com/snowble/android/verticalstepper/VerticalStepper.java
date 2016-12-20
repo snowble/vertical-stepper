@@ -178,6 +178,7 @@ public class VerticalStepper extends ViewGroup {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             color = resources.getColor(colorRes, context.getTheme());
         } else {
+            //noinspection deprecation
             color = resources.getColor(colorRes);
         }
         paint.setColor(color);
