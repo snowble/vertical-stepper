@@ -2,9 +2,13 @@
 <resources>
     <dimen name="icon_font_size">12sp</dimen>
     <dimen name="icon_diameter">24dp</dimen>
+    <dimen name="icon_margin_right">8dp</dimen>
 
     <dimen name="outer_padding_horizontal">24dp</dimen>
     <dimen name="outer_padding_vertical">24dp</dimen>
 
     <dimen name="touch_height">72dp</dimen>
+
+    <dimen name="title_font_size">14sp</dimen>
+    <dimen name="summary_font_size">14sp</dimen>
 </resources>

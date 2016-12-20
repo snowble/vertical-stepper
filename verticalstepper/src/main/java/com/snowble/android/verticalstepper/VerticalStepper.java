@@ -8,9 +8,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -27,15 +29,21 @@ public class VerticalStepper extends ViewGroup {
 
     private List<View> stepViews;
 
+    private boolean useSuggestedPadding;
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
-    private boolean useSuggestedPadding;
 
     private int iconDimension;
+    private int iconMarginRight;
     private Paint iconBackgroundPaint;
     private RectF reuseRectIconBackground;
     private TextPaint iconTextPaint;
     private Rect reuseRectIconText;
+
+    private TextPaint titleTextPaint;
+    private Rect reuseRectTitleText;
+    private TextPaint summaryTextPaint;
+    private Rect reuseRectSummaryText;
 
     private int touchViewHeight;
     private int touchViewBackground;
@@ -82,6 +90,8 @@ public class VerticalStepper extends ViewGroup {
         initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
         initIconProperties();
+        initTitleProperties();
+        initSummaryProperties();
         initTouchViewProperties();
     }
 
@@ -120,6 +130,7 @@ public class VerticalStepper extends ViewGroup {
 
     private void initIconProperties() {
         initIconDimension();
+        initIconMargins();
         initIconBackground();
         initIconTextPaint();
         initIconRectsForReuse();
@@ -127,6 +138,10 @@ public class VerticalStepper extends ViewGroup {
 
     private void initIconDimension() {
         iconDimension = resources.getDimensionPixelSize(R.dimen.icon_diameter);
+    }
+
+    private void initIconMargins() {
+        iconMarginRight = resources.getDimensionPixelSize(R.dimen.icon_margin_right);
     }
 
     private void initIconBackground() {
@@ -145,6 +160,33 @@ public class VerticalStepper extends ViewGroup {
     private void initIconRectsForReuse() {
         reuseRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
         reuseRectIconText = new Rect();
+    }
+
+    private void initTitleProperties() {
+        initTitleTextPaint();
+        initTitleRectsForReuse();
+    }
+
+    private void initTitleTextPaint() {
+        titleTextPaint = createTextPaint(R.color.title_color, R.dimen.title_font_size);
+        titleTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+    }
+
+    private void initTitleRectsForReuse() {
+        reuseRectTitleText = new Rect();
+    }
+
+    private void initSummaryProperties() {
+        initSummaryTextPaint();
+        initSummaryRectsForReuse();
+    }
+
+    private void initSummaryTextPaint() {
+        summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
+    }
+
+    private void initSummaryRectsForReuse() {
+        reuseRectSummaryText = new Rect();
     }
 
     private void initTouchViewProperties() {
@@ -256,11 +298,22 @@ public class VerticalStepper extends ViewGroup {
             int stepHeight = 0;
             if (measureWidth) {
                 stepWidth += iconDimension;
+                stepWidth += iconMarginRight;
+
+                float titleWidth = measureTitleWidth(v);
+                float summaryWidth = measureSummaryWidth(v);
+                stepWidth += Math.max(titleWidth, summaryWidth);
+
                 width = Math.max(width, stepWidth);
             }
 
             if (measureHeight) {
-                stepHeight += iconDimension;
+                // TODO Measure internal vertical margin
+
+                int textTotalHeight = (int) (measureTitleHeight(v) + measureSummaryHeight(v));
+                int stepDecoratorHeight = Math.max(iconDimension, textTotalHeight);
+
+                stepHeight += stepDecoratorHeight;
                 height += stepHeight;
                 height = Math.max(height, touchViewHeight);
             }
@@ -283,6 +336,45 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
+    private float measureTitleWidth(View v) {
+        float titleWidth = 0f;
+        String title = getInternalLayoutParams(v).title;
+        if (!TextUtils.isEmpty(title)) {
+            titleWidth = titleTextPaint.measureText(title);
+        }
+        return titleWidth;
+    }
+
+    private float measureSummaryWidth(View v) {
+        float summaryWidth = 0f;
+        String summary = getInternalLayoutParams(v).summary;
+        if (!TextUtils.isEmpty(summary)) {
+            summaryWidth = titleTextPaint.measureText(summary);
+        }
+        return summaryWidth;
+    }
+
+    private float measureTitleHeight(View v) {
+        float titleHeight = 0f;
+        String title = getInternalLayoutParams(v).title;
+        if (!TextUtils.isEmpty(title)) {
+            titleTextPaint.getTextBounds(title, 0, 1, reuseRectTitleText);
+            titleHeight = reuseRectTitleText.height();
+        }
+        return titleHeight;
+    }
+
+    private float measureSummaryHeight(View v) {
+        float summaryHeight = 0f;
+        String summary = getInternalLayoutParams(v).summary;
+        // TODO Handle case when the v is active
+        if (!TextUtils.isEmpty(summary)) {
+            summaryTextPaint.getTextBounds(summary, 0, 1, reuseRectSummaryText);
+            summaryHeight = reuseRectTitleText.height();
+        }
+        return summaryHeight;
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         for (View v : stepViews) {
@@ -301,8 +393,18 @@ public class VerticalStepper extends ViewGroup {
             canvas.translate(getPaddingBottom(), getPaddingTop());
         }
         for (int i = 0; i < stepViews.size(); i++) {
+            canvas.save();
+            View stepView = stepViews.get(i);
+
             int stepNumber = i + 1;
             drawIcon(canvas, stepNumber);
+
+            canvas.save();
+            canvas.translate(iconDimension + iconMarginRight, 0);
+            drawTitleAndSummary(canvas, stepView);
+            canvas.restore();
+
+            canvas.restore();
         }
         canvas.restore();
     }
@@ -326,6 +428,28 @@ public class VerticalStepper extends ViewGroup {
         float centeredTextY = (iconDimension / 2) + (reuseRectIconText.height() / 2);
 
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
+    }
+
+    private void drawTitleAndSummary(Canvas canvas, View stepView) {
+        String title = getInternalLayoutParams(stepView).title;
+        float titleBaseline = getTitleBaseline(title);
+        canvas.drawText(title, 0, titleBaseline, titleTextPaint);
+        float dyTitle = titleBaseline + titleTextPaint.getFontMetrics().bottom;
+
+        canvas.translate(0, dyTitle);
+
+        String summary = getInternalLayoutParams(stepView).summary;
+        float summaryBaseline = getSummaryBaseline();
+        canvas.drawText(summary, 0, summaryBaseline, summaryTextPaint);
+    }
+
+    private float getTitleBaseline(String title) {
+        titleTextPaint.getTextBounds(title, 0, 1, reuseRectTitleText);
+        return (iconDimension / 2) + (reuseRectTitleText.height() / 2);
+    }
+
+    private float getSummaryBaseline() {
+        return -summaryTextPaint.getFontMetrics().ascent;
     }
 
     private static InternalTouchView getTouchView(View stepView) {
@@ -359,8 +483,19 @@ public class VerticalStepper extends ViewGroup {
     public static class LayoutParams extends MarginLayoutParams {
         InternalTouchView touchView;
 
+        String title;
+        String summary;
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
+
+            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
+            try {
+                title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
+                summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
+            } finally {
+                a.recycle();
+            }
         }
 
         public LayoutParams(int width, int height) {
