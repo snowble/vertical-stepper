@@ -3,12 +3,14 @@ package com.snowble.android.verticalstepper;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -26,8 +28,8 @@ public class VerticalStepper extends ViewGroup {
 
     private List<View> stepViews;
 
-    private int outerHorizontalMargin;
-    private int outerVerticalMargin;
+    private int outerHorizontalPadding;
+    private int outerVerticalPadding;
 
     private int iconDimension;
     private Paint iconBackgroundPaint;
@@ -37,6 +39,7 @@ public class VerticalStepper extends ViewGroup {
 
     private int touchViewHeight;
     private int touchViewBackground;
+    private boolean useSuggestedPadding;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -45,34 +48,75 @@ public class VerticalStepper extends ViewGroup {
 
     public VerticalStepper(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public VerticalStepper(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public VerticalStepper(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+        init(attrs, defStyleAttr, defStyleRes);
     }
 
     private void init() {
+        init(null);
+    }
+
+    private void init(@Nullable AttributeSet attrs) {
+        init(attrs, 0);
+    }
+
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr) {
+        init(attrs, defStyleAttr, 0);
+    }
+
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         setWillNotDraw(false);
 
         context = getContext();
         resources = getResources();
+        initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
 
         initMargins();
         initIconProperties();
         initTouchViewProperties();
     }
 
+    private void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
+                    defStyleAttr, defStyleRes);
+            try {
+                validateSuggestedPaddingUsage(a);
+                useSuggestedPadding = a.getBoolean(R.styleable.VerticalStepper_useSuggestedPadding, false);
+            } finally {
+                a.recycle();
+            }
+        }
+    }
+
+    private void validateSuggestedPaddingUsage(TypedArray a) {
+        if (a.hasValue(R.styleable.VerticalStepper_useSuggestedPadding)
+                && (getPaddingLeft() != 0
+                || getPaddingTop() != 0
+                || getPaddingRight() != 0
+                || getPaddingBottom() != 0)) {
+            throw new IllegalStateException("padding values must be zero when useSuggestedPadding is true.");
+        }
+    }
+
     private void initMargins() {
-        outerHorizontalMargin = resources.getDimensionPixelSize(R.dimen.outer_margin_horizontal);
-        outerVerticalMargin = resources.getDimensionPixelSize(R.dimen.outer_margin_vertical);
+        if (useSuggestedPadding) {
+            outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
+            outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
+        } else {
+            outerHorizontalPadding = 0;
+            outerVerticalPadding = 0;
+        }
     }
 
     private void initIconProperties() {
@@ -181,13 +225,13 @@ public class VerticalStepper extends ViewGroup {
         boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
 
         if (measureWidth) {
-            width = outerHorizontalMargin + getPaddingLeft() + getPaddingRight();
+            width = outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
         } else {
             width = wSizeFromSpec;
         }
 
         if (measureHeight) {
-            height = outerVerticalMargin + getPaddingTop() + getPaddingBottom();
+            height = outerVerticalPadding + getPaddingTop() + getPaddingBottom();
         } else {
             height = hSizeFromSpec;
         }
@@ -243,7 +287,7 @@ public class VerticalStepper extends ViewGroup {
         for (int i = 0; i < stepViews.size(); i++) {
             boolean isFirstChild = i == 0;
             if (isFirstChild) {
-                canvas.translate(outerHorizontalMargin, outerVerticalMargin);
+                canvas.translate(outerHorizontalPadding, outerVerticalPadding);
             }
             int stepNumber = i + 1;
             drawIcon(canvas, stepNumber);
