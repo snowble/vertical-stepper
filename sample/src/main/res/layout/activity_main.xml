@@ -10,6 +10,8 @@
     tools:context="com.snowble.android.verticalstepper.sample.MainActivity">
 
     <View
+        app:step_title="Select an app"
+        app:step_summary="Summary if needed"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
