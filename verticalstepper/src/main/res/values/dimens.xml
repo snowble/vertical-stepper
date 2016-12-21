@@ -7,6 +7,8 @@
 
     <dimen name="outer_padding_horizontal">24dp</dimen>
     <dimen name="outer_padding_vertical">24dp</dimen>
+
+    <dimen name="inner_active_margin_vertical">48dp</dimen>
     <dimen name="inner_inactive_margin_vertical">40dp</dimen>
 
     <dimen name="touch_height">72dp</dimen>
