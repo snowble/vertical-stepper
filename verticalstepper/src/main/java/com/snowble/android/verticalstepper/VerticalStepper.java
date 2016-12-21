@@ -277,8 +277,7 @@ public class VerticalStepper extends ViewGroup {
         }
 
         for (View v : stepViews) {
-            InternalTouchView touchView = getTouchView(v);
-            initTouchView(touchView);
+            initTouchView(v);
         }
     }
 
@@ -293,19 +292,27 @@ public class VerticalStepper extends ViewGroup {
         getInternalLayoutParams(stepView).touchView = new InternalTouchView(context);
     }
 
-    private void initTouchView(InternalTouchView touchView) {
+    private void initTouchView(final View stepView) {
+        InternalTouchView touchView = getTouchView(stepView);
         touchView.setBackgroundResource(touchViewBackground);
         // TODO See if the anonymous inner class can be avoided
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO Make step view visible.
+                toggleActiveState(stepView);
             }
         });
         addView(touchView);
         LayoutParams lp = (LayoutParams) touchView.getLayoutParams();
         lp.width = LayoutParams.MATCH_PARENT;
         lp.height = touchViewHeight;
+    }
+
+    private void toggleActiveState(View stepView) {
+        LayoutParams lp = getInternalLayoutParams(stepView);
+        lp.active = !lp.active;
+        invalidate();
     }
 
     @Override
@@ -588,7 +595,7 @@ public class VerticalStepper extends ViewGroup {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("step_title cannot be empty.");
             }
-            active = true;
+            active = false;
         }
 
         public LayoutParams(int width, int height) {
