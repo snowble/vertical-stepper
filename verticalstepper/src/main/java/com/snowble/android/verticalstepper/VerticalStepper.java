@@ -479,7 +479,7 @@ public class VerticalStepper extends ViewGroup {
         String summary = getInternalLayoutParams(v).summary;
         // TODO Handle case when the v is active
         if (!TextUtils.isEmpty(summary)) {
-            summaryWidth = titleTextPaint.measureText(summary);
+            summaryWidth = summaryTextPaint.measureText(summary);
         }
         return summaryWidth;
     }
