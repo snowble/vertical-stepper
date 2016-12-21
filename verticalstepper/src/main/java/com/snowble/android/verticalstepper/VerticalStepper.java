@@ -349,7 +349,8 @@ public class VerticalStepper extends ViewGroup {
             height = hSizeFromSpec;
         }
 
-        for (View v : stepViews) {
+        for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
+            View v = stepViews.get(i);
             if (measureWidth) {
                 int stepWidth = measureStepWidth(v);
                 width = Math.max(width, stepWidth);
@@ -422,7 +423,7 @@ public class VerticalStepper extends ViewGroup {
         } else {
             canvas.translate(getPaddingBottom(), getPaddingTop());
         }
-        for (int i = 0; i < stepViews.size(); i++) {
+        for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             canvas.save();
 
             View stepView = stepViews.get(i);
