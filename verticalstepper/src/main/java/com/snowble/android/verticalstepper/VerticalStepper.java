@@ -43,8 +43,11 @@ public class VerticalStepper extends ViewGroup {
 
     private TextPaint titleTextPaint;
     private Rect reuseRectTitleText;
+    private float reuseBaselineTitle;
+    private float reuseHeightTitle;
     private TextPaint summaryTextPaint;
-    private Rect reuseRectSummaryText;
+    private float reuseBaselineSummary;
+    private float reuseHeightSummary;
 
     private int touchViewHeight;
     private int touchViewBackground;
@@ -179,15 +182,10 @@ public class VerticalStepper extends ViewGroup {
 
     private void initSummaryProperties() {
         initSummaryTextPaint();
-        initSummaryRectsForReuse();
     }
 
     private void initSummaryTextPaint() {
         summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
-    }
-
-    private void initSummaryRectsForReuse() {
-        reuseRectSummaryText = new Rect();
     }
 
     private void initTouchViewProperties() {
@@ -283,44 +281,40 @@ public class VerticalStepper extends ViewGroup {
         boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
 
         if (measureWidth) {
-            width = outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
+            if (useSuggestedPadding) {
+                width = outerHorizontalPadding;
+            } else {
+                width = getPaddingLeft() + getPaddingRight();
+            }
         } else {
             width = wSizeFromSpec;
         }
 
         if (measureHeight) {
-            height = outerVerticalPadding + getPaddingTop() + getPaddingBottom();
+            if (useSuggestedPadding) {
+                height = outerVerticalPadding;
+            } else {
+                height = getPaddingTop() + getPaddingBottom();
+            }
         } else {
             height = hSizeFromSpec;
         }
 
         for (View v : stepViews) {
-            int stepWidth = 0;
-            int stepHeight = 0;
             if (measureWidth) {
-                stepWidth += iconDimension;
-                stepWidth += iconMarginRight;
-
-                float titleWidth = measureTitleWidth(v);
-                float summaryWidth = measureSummaryWidth(v);
-                stepWidth += Math.max(titleWidth, summaryWidth);
-
+                int stepWidth = measureStepWidth(v);
                 width = Math.max(width, stepWidth);
             }
 
             if (measureHeight) {
-                // TODO Measure internal vertical margin
-
-                int textTotalHeight = (int) (measureTitleHeight(v) + measureSummaryHeight(v));
-                int stepDecoratorHeight = Math.max(iconDimension, textTotalHeight);
-
-                stepHeight += stepDecoratorHeight;
+                int stepHeight = measureStepHeight(v);
                 height += stepHeight;
-                height = Math.max(height, touchViewHeight);
             }
 
             // TODO Measure active child and add that to our measurements
         }
+        width += outerHorizontalPadding;
+        height += outerVerticalPadding;
 
         width = Math.max(width, getSuggestedMinimumWidth());
         height = Math.max(height, getSuggestedMinimumHeight());
@@ -337,43 +331,25 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
-    private float measureTitleWidth(View v) {
-        float titleWidth = 0f;
-        String title = getInternalLayoutParams(v).title;
-        if (!TextUtils.isEmpty(title)) {
-            titleWidth = titleTextPaint.measureText(title);
-        }
-        return titleWidth;
+    private int measureStepHeight(View v) {
+        int stepHeight = 0;
+        measureTitleHeight(getInternalLayoutParams(v).title);
+        measureSummaryHeight();
+        int textTotalHeight = (int) (reuseHeightTitle + reuseHeightSummary);
+        int stepDecoratorHeight = Math.max(iconDimension, textTotalHeight);
+
+        stepHeight += stepDecoratorHeight;
+        return stepHeight;
     }
 
-    private float measureSummaryWidth(View v) {
-        float summaryWidth = 0f;
-        String summary = getInternalLayoutParams(v).summary;
-        if (!TextUtils.isEmpty(summary)) {
-            summaryWidth = titleTextPaint.measureText(summary);
-        }
-        return summaryWidth;
-    }
+    private int measureStepWidth(View v) {
+        int stepWidth = iconDimension;
+        stepWidth += iconMarginRight;
 
-    private float measureTitleHeight(View v) {
-        float titleHeight = 0f;
-        String title = getInternalLayoutParams(v).title;
-        if (!TextUtils.isEmpty(title)) {
-            titleTextPaint.getTextBounds(title, 0, 1, reuseRectTitleText);
-            titleHeight = reuseRectTitleText.height();
-        }
-        return titleHeight;
-    }
-
-    private float measureSummaryHeight(View v) {
-        float summaryHeight = 0f;
-        String summary = getInternalLayoutParams(v).summary;
-        // TODO Handle case when the v is active
-        if (!TextUtils.isEmpty(summary)) {
-            summaryTextPaint.getTextBounds(summary, 0, 1, reuseRectSummaryText);
-            summaryHeight = reuseRectTitleText.height();
-        }
-        return summaryHeight;
+        float titleWidth = measureTitleWidth(v);
+        float summaryWidth = measureSummaryWidth(v);
+        stepWidth += Math.max(titleWidth, summaryWidth);
+        return stepWidth;
     }
 
     @Override
@@ -395,14 +371,16 @@ public class VerticalStepper extends ViewGroup {
         }
         for (int i = 0; i < stepViews.size(); i++) {
             canvas.save();
+
             View stepView = stepViews.get(i);
 
             int stepNumber = i + 1;
+            canvas.save();
             drawIcon(canvas, stepNumber);
+            canvas.restore();
 
             canvas.save();
-            canvas.translate(iconDimension + iconMarginRight, 0);
-            drawTitleAndSummary(canvas, stepView);
+            drawText(canvas, getInternalLayoutParams(stepView));
             canvas.restore();
 
             canvas.restore();
@@ -431,22 +409,51 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
-    private void drawTitleAndSummary(Canvas canvas, View stepView) {
-        String title = getInternalLayoutParams(stepView).title;
-        float titleBaseline = getTitleBaseline(title);
-        canvas.drawText(title, 0, titleBaseline, titleTextPaint);
-        float dyTitle = titleBaseline + titleTextPaint.getFontMetrics().bottom;
+    private void drawText(Canvas canvas, LayoutParams lp) {
+        measureTitleHeight(lp.title);
+        measureSummaryHeight();
 
-        canvas.translate(0, dyTitle);
+        canvas.translate(iconDimension + iconMarginRight, 0);
+        canvas.drawText(lp.title, 0, reuseBaselineTitle, titleTextPaint);
+        if (!TextUtils.isEmpty(lp.summary)) {
+            canvas.translate(0, reuseHeightTitle);
+            canvas.drawText(lp.summary, 0, reuseBaselineSummary, summaryTextPaint);
+        }
+        // TODO Handle optional case
+    }
 
-        String summary = getInternalLayoutParams(stepView).summary;
-        float summaryBaseline = getSummaryBaseline();
-        canvas.drawText(summary, 0, summaryBaseline, summaryTextPaint);
+    private float measureTitleWidth(View v) {
+        float titleWidth = 0f;
+        String title = getInternalLayoutParams(v).title;
+        if (!TextUtils.isEmpty(title)) {
+            titleWidth = titleTextPaint.measureText(title);
+        }
+        return titleWidth;
+    }
+
+    private float measureSummaryWidth(View v) {
+        float summaryWidth = 0f;
+        String summary = getInternalLayoutParams(v).summary;
+        // TODO Handle case when the v is active
+        if (!TextUtils.isEmpty(summary)) {
+            summaryWidth = titleTextPaint.measureText(summary);
+        }
+        return summaryWidth;
+    }
+
+    private void measureTitleHeight(String title) {
+        reuseBaselineTitle = getTitleBaseline(title);
+        reuseHeightTitle = reuseBaselineTitle + titleTextPaint.getFontMetrics().bottom;
     }
 
     private float getTitleBaseline(String title) {
         titleTextPaint.getTextBounds(title, 0, 1, reuseRectTitleText);
         return (iconDimension / 2) + (reuseRectTitleText.height() / 2);
+    }
+
+    private void measureSummaryHeight() {
+        reuseBaselineSummary = getSummaryBaseline();
+        reuseHeightSummary = reuseBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
     }
 
     private float getSummaryBaseline() {
