@@ -359,8 +359,10 @@ public class VerticalStepper extends ViewGroup {
             if (measureHeight) {
                 int stepHeight = measureStepHeight(v);
 
-                // TODO Only add margin if there are more children.
-                stepHeight += getInnerVerticalMargin(getInternalLayoutParams(v));
+                boolean hasMoreSteps = i + 1 < stepViewsSize;
+                if (hasMoreSteps) {
+                    stepHeight += getInnerVerticalMargin(getInternalLayoutParams(v));
+                }
                 height += stepHeight;
             }
 
@@ -426,11 +428,11 @@ public class VerticalStepper extends ViewGroup {
         for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             canvas.save();
 
+            int stepNumber = i + 1;
             View stepView = stepViews.get(i);
             LayoutParams lp = getInternalLayoutParams(stepView);
 
             canvas.save();
-            int stepNumber = i + 1;
             drawIcon(canvas, lp, stepNumber);
             canvas.restore();
 
@@ -438,10 +440,12 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
-            // TODO Only draw this if there's another stepview
-            canvas.save();
-            drawConnector(canvas, lp);
-            canvas.restore();
+            boolean hasMoreSteps = stepNumber < stepViewsSize;
+            if (hasMoreSteps) {
+                canvas.save();
+                drawConnector(canvas, lp);
+                canvas.restore();
+            }
 
             canvas.restore();
         }
