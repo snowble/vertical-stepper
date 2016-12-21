@@ -33,9 +33,11 @@ public class VerticalStepper extends ViewGroup {
     private boolean useSuggestedPadding;
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
+    private int innerInactiveVerticalMargin;
 
     private int iconDimension;
     private int iconMarginRight;
+    private int iconMarginVertical;
     private Paint iconBackgroundPaint;
     private RectF reuseRectIconBackground;
     private TextPaint iconTextPaint;
@@ -51,6 +53,9 @@ public class VerticalStepper extends ViewGroup {
 
     private int touchViewHeight;
     private int touchViewBackground;
+
+    private int connectorWidth;
+    private Paint connectorPaint;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -97,6 +102,7 @@ public class VerticalStepper extends ViewGroup {
         initTitleProperties();
         initSummaryProperties();
         initTouchViewProperties();
+        initConnectorProperties();
     }
 
     private void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -130,6 +136,7 @@ public class VerticalStepper extends ViewGroup {
             outerHorizontalPadding = 0;
             outerVerticalPadding = 0;
         }
+        innerInactiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_inactive_margin_vertical);
     }
 
     private void initIconProperties() {
@@ -146,6 +153,7 @@ public class VerticalStepper extends ViewGroup {
 
     private void initIconMargins() {
         iconMarginRight = resources.getDimensionPixelSize(R.dimen.icon_margin_right);
+        iconMarginVertical = resources.getDimensionPixelSize(R.dimen.icon_margin_vertical);
     }
 
     private void initIconBackground() {
@@ -214,6 +222,20 @@ public class VerticalStepper extends ViewGroup {
         return resolvedAttributeData;
     }
 
+    private void initConnectorProperties() {
+        initConnectorDimension();
+        initConnectorPaint();
+    }
+
+    private void initConnectorDimension() {
+        connectorWidth = resources.getDimensionPixelSize(R.dimen.connector_width);
+    }
+
+    private void initConnectorPaint() {
+        connectorPaint = new Paint();
+        setPaintColor(connectorPaint, R.color.connector_color);
+        connectorPaint.setAntiAlias(true);
+        connectorPaint.setStrokeWidth(connectorWidth);
     }
 
     private void setPaintColor(Paint paint, int colorRes) {
@@ -310,6 +332,8 @@ public class VerticalStepper extends ViewGroup {
 
             if (measureHeight) {
                 int stepHeight = measureStepHeight(v);
+                // TODO Only add margin if there are more children.
+                stepHeight += innerInactiveVerticalMargin;
                 height += stepHeight;
             }
 
@@ -385,6 +409,11 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, getInternalLayoutParams(stepView));
             canvas.restore();
 
+            // TODO Only draw this if there's another stepview
+            canvas.save();
+            drawConnector(canvas);
+            canvas.restore();
+
             canvas.restore();
         }
         canvas.restore();
@@ -422,6 +451,13 @@ public class VerticalStepper extends ViewGroup {
             canvas.drawText(lp.summary, 0, reuseBaselineSummary, summaryTextPaint);
         }
         // TODO Handle optional case
+    }
+
+    private void drawConnector(Canvas canvas) {
+        canvas.translate((iconDimension - connectorWidth) / 2, 0);
+        float startY = iconDimension + iconMarginVertical;
+        float stopY = reuseHeightTitle + reuseHeightSummary + innerInactiveVerticalMargin - iconMarginVertical;
+        canvas.drawLine(0, startY, 0, stopY, connectorPaint);
     }
 
     private float measureTitleWidth(View v) {
