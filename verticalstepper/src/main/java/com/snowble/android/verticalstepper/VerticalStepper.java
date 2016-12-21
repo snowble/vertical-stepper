@@ -384,6 +384,7 @@ public class VerticalStepper extends ViewGroup {
             // TODO Update l,t,r,b based on translations
             InternalTouchView touchView = getTouchView(v);
             touchView.layout(left, top, right - left, top + touchView.getMeasuredHeight());
+            // TODO Layout active children
         }
     }
 
@@ -456,8 +457,12 @@ public class VerticalStepper extends ViewGroup {
     private void drawConnector(Canvas canvas) {
         canvas.translate((iconDimension - connectorWidth) / 2, 0);
         float startY = iconDimension + iconMarginVertical;
-        float stopY = reuseHeightTitle + reuseHeightSummary + innerInactiveVerticalMargin - iconMarginVertical;
+        float stopY = getInactiveStepHeightIncludingVerticalMargin() - iconMarginVertical;
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
+    }
+
+    private float getInactiveStepHeightIncludingVerticalMargin() {
+        return reuseHeightTitle + reuseHeightSummary + innerInactiveVerticalMargin;
     }
 
     private float measureTitleWidth(View v) {
