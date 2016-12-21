@@ -33,17 +33,21 @@ public class VerticalStepper extends ViewGroup {
     private boolean useSuggestedPadding;
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
+
     private int innerInactiveVerticalMargin;
+    private int innerActiveVerticalMargin;
 
     private int iconDimension;
     private int iconMarginRight;
     private int iconMarginVertical;
-    private Paint iconBackgroundPaint;
+    private Paint iconActiveBackgroundPaint;
+    private Paint iconInactiveBackgroundPaint;
     private RectF reuseRectIconBackground;
     private TextPaint iconTextPaint;
     private Rect reuseRectIconText;
 
-    private TextPaint titleTextPaint;
+    private TextPaint titleActiveTextPaint;
+    private TextPaint titleInactiveTextPaint;
     private Rect reuseRectTitleText;
     private float reuseBaselineTitle;
     private float reuseHeightTitle;
@@ -137,6 +141,7 @@ public class VerticalStepper extends ViewGroup {
             outerVerticalPadding = 0;
         }
         innerInactiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_inactive_margin_vertical);
+        innerActiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_active_margin_vertical);
     }
 
     private void initIconProperties() {
@@ -157,12 +162,23 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconBackground() {
+        initActiveIconBackground();
+        initInactiveIconBackground();
+    }
+
+    private void initActiveIconBackground() {
         //noinspection deprecation
-        int defaultColor = resources.getColor(R.color.bg_icon);
+        int defaultColor = resources.getColor(R.color.bg_active_icon);
         int iconBackground = getResolvedAttributeData(R.attr.colorPrimary, defaultColor, true);
-        iconBackgroundPaint = new Paint();
-        iconBackgroundPaint.setColor(iconBackground);
-        iconBackgroundPaint.setAntiAlias(true);
+        iconActiveBackgroundPaint = new Paint();
+        iconActiveBackgroundPaint.setColor(iconBackground);
+        iconActiveBackgroundPaint.setAntiAlias(true);
+    }
+
+    private void initInactiveIconBackground() {
+        iconInactiveBackgroundPaint = new Paint();
+        setPaintColor(iconInactiveBackgroundPaint, R.color.bg_inactive_icon);
+        iconInactiveBackgroundPaint.setAntiAlias(true);
     }
 
     private void initIconTextPaint() {
@@ -180,8 +196,10 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initTitleTextPaint() {
-        titleTextPaint = createTextPaint(R.color.title_color, R.dimen.title_font_size);
-        titleTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        titleActiveTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
+        titleActiveTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+
+        titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
     }
 
     private void initTitleReuseObjects() {
@@ -332,8 +350,9 @@ public class VerticalStepper extends ViewGroup {
 
             if (measureHeight) {
                 int stepHeight = measureStepHeight(v);
+
                 // TODO Only add margin if there are more children.
-                stepHeight += innerInactiveVerticalMargin;
+                stepHeight += getInnerVerticalMargin(getInternalLayoutParams(v));
                 height += stepHeight;
             }
 
@@ -369,7 +388,7 @@ public class VerticalStepper extends ViewGroup {
 
     private int measureStepHeight(View v) {
         int stepHeight = 0;
-        measureTitleHeight(getInternalLayoutParams(v).title);
+        measureTitleHeight(getInternalLayoutParams(v));
         measureSummaryHeight();
         int textTotalHeight = (int) (reuseHeightTitle + reuseHeightSummary);
         int stepDecoratorHeight = Math.max(iconDimension, textTotalHeight);
@@ -400,19 +419,20 @@ public class VerticalStepper extends ViewGroup {
             canvas.save();
 
             View stepView = stepViews.get(i);
+            LayoutParams lp = getInternalLayoutParams(stepView);
 
-            int stepNumber = i + 1;
             canvas.save();
-            drawIcon(canvas, stepNumber);
+            int stepNumber = i + 1;
+            drawIcon(canvas, lp, stepNumber);
             canvas.restore();
 
             canvas.save();
-            drawText(canvas, getInternalLayoutParams(stepView));
+            drawText(canvas, lp);
             canvas.restore();
 
             // TODO Only draw this if there's another stepview
             canvas.save();
-            drawConnector(canvas);
+            drawConnector(canvas, lp);
             canvas.restore();
 
             canvas.restore();
@@ -420,13 +440,13 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private void drawIcon(Canvas canvas, int stepNumber) {
-        drawIconBackground(canvas);
+    private void drawIcon(Canvas canvas, LayoutParams lp, int stepNumber) {
+        drawIconBackground(canvas, lp);
         drawIconText(canvas, stepNumber);
     }
 
-    private void drawIconBackground(Canvas canvas) {
-        canvas.drawArc(reuseRectIconBackground, 0f, 360f, true, iconBackgroundPaint);
+    private void drawIconBackground(Canvas canvas, LayoutParams lp) {
+        canvas.drawArc(reuseRectIconBackground, 0f, 360f, true, getIconColor(lp));
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -442,56 +462,61 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, LayoutParams lp) {
-        measureTitleHeight(lp.title);
+        measureTitleHeight(lp);
         measureSummaryHeight();
 
         canvas.translate(iconDimension + iconMarginRight, 0);
-        canvas.drawText(lp.title, 0, reuseBaselineTitle, titleTextPaint);
-        if (!TextUtils.isEmpty(lp.summary)) {
+        TextPaint paint = getTitleTextPaint(lp);
+        canvas.drawText(lp.title, 0, reuseBaselineTitle, paint);
+        if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
             canvas.translate(0, reuseHeightTitle);
             canvas.drawText(lp.summary, 0, reuseBaselineSummary, summaryTextPaint);
         }
         // TODO Handle optional case
     }
 
-    private void drawConnector(Canvas canvas) {
+    private void drawConnector(Canvas canvas, LayoutParams lp) {
         canvas.translate((iconDimension - connectorWidth) / 2, 0);
         float startY = iconDimension + iconMarginVertical;
-        float stopY = getInactiveStepHeightIncludingVerticalMargin() - iconMarginVertical;
+        float stopY = getInactiveStepHeightIncludingVerticalMargin(lp) - iconMarginVertical;
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
     }
 
-    private float getInactiveStepHeightIncludingVerticalMargin() {
-        return reuseHeightTitle + reuseHeightSummary + innerInactiveVerticalMargin;
+    private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
+        return reuseHeightTitle + reuseHeightSummary + getInnerVerticalMargin(lp);
     }
 
     private float measureTitleWidth(View v) {
         float titleWidth = 0f;
-        String title = getInternalLayoutParams(v).title;
-        if (!TextUtils.isEmpty(title)) {
-            titleWidth = titleTextPaint.measureText(title);
+        LayoutParams lp = getInternalLayoutParams(v);
+        if (!TextUtils.isEmpty(lp.title)) {
+            titleWidth = getTitleTextPaint(lp).measureText(lp.title);
         }
         return titleWidth;
     }
 
+    private void measureTitleHeight(LayoutParams lp) {
+        reuseBaselineTitle = getTitleBaseline(lp);
+        reuseHeightTitle = reuseBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
+    }
+
+    private float getTitleBaseline(LayoutParams lp) {
+        getTitleTextPaint(lp).getTextBounds(lp.title, 0, 1, reuseRectTitleText);
+        return (iconDimension / 2) + (reuseRectTitleText.height() / 2);
+    }
+
+    private TextPaint getTitleTextPaint(LayoutParams lp) {
+        return lp.active ? titleActiveTextPaint : titleInactiveTextPaint;
+    }
+
     private float measureSummaryWidth(View v) {
         float summaryWidth = 0f;
-        String summary = getInternalLayoutParams(v).summary;
-        // TODO Handle case when the v is active
-        if (!TextUtils.isEmpty(summary)) {
+        LayoutParams lp = getInternalLayoutParams(v);
+        String summary = lp.summary;
+        if (!TextUtils.isEmpty(summary) && !lp.active) {
             summaryWidth = summaryTextPaint.measureText(summary);
         }
         return summaryWidth;
-    }
-
-    private void measureTitleHeight(String title) {
-        reuseBaselineTitle = getTitleBaseline(title);
-        reuseHeightTitle = reuseBaselineTitle + titleTextPaint.getFontMetrics().bottom;
-    }
-
-    private float getTitleBaseline(String title) {
-        titleTextPaint.getTextBounds(title, 0, 1, reuseRectTitleText);
-        return (iconDimension / 2) + (reuseRectTitleText.height() / 2);
     }
 
     private void measureSummaryHeight() {
@@ -503,6 +528,13 @@ public class VerticalStepper extends ViewGroup {
         return -summaryTextPaint.getFontMetrics().ascent;
     }
 
+    private int getInnerVerticalMargin(LayoutParams lp) {
+        return lp.active ? innerActiveVerticalMargin : innerInactiveVerticalMargin;
+    }
+
+    private Paint getIconColor(LayoutParams lp) {
+        return lp.active ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
+    }
     private static InternalTouchView getTouchView(View stepView) {
         return getInternalLayoutParams(stepView).touchView;
     }
@@ -534,10 +566,13 @@ public class VerticalStepper extends ViewGroup {
     public static class LayoutParams extends MarginLayoutParams {
         InternalTouchView touchView;
 
+        @SuppressWarnings("NullableProblems")
         @NonNull
         String title;
         @Nullable
         String summary;
+
+        boolean active;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -553,6 +588,7 @@ public class VerticalStepper extends ViewGroup {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("step_title cannot be empty.");
             }
+            active = true;
         }
 
         public LayoutParams(int width, int height) {
