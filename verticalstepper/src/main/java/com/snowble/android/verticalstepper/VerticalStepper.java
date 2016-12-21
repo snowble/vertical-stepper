@@ -137,7 +137,7 @@ public class VerticalStepper extends ViewGroup {
         initIconMargins();
         initIconBackground();
         initIconTextPaint();
-        initIconRectsForReuse();
+        initIconReuseObjects();
     }
 
     private void initIconDimension() {
@@ -161,14 +161,14 @@ public class VerticalStepper extends ViewGroup {
         iconTextPaint = createTextPaint(R.color.white, R.dimen.icon_font_size);
     }
 
-    private void initIconRectsForReuse() {
+    private void initIconReuseObjects() {
         reuseRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
         reuseRectIconText = new Rect();
     }
 
     private void initTitleProperties() {
         initTitleTextPaint();
-        initTitleRectsForReuse();
+        initTitleReuseObjects();
     }
 
     private void initTitleTextPaint() {
@@ -176,7 +176,7 @@ public class VerticalStepper extends ViewGroup {
         titleTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
     }
 
-    private void initTitleRectsForReuse() {
+    private void initTitleReuseObjects() {
         reuseRectTitleText = new Rect();
     }
 
