@@ -357,6 +357,16 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
+    private int measureStepWidth(View v) {
+        int stepWidth = iconDimension;
+        stepWidth += iconMarginRight;
+
+        float titleWidth = measureTitleWidth(v);
+        float summaryWidth = measureSummaryWidth(v);
+        stepWidth += Math.max(titleWidth, summaryWidth);
+        return stepWidth;
+    }
+
     private int measureStepHeight(View v) {
         int stepHeight = 0;
         measureTitleHeight(getInternalLayoutParams(v).title);
@@ -366,16 +376,6 @@ public class VerticalStepper extends ViewGroup {
 
         stepHeight += stepDecoratorHeight;
         return stepHeight;
-    }
-
-    private int measureStepWidth(View v) {
-        int stepWidth = iconDimension;
-        stepWidth += iconMarginRight;
-
-        float titleWidth = measureTitleWidth(v);
-        float summaryWidth = measureSummaryWidth(v);
-        stepWidth += Math.max(titleWidth, summaryWidth);
-        return stepWidth;
     }
 
     @Override
