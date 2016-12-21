@@ -188,6 +188,15 @@ public class VerticalStepper extends ViewGroup {
         summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
     }
 
+    private TextPaint createTextPaint(int colorRes, int fontDimenRes) {
+        TextPaint textPaint = new TextPaint();
+        setPaintColor(textPaint, colorRes);
+        textPaint.setAntiAlias(true);
+        int titleTextSize = resources.getDimensionPixelSize(fontDimenRes);
+        textPaint.setTextSize(titleTextSize);
+        return textPaint;
+    }
+
     private void initTouchViewProperties() {
         touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
         touchViewBackground = getResolvedAttributeData(R.attr.selectableItemBackground, 0, false);
@@ -205,16 +214,9 @@ public class VerticalStepper extends ViewGroup {
         return resolvedAttributeData;
     }
 
-    private TextPaint createTextPaint(int colorRes, int fontDimenRes) {
-        TextPaint textPaint = new TextPaint();
-        setTextColor(textPaint, colorRes);
-        textPaint.setAntiAlias(true);
-        int titleTextSize = resources.getDimensionPixelSize(fontDimenRes);
-        textPaint.setTextSize(titleTextSize);
-        return textPaint;
     }
 
-    private void setTextColor(TextPaint paint, int colorRes) {
+    private void setPaintColor(Paint paint, int colorRes) {
         int color;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             color = resources.getColor(colorRes, context.getTheme());
