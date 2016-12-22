@@ -28,7 +28,7 @@ public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
 
-    private List<View> stepViews;
+    private List<View> innerViews;
 
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
@@ -241,35 +241,35 @@ public class VerticalStepper extends ViewGroup {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         int childCount = getChildCount();
-        stepViews = new ArrayList<>(childCount);
+        innerViews = new ArrayList<>(childCount);
         for (int i = 0; i < childCount; i++) {
-            initStepView(getChildAt(i));
+            initInnerView(getChildAt(i));
         }
 
-        for (View v : stepViews) {
+        for (View v : innerViews) {
             initTouchView(v);
         }
     }
 
-    private void initStepView(final View stepView) {
-        stepView.setVisibility(View.GONE);
-        stepViews.add(stepView);
+    private void initInnerView(final View innerView) {
+        innerView.setVisibility(View.GONE);
+        innerViews.add(innerView);
 
-        createAndAttachTouchView(stepView);
+        createAndAttachTouchView(innerView);
     }
 
-    private void createAndAttachTouchView(final View stepView) {
-        getInternalLayoutParams(stepView).touchView = new InternalTouchView(context);
+    private void createAndAttachTouchView(View innerView) {
+        getInternalLayoutParams(innerView).touchView = new InternalTouchView(context);
     }
 
-    private void initTouchView(final View stepView) {
-        InternalTouchView touchView = getTouchView(stepView);
+    private void initTouchView(final View innerView) {
+        InternalTouchView touchView = getTouchView(innerView);
         touchView.setBackgroundResource(touchViewBackground);
         // TODO See if the anonymous inner class can be avoided
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleStep(stepView);
+                toggleStepActiveState(innerView);
             }
         });
         addView(touchView);
@@ -278,15 +278,15 @@ public class VerticalStepper extends ViewGroup {
         lp.height = touchViewHeight;
     }
 
-    private void toggleStep(View stepView) {
-        LayoutParams lp = getInternalLayoutParams(stepView);
+    private void toggleStepActiveState(View innerView) {
+        LayoutParams lp = getInternalLayoutParams(innerView);
         lp.active = !lp.active;
 
-        int visibility = stepView.getVisibility();
+        int visibility = innerView.getVisibility();
         if (visibility == VISIBLE) {
-            stepView.setVisibility(GONE);
+            innerView.setVisibility(GONE);
         } else {
-            stepView.setVisibility(VISIBLE);
+            innerView.setVisibility(VISIBLE);
         }
     }
 
@@ -317,8 +317,8 @@ public class VerticalStepper extends ViewGroup {
         }
 
         int widthWithoutPadding = 0;
-        for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
-            View v = stepViews.get(i);
+        for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
+            View v = innerViews.get(i);
             if (measureWidth) {
                 int stepWidth = measureStepWidth(v);
                 widthWithoutPadding = Math.max(widthWithoutPadding, stepWidth);
@@ -327,7 +327,7 @@ public class VerticalStepper extends ViewGroup {
             if (measureHeight) {
                 int stepHeight = measureStepHeight(v);
 
-                boolean hasMoreSteps = i + 1 < stepViewsSize;
+                boolean hasMoreSteps = i + 1 < innerViewsSize;
                 if (hasMoreSteps) {
                     stepHeight += getInnerVerticalMargin(getInternalLayoutParams(v));
                 }
@@ -344,7 +344,7 @@ public class VerticalStepper extends ViewGroup {
         width = resolveSize(width, widthMeasureSpec);
         height = resolveSize(height, heightMeasureSpec);
 
-        for (View v : stepViews) {
+        for (View v : innerViews) {
             int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
             int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
             getTouchView(v).measure(wms, hms);
@@ -376,7 +376,7 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        for (View v : stepViews) {
+        for (View v : innerViews) {
             // TODO Update l,t,r,b based on translations
             InternalTouchView touchView = getTouchView(v);
             touchView.layout(left, top, right - left, top + touchView.getMeasuredHeight());
@@ -388,12 +388,12 @@ public class VerticalStepper extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         canvas.save();
         canvas.translate(outerHorizontalPadding + getPaddingLeft(), outerVerticalPadding + getPaddingTop());
-        for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
+        for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             canvas.save();
 
             int stepNumber = i + 1;
-            View stepView = stepViews.get(i);
-            LayoutParams lp = getInternalLayoutParams(stepView);
+            View innerView = innerViews.get(i);
+            LayoutParams lp = getInternalLayoutParams(innerView);
 
             canvas.save();
             drawIcon(canvas, lp, stepNumber);
@@ -403,7 +403,7 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
-            boolean hasMoreSteps = stepNumber < stepViewsSize;
+            boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
                 drawConnector(canvas, lp);
@@ -437,14 +437,16 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, LayoutParams lp) {
-        measureTitleHeight(lp);
-        measureSummaryHeight();
-
         canvas.translate(iconDimension + iconMarginRight, 0);
+
+        measureTitleHeight(lp);
         TextPaint paint = getTitleTextPaint(lp);
         canvas.drawText(lp.title, 0, reuseBaselineTitle, paint);
+
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
             canvas.translate(0, reuseHeightTitle);
+
+            measureSummaryHeight();
             canvas.drawText(lp.summary, 0, reuseBaselineSummary, summaryTextPaint);
         }
         // TODO Handle optional case
@@ -510,12 +512,12 @@ public class VerticalStepper extends ViewGroup {
     private Paint getIconColor(LayoutParams lp) {
         return lp.active ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
     }
-    private static InternalTouchView getTouchView(View stepView) {
-        return getInternalLayoutParams(stepView).touchView;
+    private static InternalTouchView getTouchView(View innerView) {
+        return getInternalLayoutParams(innerView).touchView;
     }
 
-    private static LayoutParams getInternalLayoutParams(View stepView) {
-        return (LayoutParams) stepView.getLayoutParams();
+    private static LayoutParams getInternalLayoutParams(View innerView) {
+        return (LayoutParams) innerView.getLayoutParams();
     }
 
     @Override
