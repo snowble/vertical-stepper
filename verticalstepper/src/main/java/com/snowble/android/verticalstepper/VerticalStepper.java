@@ -369,9 +369,7 @@ public class VerticalStepper extends ViewGroup {
         height = resolveSize(height, heightMeasureSpec);
 
         for (View v : innerViews) {
-            int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-            int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
-            getTouchView(v).measure(wms, hms);
+            measureTouchView(width, v);
         }
 
         setMeasuredDimension(width, height);
@@ -393,6 +391,12 @@ public class VerticalStepper extends ViewGroup {
         measureSummaryHeight();
         int textTotalHeight = (int) (reuseHeightTitle + reuseHeightSummary);
         return Math.max(iconDimension, textTotalHeight);
+    }
+
+    private void measureTouchView(int width, View v) {
+        int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+        int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
+        getTouchView(v).measure(wms, hms);
     }
 
     @Override
