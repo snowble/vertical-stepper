@@ -354,11 +354,12 @@ public class VerticalStepper extends ViewGroup {
             height = hSizeFromSpec;
         }
 
+        int widthWithoutPadding = 0;
         for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             View v = stepViews.get(i);
             if (measureWidth) {
                 int stepWidth = measureStepWidth(v);
-                width = Math.max(width, stepWidth);
+                widthWithoutPadding = Math.max(widthWithoutPadding, stepWidth);
             }
 
             if (measureHeight) {
@@ -373,6 +374,7 @@ public class VerticalStepper extends ViewGroup {
 
             // TODO Measure active child and add that to our measurements
         }
+        width += widthWithoutPadding;
 
         width = Math.max(width, getSuggestedMinimumWidth());
         height = Math.max(height, getSuggestedMinimumHeight());
