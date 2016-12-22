@@ -336,7 +336,7 @@ public class VerticalStepper extends ViewGroup {
 
         if (measureWidth) {
             if (useSuggestedPadding) {
-                width = outerHorizontalPadding;
+                width = outerHorizontalPadding + outerHorizontalPadding;
             } else {
                 width = getPaddingLeft() + getPaddingRight();
             }
@@ -346,7 +346,7 @@ public class VerticalStepper extends ViewGroup {
 
         if (measureHeight) {
             if (useSuggestedPadding) {
-                height = outerVerticalPadding;
+                height = outerVerticalPadding + outerVerticalPadding;
             } else {
                 height = getPaddingTop() + getPaddingBottom();
             }
@@ -373,8 +373,6 @@ public class VerticalStepper extends ViewGroup {
 
             // TODO Measure active child and add that to our measurements
         }
-        width += outerHorizontalPadding;
-        height += outerVerticalPadding;
 
         width = Math.max(width, getSuggestedMinimumWidth());
         height = Math.max(height, getSuggestedMinimumHeight());
