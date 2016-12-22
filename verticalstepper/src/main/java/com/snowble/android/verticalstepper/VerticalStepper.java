@@ -428,7 +428,7 @@ public class VerticalStepper extends ViewGroup {
         if (useSuggestedPadding) {
             canvas.translate(outerHorizontalPadding, outerVerticalPadding);
         } else {
-            canvas.translate(getPaddingBottom(), getPaddingTop());
+            canvas.translate(getPaddingLeft(), getPaddingTop());
         }
         for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             canvas.save();
