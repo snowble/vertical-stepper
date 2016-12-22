@@ -30,7 +30,6 @@ public class VerticalStepper extends ViewGroup {
 
     private List<View> stepViews;
 
-    private boolean useSuggestedPadding;
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
 
@@ -100,7 +99,6 @@ public class VerticalStepper extends ViewGroup {
         context = getContext();
         resources = getResources();
 
-        initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
         initIconProperties();
         initTitleProperties();
@@ -109,37 +107,9 @@ public class VerticalStepper extends ViewGroup {
         initConnectorProperties();
     }
 
-    private void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
-                    defStyleAttr, defStyleRes);
-            try {
-                validateSuggestedPaddingUsage(a);
-                useSuggestedPadding = a.getBoolean(R.styleable.VerticalStepper_useSuggestedPadding, false);
-            } finally {
-                a.recycle();
-            }
-        }
-    }
-
-    private void validateSuggestedPaddingUsage(TypedArray a) {
-        if (a.hasValue(R.styleable.VerticalStepper_useSuggestedPadding)
-                && (getPaddingLeft() != 0
-                || getPaddingTop() != 0
-                || getPaddingRight() != 0
-                || getPaddingBottom() != 0)) {
-            throw new IllegalStateException("padding values must be zero when useSuggestedPadding is true.");
-        }
-    }
-
     private void initPadding() {
-        if (useSuggestedPadding) {
-            outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
-            outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
-        } else {
-            outerHorizontalPadding = 0;
-            outerVerticalPadding = 0;
-        }
+        outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
+        outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
         innerInactiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_inactive_margin_vertical);
         innerActiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_active_margin_vertical);
     }
@@ -335,21 +305,13 @@ public class VerticalStepper extends ViewGroup {
         boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
 
         if (measureWidth) {
-            if (useSuggestedPadding) {
-                width = outerHorizontalPadding + outerHorizontalPadding;
-            } else {
-                width = getPaddingLeft() + getPaddingRight();
-            }
+            width = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
         } else {
             width = wSizeFromSpec;
         }
 
         if (measureHeight) {
-            if (useSuggestedPadding) {
-                height = outerVerticalPadding + outerVerticalPadding;
-            } else {
-                height = getPaddingTop() + getPaddingBottom();
-            }
+            height = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
         } else {
             height = hSizeFromSpec;
         }
@@ -425,11 +387,7 @@ public class VerticalStepper extends ViewGroup {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.save();
-        if (useSuggestedPadding) {
-            canvas.translate(outerHorizontalPadding, outerVerticalPadding);
-        } else {
-            canvas.translate(getPaddingLeft(), getPaddingTop());
-        }
+        canvas.translate(outerHorizontalPadding + getPaddingLeft(), outerVerticalPadding + getPaddingTop());
         for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             canvas.save();
 
