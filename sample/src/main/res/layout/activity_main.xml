@@ -5,13 +5,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:layout_height="wrap_content"
     tools:context="com.snowble.android.verticalstepper.sample.MainActivity">
 
-    <View
+    <TextView
         app:step_title="Select an app"
         app:step_summary="Summary if needed"
+        android:text="Here's some text"
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
