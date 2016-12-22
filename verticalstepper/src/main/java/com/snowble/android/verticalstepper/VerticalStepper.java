@@ -530,7 +530,7 @@ public class VerticalStepper extends ViewGroup {
         float summaryWidth = 0f;
         LayoutParams lp = getInternalLayoutParams(v);
         String summary = lp.summary;
-        if (!TextUtils.isEmpty(summary) && !lp.active) {
+        if (!TextUtils.isEmpty(summary)) {
             summaryWidth = summaryTextPaint.measureText(summary);
         }
         return summaryWidth;
