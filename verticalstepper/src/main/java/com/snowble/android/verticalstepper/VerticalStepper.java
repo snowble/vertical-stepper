@@ -53,6 +53,7 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint summaryTextPaint;
     private float reuseBaselineSummary;
     private float reuseHeightSummary;
+    private int titleMarginBottom;
 
     private int touchViewHeight;
     private int touchViewBackground;
@@ -161,8 +162,13 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initTitleProperties() {
+        initTitleDimensions();
         initTitleTextPaint();
         initTitleReuseObjects();
+    }
+
+    private void initTitleDimensions() {
+        titleMarginBottom = resources.getDimensionPixelSize(R.dimen.title_margin_bottom);
     }
 
     private void initTitleTextPaint() {
@@ -301,40 +307,58 @@ public class VerticalStepper extends ViewGroup {
         int width;
         int height;
 
+        int horizontalPadding = 0;
+        int verticalPadding = 0;
+
         boolean measureWidth = wModeFromSpec != MeasureSpec.EXACTLY;
         boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
 
         if (measureWidth) {
-            width = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
+            horizontalPadding = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
+            width = horizontalPadding;
         } else {
             width = wSizeFromSpec;
         }
 
         if (measureHeight) {
-            height = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
+            verticalPadding = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
+            height = verticalPadding;
         } else {
             height = hSizeFromSpec;
         }
 
         int widthWithoutPadding = 0;
+        int innerViewPaddingLeft = iconDimension + iconMarginRight;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View v = innerViews.get(i);
+            LayoutParams lp = getInternalLayoutParams(v);
+            int innerWms;
+            int innerHms;
             if (measureWidth) {
-                int stepWidth = measureStepWidth(v);
-                widthWithoutPadding = Math.max(widthWithoutPadding, stepWidth);
+                int stepDecoratorWidth = measureStepDecoratorWidth(v);
+                widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
             }
+            innerWms = getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewPaddingLeft, lp.width);
 
             if (measureHeight) {
-                int stepHeight = measureStepHeight(v);
-
+                int stepDecoratorHeight = measureStepDecoratorHeight(v);
+                height += stepDecoratorHeight;
+            }
+            innerHms = getChildMeasureSpec(heightMeasureSpec, height, lp.height);
+            if (measureHeight) {
                 boolean hasMoreSteps = i + 1 < innerViewsSize;
                 if (hasMoreSteps) {
-                    stepHeight += getInnerVerticalMargin(getInternalLayoutParams(v));
+                    height += getInnerVerticalMargin(lp);
                 }
-                height += stepHeight;
             }
 
-            // TODO Measure active child and add that to our measurements
+            v.measure(innerWms, innerHms);
+            if (measureWidth) {
+                widthWithoutPadding = Math.max(widthWithoutPadding, v.getMeasuredWidth() + innerViewPaddingLeft);
+            }
+            if (measureHeight && lp.active) {
+                height += v.getMeasuredHeight();
+            }
         }
         width += widthWithoutPadding;
 
@@ -353,34 +377,66 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
-    private int measureStepWidth(View v) {
-        int stepWidth = iconDimension;
-        stepWidth += iconMarginRight;
+    private int measureStepDecoratorWidth(View v) {
+        int stepDecoratorWidth = iconDimension;
+        stepDecoratorWidth += iconMarginRight;
 
         float titleWidth = measureTitleWidth(v);
         float summaryWidth = measureSummaryWidth(v);
-        stepWidth += Math.max(titleWidth, summaryWidth);
-        return stepWidth;
+        stepDecoratorWidth += Math.max(titleWidth, summaryWidth);
+
+        return stepDecoratorWidth;
     }
 
-    private int measureStepHeight(View v) {
-        int stepHeight = 0;
+    private int measureStepDecoratorHeight(View v) {
         measureTitleHeight(getInternalLayoutParams(v));
         measureSummaryHeight();
         int textTotalHeight = (int) (reuseHeightTitle + reuseHeightSummary);
-        int stepDecoratorHeight = Math.max(iconDimension, textTotalHeight);
-
-        stepHeight += stepDecoratorHeight;
-        return stepHeight;
+        return Math.max(iconDimension, textTotalHeight);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        for (View v : innerViews) {
+        for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
+            View v = innerViews.get(i);
+            boolean isFirstStep = i == 0;
+            boolean isLastStep = i == innerViewsSize - 1;
+
             // TODO Update l,t,r,b based on translations
+
             InternalTouchView touchView = getTouchView(v);
-            touchView.layout(left, top, right - left, top + touchView.getMeasuredHeight());
-            // TODO Layout active children
+            int touchLeft = left + getPaddingLeft();
+            int touchTop = top;
+            if (isFirstStep) {
+                touchTop += getPaddingTop();
+            }
+            int touchRight = right - left - getPaddingRight();
+            int touchBottomMax;
+            if (isLastStep) {
+                touchBottomMax = bottom - top - getPaddingBottom();
+            } else {
+                touchBottomMax = bottom;
+            }
+            int touchBottom = Math.min(top + touchView.getMeasuredHeight(), touchBottomMax);
+            touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
+
+            if (getInternalLayoutParams(v).active) {
+                int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + iconDimension + iconMarginRight;
+                int innerTop = (int) (top + reuseHeightTitle + titleMarginBottom);
+                if (isFirstStep) {
+                    innerTop += getPaddingTop() + outerVerticalPadding;
+                }
+                int innerRightMax = right - outerHorizontalPadding - getPaddingRight();
+                int innerRight = Math.min(innerLeft + v.getMeasuredWidth(), innerRightMax);
+                int innerBottomMax;
+                if (isLastStep) {
+                    innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom();
+                } else {
+                    innerBottomMax = bottom;
+                }
+                int innerBottom = Math.min(innerTop + v.getMeasuredHeight(), innerBottomMax);
+                v.layout(innerLeft, innerTop, innerRight, innerBottom);
+            }
         }
     }
 
