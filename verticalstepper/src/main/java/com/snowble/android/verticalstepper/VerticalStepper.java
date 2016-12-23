@@ -279,9 +279,6 @@ public class VerticalStepper extends ViewGroup {
             }
         });
         addView(touchView);
-        LayoutParams lp = (LayoutParams) touchView.getLayoutParams();
-        lp.width = LayoutParams.MATCH_PARENT;
-        lp.height = touchViewHeight;
     }
 
     private void toggleStepActiveState(View innerView) {
