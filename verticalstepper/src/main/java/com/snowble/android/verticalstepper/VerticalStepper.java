@@ -139,11 +139,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initActiveIconBackground() {
-        //noinspection deprecation
-        int defaultColor = resources.getColor(R.color.bg_active_icon);
-        int iconBackground = getResolvedAttributeData(R.attr.colorPrimary, defaultColor, true);
         iconActiveBackgroundPaint = new Paint();
-        iconActiveBackgroundPaint.setColor(iconBackground);
+        int iconBackground = getResolvedAttributeData(R.attr.colorPrimary, R.color.bg_active_icon);
+        setPaintColor(iconActiveBackgroundPaint, iconBackground);
         iconActiveBackgroundPaint.setAntiAlias(true);
     }
 
@@ -202,12 +200,12 @@ public class VerticalStepper extends ViewGroup {
 
     private void initTouchViewProperties() {
         touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
-        touchViewBackground = getResolvedAttributeData(R.attr.selectableItemBackground, 0, false);
+        touchViewBackground = getResolvedAttributeData(R.attr.selectableItemBackground, 0);
     }
 
-    private int getResolvedAttributeData(int attr, int defaultData, boolean resolveRefs) {
+    private int getResolvedAttributeData(int attr, int defaultData) {
         TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(attr, value, resolveRefs);
+        context.getTheme().resolveAttribute(attr, value, false);
         int resolvedAttributeData;
         if (value.type != TypedValue.TYPE_NULL) {
             resolvedAttributeData = value.data;
