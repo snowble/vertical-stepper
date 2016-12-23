@@ -343,13 +343,13 @@ public class VerticalStepper extends ViewGroup {
             int innerWms;
             int innerHms;
             if (measureWidth) {
-                int stepDecoratorWidth = measureStepDecoratorWidth(v);
+                int stepDecoratorWidth = measureStepDecoratorWidth(lp);
                 widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
             }
             innerWms = getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
 
             if (measureHeight) {
-                int stepDecoratorHeight = measureStepDecoratorHeight(v);
+                int stepDecoratorHeight = measureStepDecoratorHeight(lp);
                 height += stepDecoratorHeight;
             }
             innerHms = getChildMeasureSpec(heightMeasureSpec, height + innerViewVerticalPadding, lp.height);
@@ -377,34 +377,34 @@ public class VerticalStepper extends ViewGroup {
         height = resolveSize(height, heightMeasureSpec);
 
         for (View v : innerViews) {
-            measureTouchView(width, v);
+            measureTouchView(width, getTouchView(v));
         }
 
         setMeasuredDimension(width, height);
     }
 
-    private int measureStepDecoratorWidth(View v) {
+    private int measureStepDecoratorWidth(LayoutParams lp) {
         int stepDecoratorWidth = iconDimension;
         stepDecoratorWidth += iconMarginRight;
 
-        float titleWidth = measureTitleWidth(v);
-        float summaryWidth = measureSummaryWidth(v);
+        float titleWidth = measureTitleWidth(lp);
+        float summaryWidth = measureSummaryWidth(lp);
         stepDecoratorWidth += Math.max(titleWidth, summaryWidth);
 
         return stepDecoratorWidth;
     }
 
-    private int measureStepDecoratorHeight(View v) {
-        measureTitleHeight(getInternalLayoutParams(v));
+    private int measureStepDecoratorHeight(LayoutParams lp) {
+        measureTitleHeight(lp);
         measureSummaryHeight();
         int textTotalHeight = (int) (tmpHeightTitle + tmpHeightSummary);
         return Math.max(iconDimension, textTotalHeight);
     }
 
-    private void measureTouchView(int width, View v) {
+    private void measureTouchView(int width, InternalTouchView view) {
         int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
         int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
-        getTouchView(v).measure(wms, hms);
+        view.measure(wms, hms);
     }
 
     @Override
@@ -533,9 +533,8 @@ public class VerticalStepper extends ViewGroup {
         return tmpHeightTitle + tmpHeightSummary + getInnerVerticalMargin(lp);
     }
 
-    private float measureTitleWidth(View v) {
+    private float measureTitleWidth(LayoutParams lp) {
         float titleWidth = 0f;
-        LayoutParams lp = getInternalLayoutParams(v);
         if (!TextUtils.isEmpty(lp.title)) {
             titleWidth = getTitleTextPaint(lp).measureText(lp.title);
         }
@@ -556,12 +555,10 @@ public class VerticalStepper extends ViewGroup {
         return lp.active ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
-    private float measureSummaryWidth(View v) {
+    private float measureSummaryWidth(LayoutParams lp) {
         float summaryWidth = 0f;
-        LayoutParams lp = getInternalLayoutParams(v);
-        String summary = lp.summary;
-        if (!TextUtils.isEmpty(summary)) {
-            summaryWidth = summaryTextPaint.measureText(summary);
+        if (!TextUtils.isEmpty(lp.summary)) {
+            summaryWidth = summaryTextPaint.measureText(lp.summary);
         }
         return summaryWidth;
     }
