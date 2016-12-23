@@ -387,7 +387,7 @@ public class VerticalStepper extends ViewGroup {
     private int measureStepDecoratorHeight(LayoutParams lp) {
         lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
-        int textTotalHeight = (int) (lp.titleHeight + lp.summaryHeight);
+        int textTotalHeight = (int) (lp.titleBottomRelativeToStepTop + lp.summaryBottomRelativeToTitleBottom);
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -426,7 +426,7 @@ public class VerticalStepper extends ViewGroup {
             if (lp.active) {
                 int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                         + iconDimension + iconMarginRight;
-                int innerTop = (int) (top + lp.topMargin + lp.titleHeight + titleMarginBottom);
+                int innerTop = (int) (top + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
                 if (isFirstStep) {
                     innerTop += getPaddingTop() + outerVerticalPadding;
                 }
@@ -500,11 +500,11 @@ public class VerticalStepper extends ViewGroup {
         canvas.translate(iconDimension + iconMarginRight, 0);
 
         TextPaint paint = getTitleTextPaint(lp);
-        canvas.drawText(lp.title, 0, lp.titleBaseline, paint);
+        canvas.drawText(lp.title, 0, lp.titleBaselineRelativeToStepTop, paint);
 
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
-            canvas.translate(0, lp.titleHeight);
-            canvas.drawText(lp.summary, 0, lp.summaryBaseline, summaryTextPaint);
+            canvas.translate(0, lp.titleBottomRelativeToStepTop);
+            canvas.drawText(lp.summary, 0, lp.summaryBaselineRelativeToTitleBottom, summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -517,7 +517,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
-        return lp.titleHeight + lp.summaryHeight + getInnerVerticalMargin(lp);
+        return lp.titleBottomRelativeToStepTop + lp.summaryBottomRelativeToTitleBottom + getInnerVerticalMargin(lp);
     }
 
     private TextPaint getTitleTextPaint(LayoutParams lp) {
@@ -569,14 +569,14 @@ public class VerticalStepper extends ViewGroup {
         @NonNull
         String title;
         float titleWidth;
-        float titleBaseline;
-        float titleHeight;
+        float titleBaselineRelativeToStepTop;
+        float titleBottomRelativeToStepTop;
 
         @Nullable
         String summary;
         float summaryWidth;
-        float summaryBaseline;
-        float summaryHeight;
+        float summaryBaselineRelativeToTitleBottom;
+        float summaryBottomRelativeToTitleBottom;
 
         boolean active;
 
@@ -623,21 +623,22 @@ public class VerticalStepper extends ViewGroup {
 
         void measureTitleVerticalDimensions(TextPaint titlePaint, int heightToCenterIn) {
             measureTitleBaseline(titlePaint, heightToCenterIn);
-            titleHeight = titleBaseline + titlePaint.getFontMetrics().bottom;
+            titleBottomRelativeToStepTop = titleBaselineRelativeToStepTop + titlePaint.getFontMetrics().bottom;
         }
 
         private void measureTitleBaseline(TextPaint titlePaint, int heightToCenterIn) {
             titlePaint.getTextBounds(title, 0, 1, tmpRectTitleTextBounds);
-            titleBaseline = (heightToCenterIn / 2) + (tmpRectTitleTextBounds.height() / 2);
+            titleBaselineRelativeToStepTop = (heightToCenterIn / 2) + (tmpRectTitleTextBounds.height() / 2);
         }
 
         void measureSummaryVerticalDimensions(TextPaint summaryPaint) {
             measureSummaryBaseline(summaryPaint);
-            summaryHeight = summaryBaseline + summaryPaint.getFontMetrics().bottom;
+            summaryBottomRelativeToTitleBottom =
+                    summaryBaselineRelativeToTitleBottom + summaryPaint.getFontMetrics().bottom;
         }
 
         private void measureSummaryBaseline(TextPaint summaryPaint) {
-            summaryBaseline = -summaryPaint.getFontMetrics().ascent;
+            summaryBaselineRelativeToTitleBottom = -summaryPaint.getFontMetrics().ascent;
         }
     }
 
