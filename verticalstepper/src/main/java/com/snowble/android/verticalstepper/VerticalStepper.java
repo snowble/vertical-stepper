@@ -44,18 +44,18 @@ public class VerticalStepper extends ViewGroup {
     private int iconInactiveColor;
     private Paint iconActiveBackgroundPaint;
     private Paint iconInactiveBackgroundPaint;
-    private RectF reuseRectIconBackground;
+    private RectF tmpRectIconBackground;
     private TextPaint iconTextPaint;
-    private Rect reuseRectIconTextBounds;
+    private Rect tmpRectIconTextBounds;
 
     private TextPaint titleActiveTextPaint;
     private TextPaint titleInactiveTextPaint;
-    private Rect reuseRectTitleTextBounds;
-    private float reuseBaselineTitle;
-    private float reuseHeightTitle;
+    private Rect tmpRectTitleTextBounds;
+    private float tmpBaselineTitle;
+    private float tmpHeightTitle;
     private TextPaint summaryTextPaint;
-    private float reuseBaselineSummary;
-    private float reuseHeightSummary;
+    private float tmpBaselineSummary;
+    private float tmpHeightSummary;
     private int titleMarginBottom;
 
     private int touchViewHeight;
@@ -144,7 +144,7 @@ public class VerticalStepper extends ViewGroup {
         initIconMargins();
         initIconBackground();
         initIconTextPaint();
-        initIconReuseObjects();
+        initIconTmpObjects();
     }
 
     private void initIconDimension() {
@@ -172,15 +172,15 @@ public class VerticalStepper extends ViewGroup {
         iconTextPaint = createTextPaint(R.color.white, R.dimen.icon_font_size);
     }
 
-    private void initIconReuseObjects() {
-        reuseRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
-        reuseRectIconTextBounds = new Rect();
+    private void initIconTmpObjects() {
+        tmpRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
+        tmpRectIconTextBounds = new Rect();
     }
 
     private void initTitleProperties() {
         initTitleDimensions();
         initTitleTextPaint();
-        initTitleReuseObjects();
+        initTitleTmpObjects();
     }
 
     private void initTitleDimensions() {
@@ -194,8 +194,8 @@ public class VerticalStepper extends ViewGroup {
         titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
     }
 
-    private void initTitleReuseObjects() {
-        reuseRectTitleTextBounds = new Rect();
+    private void initTitleTmpObjects() {
+        tmpRectTitleTextBounds = new Rect();
     }
 
     private void initSummaryProperties() {
@@ -397,7 +397,7 @@ public class VerticalStepper extends ViewGroup {
     private int measureStepDecoratorHeight(View v) {
         measureTitleHeight(getInternalLayoutParams(v));
         measureSummaryHeight();
-        int textTotalHeight = (int) (reuseHeightTitle + reuseHeightSummary);
+        int textTotalHeight = (int) (tmpHeightTitle + tmpHeightSummary);
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -436,7 +436,7 @@ public class VerticalStepper extends ViewGroup {
             if (lp.active) {
                 int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                         + iconDimension + iconMarginRight;
-                int innerTop = (int) (top + lp.topMargin + reuseHeightTitle + titleMarginBottom);
+                int innerTop = (int) (top + lp.topMargin + tmpHeightTitle + titleMarginBottom);
                 if (isFirstStep) {
                     innerTop += getPaddingTop() + outerVerticalPadding;
                 }
@@ -491,7 +491,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIconBackground(Canvas canvas, LayoutParams lp) {
-        canvas.drawArc(reuseRectIconBackground, 0f, 360f, true, getIconColor(lp));
+        canvas.drawArc(tmpRectIconBackground, 0f, 360f, true, getIconColor(lp));
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -500,8 +500,8 @@ public class VerticalStepper extends ViewGroup {
         float width = iconTextPaint.measureText(stepNumberString);
         float centeredTextX = (iconDimension / 2) - (width / 2);
 
-        iconTextPaint.getTextBounds(stepNumberString, 0, 1, reuseRectIconTextBounds);
-        float centeredTextY = (iconDimension / 2) + (reuseRectIconTextBounds.height() / 2);
+        iconTextPaint.getTextBounds(stepNumberString, 0, 1, tmpRectIconTextBounds);
+        float centeredTextY = (iconDimension / 2) + (tmpRectIconTextBounds.height() / 2);
 
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
@@ -511,13 +511,13 @@ public class VerticalStepper extends ViewGroup {
 
         measureTitleHeight(lp);
         TextPaint paint = getTitleTextPaint(lp);
-        canvas.drawText(lp.title, 0, reuseBaselineTitle, paint);
+        canvas.drawText(lp.title, 0, tmpBaselineTitle, paint);
 
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
-            canvas.translate(0, reuseHeightTitle);
+            canvas.translate(0, tmpHeightTitle);
 
             measureSummaryHeight();
-            canvas.drawText(lp.summary, 0, reuseBaselineSummary, summaryTextPaint);
+            canvas.drawText(lp.summary, 0, tmpBaselineSummary, summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -530,7 +530,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
-        return reuseHeightTitle + reuseHeightSummary + getInnerVerticalMargin(lp);
+        return tmpHeightTitle + tmpHeightSummary + getInnerVerticalMargin(lp);
     }
 
     private float measureTitleWidth(View v) {
@@ -543,13 +543,13 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void measureTitleHeight(LayoutParams lp) {
-        reuseBaselineTitle = getTitleBaseline(lp);
-        reuseHeightTitle = reuseBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
+        tmpBaselineTitle = getTitleBaseline(lp);
+        tmpHeightTitle = tmpBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
     }
 
     private float getTitleBaseline(LayoutParams lp) {
-        getTitleTextPaint(lp).getTextBounds(lp.title, 0, 1, reuseRectTitleTextBounds);
-        return (iconDimension / 2) + (reuseRectTitleTextBounds.height() / 2);
+        getTitleTextPaint(lp).getTextBounds(lp.title, 0, 1, tmpRectTitleTextBounds);
+        return (iconDimension / 2) + (tmpRectTitleTextBounds.height() / 2);
     }
 
     private TextPaint getTitleTextPaint(LayoutParams lp) {
@@ -567,8 +567,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void measureSummaryHeight() {
-        reuseBaselineSummary = getSummaryBaseline();
-        reuseHeightSummary = reuseBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
+        tmpBaselineSummary = getSummaryBaseline();
+        tmpHeightSummary = tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
     }
 
     private float getSummaryBaseline() {
