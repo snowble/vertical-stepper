@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -233,13 +234,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void setPaintColor(Paint paint, int colorRes) {
-        int color;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = resources.getColor(colorRes, context.getTheme());
-        } else {
-            //noinspection deprecation
-            color = resources.getColor(colorRes);
-        }
+        int color = ResourcesCompat.getColor(resources, colorRes, context.getTheme());
         paint.setColor(color);
     }
 
