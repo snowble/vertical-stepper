@@ -383,9 +383,9 @@ public class VerticalStepper extends ViewGroup {
         int stepDecoratorWidth = iconDimension;
         stepDecoratorWidth += iconMarginRight;
 
-        float titleWidth = measureTitleWidth(lp);
+        lp.measureTitleWidth(getTitleTextPaint(lp));
         float summaryWidth = measureSummaryWidth(lp);
-        stepDecoratorWidth += Math.max(titleWidth, summaryWidth);
+        stepDecoratorWidth += Math.max(lp.titleWidth, summaryWidth);
 
         return stepDecoratorWidth;
     }
@@ -526,14 +526,6 @@ public class VerticalStepper extends ViewGroup {
         return lp.titleHeight + lp.summaryHeight + getInnerVerticalMargin(lp);
     }
 
-    private float measureTitleWidth(LayoutParams lp) {
-        float titleWidth = 0f;
-        if (!TextUtils.isEmpty(lp.title)) {
-            titleWidth = getTitleTextPaint(lp).measureText(lp.title);
-        }
-        return titleWidth;
-    }
-
     private void measureTitleHeight(LayoutParams lp) {
         lp.titleBaseline = getTitleBaseline(lp);
         lp.titleHeight = lp.titleBaseline + getTitleTextPaint(lp).getFontMetrics().bottom;
@@ -606,6 +598,7 @@ public class VerticalStepper extends ViewGroup {
         @SuppressWarnings("NullableProblems")
         @NonNull
         String title;
+        float titleWidth;
         float titleBaseline;
         float titleHeight;
 
@@ -640,6 +633,15 @@ public class VerticalStepper extends ViewGroup {
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
+
+        void measureTitleWidth(TextPaint titlePaint) {
+            float width = 0f;
+            if (!TextUtils.isEmpty(title)) {
+                width = titlePaint.measureText(title);
+            }
+            titleWidth = width;
+        }
+
     }
 
     private static class InternalTouchView extends View {
