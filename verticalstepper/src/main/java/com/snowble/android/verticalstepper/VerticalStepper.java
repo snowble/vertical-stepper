@@ -51,7 +51,6 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint titleActiveTextPaint;
     private TextPaint titleInactiveTextPaint;
     private Rect tmpRectTitleTextBounds;
-    private float tmpBaselineTitle;
     private float tmpHeightTitle;
     private TextPaint summaryTextPaint;
     private float tmpBaselineSummary;
@@ -511,7 +510,7 @@ public class VerticalStepper extends ViewGroup {
 
         measureTitleHeight(lp);
         TextPaint paint = getTitleTextPaint(lp);
-        canvas.drawText(lp.title, 0, tmpBaselineTitle, paint);
+        canvas.drawText(lp.title, 0, lp.tmpBaselineTitle, paint);
 
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
             canvas.translate(0, tmpHeightTitle);
@@ -542,8 +541,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void measureTitleHeight(LayoutParams lp) {
-        tmpBaselineTitle = getTitleBaseline(lp);
-        tmpHeightTitle = tmpBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
+        lp.tmpBaselineTitle = getTitleBaseline(lp);
+        tmpHeightTitle = lp.tmpBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
     }
 
     private float getTitleBaseline(LayoutParams lp) {
@@ -616,6 +615,7 @@ public class VerticalStepper extends ViewGroup {
         @Nullable
         String summary;
 
+        float tmpBaselineTitle;
 
         boolean active;
 
