@@ -50,7 +50,6 @@ public class VerticalStepper extends ViewGroup {
 
     private TextPaint titleActiveTextPaint;
     private TextPaint titleInactiveTextPaint;
-    private Rect tmpRectTitleTextBounds;
     private TextPaint summaryTextPaint;
     private int titleMarginBottom;
 
@@ -176,7 +175,6 @@ public class VerticalStepper extends ViewGroup {
     private void initTitleProperties() {
         initTitleDimensions();
         initTitleTextPaint();
-        initTitleTmpObjects();
     }
 
     private void initTitleDimensions() {
@@ -188,10 +186,6 @@ public class VerticalStepper extends ViewGroup {
         titleActiveTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
         titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
-    }
-
-    private void initTitleTmpObjects() {
-        tmpRectTitleTextBounds = new Rect();
     }
 
     private void initSummaryProperties() {
@@ -391,7 +385,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private int measureStepDecoratorHeight(LayoutParams lp) {
-        measureTitleHeight(lp);
+        lp.measureTitleHeight(getTitleTextPaint(lp), iconDimension);
         measureSummaryHeight(lp);
         int textTotalHeight = (int) (lp.titleHeight + lp.summaryHeight);
         return Math.max(iconDimension, textTotalHeight);
@@ -526,16 +520,6 @@ public class VerticalStepper extends ViewGroup {
         return lp.titleHeight + lp.summaryHeight + getInnerVerticalMargin(lp);
     }
 
-    private void measureTitleHeight(LayoutParams lp) {
-        lp.titleBaseline = getTitleBaseline(lp);
-        lp.titleHeight = lp.titleBaseline + getTitleTextPaint(lp).getFontMetrics().bottom;
-    }
-
-    private float getTitleBaseline(LayoutParams lp) {
-        getTitleTextPaint(lp).getTextBounds(lp.title, 0, 1, tmpRectTitleTextBounds);
-        return (iconDimension / 2) + (tmpRectTitleTextBounds.height() / 2);
-    }
-
     private TextPaint getTitleTextPaint(LayoutParams lp) {
         return lp.active ? titleActiveTextPaint : titleInactiveTextPaint;
     }
@@ -585,6 +569,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     public static class LayoutParams extends MarginLayoutParams {
+
+        private static Rect tmpRectTitleTextBounds = new Rect();
+
         InternalTouchView touchView;
 
         @SuppressWarnings("NullableProblems")
@@ -643,6 +630,15 @@ public class VerticalStepper extends ViewGroup {
             summaryWidth = width;
         }
 
+        void measureTitleHeight(TextPaint titlePaint, int heightToCenterIn) {
+            measureTitleBaseline(titlePaint, heightToCenterIn);
+            titleHeight = titleBaseline + titlePaint.getFontMetrics().bottom;
+        }
+
+        private void measureTitleBaseline(TextPaint titlePaint, int heightToCenterIn) {
+            titlePaint.getTextBounds(title, 0, 1, tmpRectTitleTextBounds);
+            titleBaseline = (heightToCenterIn / 2) + (tmpRectTitleTextBounds.height() / 2);
+        }
     }
 
     private static class InternalTouchView extends View {
