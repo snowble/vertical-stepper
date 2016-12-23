@@ -393,7 +393,7 @@ public class VerticalStepper extends ViewGroup {
     private int measureStepDecoratorHeight(LayoutParams lp) {
         measureTitleHeight(lp);
         measureSummaryHeight(lp);
-        int textTotalHeight = (int) (lp.tmpHeightTitle + lp.tmpHeightSummary);
+        int textTotalHeight = (int) (lp.titleHeight + lp.summaryHeight);
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -432,7 +432,7 @@ public class VerticalStepper extends ViewGroup {
             if (lp.active) {
                 int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                         + iconDimension + iconMarginRight;
-                int innerTop = (int) (top + lp.topMargin + lp.tmpHeightTitle + titleMarginBottom);
+                int innerTop = (int) (top + lp.topMargin + lp.titleHeight + titleMarginBottom);
                 if (isFirstStep) {
                     innerTop += getPaddingTop() + outerVerticalPadding;
                 }
@@ -507,13 +507,13 @@ public class VerticalStepper extends ViewGroup {
 
         measureTitleHeight(lp);
         TextPaint paint = getTitleTextPaint(lp);
-        canvas.drawText(lp.title, 0, lp.tmpBaselineTitle, paint);
+        canvas.drawText(lp.title, 0, lp.titleBaseline, paint);
 
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
-            canvas.translate(0, lp.tmpHeightTitle);
+            canvas.translate(0, lp.titleHeight);
 
             measureSummaryHeight(lp);
-            canvas.drawText(lp.summary, 0, lp.tmpBaselineSummary, summaryTextPaint);
+            canvas.drawText(lp.summary, 0, lp.summaryBaseline, summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -526,7 +526,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
-        return lp.tmpHeightTitle + lp.tmpHeightSummary + getInnerVerticalMargin(lp);
+        return lp.titleHeight + lp.summaryHeight + getInnerVerticalMargin(lp);
     }
 
     private float measureTitleWidth(LayoutParams lp) {
@@ -538,8 +538,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void measureTitleHeight(LayoutParams lp) {
-        lp.tmpBaselineTitle = getTitleBaseline(lp);
-        lp.tmpHeightTitle = lp.tmpBaselineTitle + getTitleTextPaint(lp).getFontMetrics().bottom;
+        lp.titleBaseline = getTitleBaseline(lp);
+        lp.titleHeight = lp.titleBaseline + getTitleTextPaint(lp).getFontMetrics().bottom;
     }
 
     private float getTitleBaseline(LayoutParams lp) {
@@ -560,8 +560,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void measureSummaryHeight(LayoutParams lp) {
-        lp.tmpBaselineSummary = getSummaryBaseline();
-        lp.tmpHeightSummary = lp.tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
+        lp.summaryBaseline = getSummaryBaseline();
+        lp.summaryHeight = lp.summaryBaseline + summaryTextPaint.getFontMetrics().bottom;
     }
 
     private float getSummaryBaseline() {
@@ -609,13 +609,13 @@ public class VerticalStepper extends ViewGroup {
         @SuppressWarnings("NullableProblems")
         @NonNull
         String title;
-        float tmpBaselineTitle;
-        float tmpHeightTitle;
+        float titleBaseline;
+        float titleHeight;
 
         @Nullable
         String summary;
-        float tmpBaselineSummary;
-        float tmpHeightSummary;
+        float summaryBaseline;
+        float summaryHeight;
 
         boolean active;
 
