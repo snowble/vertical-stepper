@@ -505,14 +505,11 @@ public class VerticalStepper extends ViewGroup {
     private void drawText(Canvas canvas, LayoutParams lp) {
         canvas.translate(iconDimension + iconMarginRight, 0);
 
-        measureTitleHeight(lp);
         TextPaint paint = getTitleTextPaint(lp);
         canvas.drawText(lp.title, 0, lp.titleBaseline, paint);
 
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
             canvas.translate(0, lp.titleHeight);
-
-            measureSummaryHeight(lp);
             canvas.drawText(lp.summary, 0, lp.summaryBaseline, summaryTextPaint);
         }
         // TODO Handle optional case
