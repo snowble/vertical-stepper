@@ -52,7 +52,6 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint titleInactiveTextPaint;
     private Rect tmpRectTitleTextBounds;
     private TextPaint summaryTextPaint;
-    private float tmpBaselineSummary;
     private float tmpHeightSummary;
     private int titleMarginBottom;
 
@@ -394,7 +393,7 @@ public class VerticalStepper extends ViewGroup {
 
     private int measureStepDecoratorHeight(LayoutParams lp) {
         measureTitleHeight(lp);
-        measureSummaryHeight();
+        measureSummaryHeight(lp);
         int textTotalHeight = (int) (lp.tmpHeightTitle + tmpHeightSummary);
         return Math.max(iconDimension, textTotalHeight);
     }
@@ -514,8 +513,8 @@ public class VerticalStepper extends ViewGroup {
         if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
             canvas.translate(0, lp.tmpHeightTitle);
 
-            measureSummaryHeight();
-            canvas.drawText(lp.summary, 0, tmpBaselineSummary, summaryTextPaint);
+            measureSummaryHeight(lp);
+            canvas.drawText(lp.summary, 0, lp.tmpBaselineSummary, summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -561,9 +560,9 @@ public class VerticalStepper extends ViewGroup {
         return summaryWidth;
     }
 
-    private void measureSummaryHeight() {
-        tmpBaselineSummary = getSummaryBaseline();
-        tmpHeightSummary = tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
+    private void measureSummaryHeight(LayoutParams lp) {
+        lp.tmpBaselineSummary = getSummaryBaseline();
+        tmpHeightSummary = lp.tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
     }
 
     private float getSummaryBaseline() {
@@ -611,11 +610,12 @@ public class VerticalStepper extends ViewGroup {
         @SuppressWarnings("NullableProblems")
         @NonNull
         String title;
-        @Nullable
-        String summary;
-
         float tmpBaselineTitle;
         float tmpHeightTitle;
+
+        @Nullable
+        String summary;
+        float tmpBaselineSummary;
 
         boolean active;
 
