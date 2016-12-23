@@ -377,16 +377,16 @@ public class VerticalStepper extends ViewGroup {
         int stepDecoratorWidth = iconDimension;
         stepDecoratorWidth += iconMarginRight;
 
-        lp.measureTitleWidth(getTitleTextPaint(lp));
-        lp.measureSummaryWidth(summaryTextPaint);
+        lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
+        lp.measureSummaryHorizontalDimensions(summaryTextPaint);
         stepDecoratorWidth += Math.max(lp.titleWidth, lp.summaryWidth);
 
         return stepDecoratorWidth;
     }
 
     private int measureStepDecoratorHeight(LayoutParams lp) {
-        lp.measureTitleHeight(getTitleTextPaint(lp), iconDimension);
-        lp.measureSummaryHeight(summaryTextPaint);
+        lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
+        lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.titleHeight + lp.summaryHeight);
         return Math.max(iconDimension, textTotalHeight);
     }
@@ -605,7 +605,7 @@ public class VerticalStepper extends ViewGroup {
             super(source);
         }
 
-        void measureTitleWidth(TextPaint titlePaint) {
+        void measureTitleHorizontalDimensions(TextPaint titlePaint) {
             float width = 0f;
             if (!TextUtils.isEmpty(title)) {
                 width = titlePaint.measureText(title);
@@ -613,7 +613,7 @@ public class VerticalStepper extends ViewGroup {
             titleWidth = width;
         }
 
-        void measureSummaryWidth(TextPaint summaryPaint) {
+        void measureSummaryHorizontalDimensions(TextPaint summaryPaint) {
             float width = 0f;
             if (!TextUtils.isEmpty(summary)) {
                 width = summaryPaint.measureText(summary);
@@ -621,7 +621,7 @@ public class VerticalStepper extends ViewGroup {
             summaryWidth = width;
         }
 
-        void measureTitleHeight(TextPaint titlePaint, int heightToCenterIn) {
+        void measureTitleVerticalDimensions(TextPaint titlePaint, int heightToCenterIn) {
             measureTitleBaseline(titlePaint, heightToCenterIn);
             titleHeight = titleBaseline + titlePaint.getFontMetrics().bottom;
         }
@@ -631,7 +631,7 @@ public class VerticalStepper extends ViewGroup {
             titleBaseline = (heightToCenterIn / 2) + (tmpRectTitleTextBounds.height() / 2);
         }
 
-        void measureSummaryHeight(TextPaint summaryPaint) {
+        void measureSummaryVerticalDimensions(TextPaint summaryPaint) {
             measureSummaryBaseline(summaryPaint);
             summaryHeight = summaryBaseline + summaryPaint.getFontMetrics().bottom;
         }
