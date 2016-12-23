@@ -52,7 +52,6 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint titleInactiveTextPaint;
     private Rect tmpRectTitleTextBounds;
     private TextPaint summaryTextPaint;
-    private float tmpHeightSummary;
     private int titleMarginBottom;
 
     private int touchViewHeight;
@@ -394,7 +393,7 @@ public class VerticalStepper extends ViewGroup {
     private int measureStepDecoratorHeight(LayoutParams lp) {
         measureTitleHeight(lp);
         measureSummaryHeight(lp);
-        int textTotalHeight = (int) (lp.tmpHeightTitle + tmpHeightSummary);
+        int textTotalHeight = (int) (lp.tmpHeightTitle + lp.tmpHeightSummary);
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -527,7 +526,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
-        return lp.tmpHeightTitle + tmpHeightSummary + getInnerVerticalMargin(lp);
+        return lp.tmpHeightTitle + lp.tmpHeightSummary + getInnerVerticalMargin(lp);
     }
 
     private float measureTitleWidth(LayoutParams lp) {
@@ -562,7 +561,7 @@ public class VerticalStepper extends ViewGroup {
 
     private void measureSummaryHeight(LayoutParams lp) {
         lp.tmpBaselineSummary = getSummaryBaseline();
-        tmpHeightSummary = lp.tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
+        lp.tmpHeightSummary = lp.tmpBaselineSummary + summaryTextPaint.getFontMetrics().bottom;
     }
 
     private float getSummaryBaseline() {
@@ -616,6 +615,7 @@ public class VerticalStepper extends ViewGroup {
         @Nullable
         String summary;
         float tmpBaselineSummary;
+        float tmpHeightSummary;
 
         boolean active;
 
