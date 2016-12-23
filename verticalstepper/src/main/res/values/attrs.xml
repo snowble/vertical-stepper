@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="VerticalStepper">
+        <attr name="iconColorActive" format="color" />
+        <attr name="iconColorInactive" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="VerticalStepper_Layout">
         <attr name="step_title" format="string" />
         <attr name="step_summary" format="string" />

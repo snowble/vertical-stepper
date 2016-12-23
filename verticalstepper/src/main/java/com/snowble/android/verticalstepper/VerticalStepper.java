@@ -40,6 +40,8 @@ public class VerticalStepper extends ViewGroup {
     private int iconDimension;
     private int iconMarginRight;
     private int iconMarginVertical;
+    private int iconActiveColor;
+    private int iconInactiveColor;
     private Paint iconActiveBackgroundPaint;
     private Paint iconInactiveBackgroundPaint;
     private RectF reuseRectIconBackground;
@@ -101,12 +103,33 @@ public class VerticalStepper extends ViewGroup {
         context = getContext();
         resources = getResources();
 
+        initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
         initIconProperties();
         initTitleProperties();
         initSummaryProperties();
         initTouchViewProperties();
         initConnectorProperties();
+    }
+
+    private void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
+                    defStyleAttr, defStyleRes);
+            try {
+                initIconPropertiesFromAttrs(a);
+            } finally {
+                a.recycle();
+            }
+        }
+    }
+
+    private void initIconPropertiesFromAttrs(TypedArray a) {
+        int defaultActiveColor = getResolvedAttributeData(R.attr.colorPrimary, R.color.bg_active_icon);
+        iconActiveColor = a.getColor(R.styleable.VerticalStepper_iconColorActive,
+                ResourcesCompat.getColor(resources, defaultActiveColor, context.getTheme()));
+        iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
+                ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
     }
 
     private void initPadding() {
@@ -134,21 +157,15 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconBackground() {
-        initActiveIconBackground();
-        initInactiveIconBackground();
+        iconActiveBackgroundPaint = createIconBackground(iconActiveColor);
+        iconInactiveBackgroundPaint = createIconBackground(iconInactiveColor);
     }
 
-    private void initActiveIconBackground() {
-        iconActiveBackgroundPaint = new Paint();
-        int iconBackground = getResolvedAttributeData(R.attr.colorPrimary, R.color.bg_active_icon);
-        setPaintColor(iconActiveBackgroundPaint, iconBackground);
-        iconActiveBackgroundPaint.setAntiAlias(true);
-    }
-
-    private void initInactiveIconBackground() {
-        iconInactiveBackgroundPaint = new Paint();
-        setPaintColor(iconInactiveBackgroundPaint, R.color.bg_inactive_icon);
-        iconInactiveBackgroundPaint.setAntiAlias(true);
+    private Paint createIconBackground(int color) {
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setAntiAlias(true);
+        return paint;
     }
 
     private void initIconTextPaint() {
