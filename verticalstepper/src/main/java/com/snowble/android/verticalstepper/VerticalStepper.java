@@ -382,50 +382,61 @@ public class VerticalStepper extends ViewGroup {
             if (isFirstStep) {
                 currentTop += getPaddingTop() + outerVerticalPadding;
             }
-            InternalTouchView touchView = getTouchView(v);
-
-            int touchLeft = left + getPaddingLeft();
-
-            int touchTop = currentTop;
-            if (isFirstStep) {
-                // touch view is not clipped by the outer padding
-                touchTop -= outerVerticalPadding;
-            }
-
-            int touchRight = right - left - getPaddingRight();
-
-            int touchBottomMax;
-            if (isLastStep) {
-                touchBottomMax = bottom - getPaddingBottom();
-            } else {
-                touchBottomMax = bottom;
-            }
-            int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
-
-            touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
+            layoutTouchView(left, currentTop, right, bottom, v, isFirstStep, isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(v);
-            if (lp.active) {
-                int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
-                        + iconDimension + iconMarginRight;
-
-                int innerTop = (int) (currentTop + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
-
-                int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
-                int innerRight = Math.min(innerLeft + v.getMeasuredWidth(), innerRightMax);
-
-                int innerBottomMax;
-                if (isLastStep) {
-                    innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
-                } else {
-                    innerBottomMax = bottom;
-                }
-                int innerBottom = Math.min(innerTop + v.getMeasuredHeight(), innerBottomMax);
-
-                v.layout(innerLeft, innerTop, innerRight, innerBottom);
-            }
+            layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
             currentTop += getYDistanceToNextStep(v, lp);
         }
+    }
+
+    private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
+                                 View innerView, LayoutParams lp, boolean isLastStep) {
+        if (lp.active) {
+            int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
+                    + iconDimension + iconMarginRight;
+
+            int innerTop =
+                    (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
+
+            int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+            int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
+
+            int innerBottomMax;
+            if (isLastStep) {
+                innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
+            } else {
+                innerBottomMax = bottom;
+            }
+            int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
+
+            innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
+        }
+    }
+
+    private void layoutTouchView(int left, int topAdjustedForPadding, int right, int bottom,
+                                 View innerView, boolean isFirstStep, boolean isLastStep) {
+        InternalTouchView touchView = getTouchView(innerView);
+
+        int touchLeft = left + getPaddingLeft();
+
+        int touchTop = topAdjustedForPadding;
+        if (isFirstStep) {
+            // touch view is not clipped by the outer padding
+            touchTop -= outerVerticalPadding;
+        }
+
+        int touchRight = right - left - getPaddingRight();
+
+        int touchBottomMax;
+        if (isLastStep) {
+            touchBottomMax = bottom - getPaddingBottom();
+        } else {
+            touchBottomMax = bottom;
+        }
+        int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
+
+        touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
     }
 
     @Override
