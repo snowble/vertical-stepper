@@ -295,69 +295,40 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int wSizeFromSpec = MeasureSpec.getSize(widthMeasureSpec);
-        int wModeFromSpec = MeasureSpec.getMode(widthMeasureSpec);
-
-        int hSizeFromSpec = MeasureSpec.getSize(heightMeasureSpec);
-        int hModeFromSpec = MeasureSpec.getMode(heightMeasureSpec);
-
-        int width;
-        int height;
-
         int horizontalPadding = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
         int verticalPadding = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
 
-        boolean measureWidth = wModeFromSpec != MeasureSpec.EXACTLY;
-        boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
-
-        if (measureWidth) {
-            width = horizontalPadding;
-        } else {
-            width = wSizeFromSpec;
-        }
-
-        if (measureHeight) {
-            height = verticalPadding;
-        } else {
-            height = hSizeFromSpec;
-        }
+        int width = horizontalPadding;
+        int height = verticalPadding;
 
         int widthWithoutPadding = 0;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View v = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(v);
+
             int innerViewHorizontalPadding = iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
             int innerViewVerticalPadding = lp.topMargin + lp.bottomMargin;
+
             int stepDecoratorWidth = measureStepDecoratorWidth(lp);
-            if (measureWidth) {
-                widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
-            }
+            widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
+
             int innerWms =
                     getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
 
             int stepDecoratorHeight = measureStepDecoratorHeight(lp);
-            if (measureHeight) {
-                height += stepDecoratorHeight;
-            }
-            int usedHeight = innerViewVerticalPadding;
-            if (measureHeight) {
-                usedHeight += height;
-            } else {
-                usedHeight += stepDecoratorHeight;
-            }
+            height += stepDecoratorHeight;
+
+            int usedHeight = innerViewVerticalPadding + height;
             int innerHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, lp.height);
-            if (measureHeight) {
-                boolean hasMoreSteps = i + 1 < innerViewsSize;
-                if (hasMoreSteps) {
-                    height += getInnerVerticalMargin(lp);
-                }
+
+            boolean hasMoreSteps = i + 1 < innerViewsSize;
+            if (hasMoreSteps) {
+                height += getInnerVerticalMargin(lp);
             }
 
             v.measure(innerWms, innerHms);
-            if (measureWidth) {
-                widthWithoutPadding = Math.max(widthWithoutPadding, v.getMeasuredWidth() + innerViewHorizontalPadding);
-            }
-            if (measureHeight && lp.active) {
+            widthWithoutPadding = Math.max(widthWithoutPadding, v.getMeasuredWidth() + innerViewHorizontalPadding);
+            if (lp.active) {
                 height += v.getMeasuredHeight() + innerViewVerticalPadding;
             }
         }
