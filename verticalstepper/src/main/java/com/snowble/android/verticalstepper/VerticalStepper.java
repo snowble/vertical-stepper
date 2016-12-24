@@ -389,11 +389,11 @@ public class VerticalStepper extends ViewGroup {
             int touchRight = right - left - getPaddingRight();
             int touchBottomMax;
             if (isLastStep) {
-                touchBottomMax = bottom - top - getPaddingBottom();
+                touchBottomMax = bottom - getPaddingBottom();
             } else {
                 touchBottomMax = bottom;
             }
-            int touchBottom = Math.min(top + touchView.getMeasuredHeight(), touchBottomMax);
+            int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
             touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
 
             LayoutParams lp = getInternalLayoutParams(v);
