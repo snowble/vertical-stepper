@@ -382,7 +382,7 @@ public class VerticalStepper extends ViewGroup {
             if (isFirstStep) {
                 currentTop += getPaddingTop() + outerVerticalPadding;
             }
-            layoutTouchView(left, currentTop, right, bottom, v, isFirstStep, isLastStep);
+            layoutTouchView(left, currentTop, right, bottom, v, isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(v);
             layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
@@ -391,16 +391,14 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutTouchView(int left, int topAdjustedForPadding, int right, int bottom,
-                                 View innerView, boolean isFirstStep, boolean isLastStep) {
+                                 View innerView, boolean isLastStep) {
         InternalTouchView touchView = getTouchView(innerView);
 
         int touchLeft = left + getPaddingLeft();
 
-        int touchTop = topAdjustedForPadding;
-        if (isFirstStep) {
-            // touch view is not clipped by the outer padding
-            touchTop -= outerVerticalPadding;
-        }
+        // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
+        // Also offset touchTop for the other steps as well so the touch view has a consistent placement.
+        int touchTop = topAdjustedForPadding - outerVerticalPadding;
 
         int touchRight = right - left - getPaddingRight();
 
