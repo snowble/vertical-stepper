@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="VerticalStepper">
+        <!-- the color of the icon when the step is expanded or completed -->
         <attr name="iconColorActive" format="color" />
+        <!-- the color of the icon when the it's collapsed and incomplete -->
         <attr name="iconColorInactive" format="color" />
     </declare-styleable>
 
     <declare-styleable name="VerticalStepper_Layout">
+        <!-- the title of the step -->
         <attr name="step_title" format="string" />
+        <!-- the summary of the step -->
         <attr name="step_summary" format="string" />
     </declare-styleable>
 </resources>
