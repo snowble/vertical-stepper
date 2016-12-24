@@ -328,8 +328,8 @@ public class VerticalStepper extends ViewGroup {
             LayoutParams lp = getInternalLayoutParams(v);
             int innerViewHorizontalPadding = iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
             int innerViewVerticalPadding = lp.topMargin + lp.bottomMargin;
+            int stepDecoratorWidth = measureStepDecoratorWidth(lp);
             if (measureWidth) {
-                int stepDecoratorWidth = measureStepDecoratorWidth(lp);
                 widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
             }
             int innerWms =
