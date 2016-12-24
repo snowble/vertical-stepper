@@ -304,21 +304,19 @@ public class VerticalStepper extends ViewGroup {
         int width;
         int height;
 
-        int horizontalPadding = 0;
-        int verticalPadding = 0;
+        int horizontalPadding = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
+        int verticalPadding = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
 
         boolean measureWidth = wModeFromSpec != MeasureSpec.EXACTLY;
         boolean measureHeight = hModeFromSpec != MeasureSpec.EXACTLY;
 
         if (measureWidth) {
-            horizontalPadding = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
             width = horizontalPadding;
         } else {
             width = wSizeFromSpec;
         }
 
         if (measureHeight) {
-            verticalPadding = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
             height = verticalPadding;
         } else {
             height = hSizeFromSpec;
@@ -330,19 +328,18 @@ public class VerticalStepper extends ViewGroup {
             LayoutParams lp = getInternalLayoutParams(v);
             int innerViewHorizontalPadding = iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
             int innerViewVerticalPadding = lp.topMargin + lp.bottomMargin;
-            int innerWms;
-            int innerHms;
             if (measureWidth) {
                 int stepDecoratorWidth = measureStepDecoratorWidth(lp);
                 widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
             }
-            innerWms = getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
+            int innerWms =
+                    getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
 
             if (measureHeight) {
                 int stepDecoratorHeight = measureStepDecoratorHeight(lp);
                 height += stepDecoratorHeight;
             }
-            innerHms = getChildMeasureSpec(heightMeasureSpec, height + innerViewVerticalPadding, lp.height);
+            int innerHms = getChildMeasureSpec(heightMeasureSpec, height + innerViewVerticalPadding, lp.height);
             if (measureHeight) {
                 boolean hasMoreSteps = i + 1 < innerViewsSize;
                 if (hasMoreSteps) {
