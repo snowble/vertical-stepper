@@ -335,11 +335,17 @@ public class VerticalStepper extends ViewGroup {
             int innerWms =
                     getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
 
+            int stepDecoratorHeight = measureStepDecoratorHeight(lp);
             if (measureHeight) {
-                int stepDecoratorHeight = measureStepDecoratorHeight(lp);
                 height += stepDecoratorHeight;
             }
-            int innerHms = getChildMeasureSpec(heightMeasureSpec, height + innerViewVerticalPadding, lp.height);
+            int usedHeight = innerViewVerticalPadding;
+            if (measureHeight) {
+                usedHeight += height;
+            } else {
+                usedHeight += stepDecoratorHeight;
+            }
+            int innerHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, lp.height);
             if (measureHeight) {
                 boolean hasMoreSteps = i + 1 < innerViewsSize;
                 if (hasMoreSteps) {
