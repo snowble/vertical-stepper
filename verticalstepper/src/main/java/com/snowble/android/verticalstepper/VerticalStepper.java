@@ -390,30 +390,6 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
-                                 View innerView, LayoutParams lp, boolean isLastStep) {
-        if (lp.active) {
-            int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
-                    + iconDimension + iconMarginRight;
-
-            int innerTop =
-                    (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
-
-            int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
-            int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
-
-            int innerBottomMax;
-            if (isLastStep) {
-                innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
-            } else {
-                innerBottomMax = bottom;
-            }
-            int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
-
-            innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
-        }
-    }
-
     private void layoutTouchView(int left, int topAdjustedForPadding, int right, int bottom,
                                  View innerView, boolean isFirstStep, boolean isLastStep) {
         InternalTouchView touchView = getTouchView(innerView);
@@ -437,6 +413,30 @@ public class VerticalStepper extends ViewGroup {
         int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
 
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
+    }
+
+    private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
+                                 View innerView, LayoutParams lp, boolean isLastStep) {
+        if (lp.active) {
+            int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
+                    + iconDimension + iconMarginRight;
+
+            int innerTop =
+                    (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
+
+            int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+            int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
+
+            int innerBottomMax;
+            if (isLastStep) {
+                innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
+            } else {
+                innerBottomMax = bottom;
+            }
+            int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
+
+            innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
+        }
     }
 
     @Override
