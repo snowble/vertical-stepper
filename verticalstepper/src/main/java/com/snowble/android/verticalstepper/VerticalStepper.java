@@ -373,20 +373,27 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        int currentTop = top;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View v = innerViews.get(i);
             boolean isFirstStep = i == 0;
             boolean isLastStep = i == innerViewsSize - 1;
 
-            // TODO Update l,t,r,b based on translations
-
-            InternalTouchView touchView = getTouchView(v);
-            int touchLeft = left + getPaddingLeft();
-            int touchTop = top;
             if (isFirstStep) {
-                touchTop += getPaddingTop();
+                currentTop += getPaddingTop() + outerVerticalPadding;
             }
+            InternalTouchView touchView = getTouchView(v);
+
+            int touchLeft = left + getPaddingLeft();
+
+            int touchTop = currentTop;
+            if (isFirstStep) {
+                // touch view is not clipped by the outer padding
+                touchTop -= outerVerticalPadding;
+            }
+
             int touchRight = right - left - getPaddingRight();
+
             int touchBottomMax;
             if (isLastStep) {
                 touchBottomMax = bottom - getPaddingBottom();
@@ -394,18 +401,19 @@ public class VerticalStepper extends ViewGroup {
                 touchBottomMax = bottom;
             }
             int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
+
             touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
 
             LayoutParams lp = getInternalLayoutParams(v);
             if (lp.active) {
                 int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                         + iconDimension + iconMarginRight;
-                int innerTop = (int) (top + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
-                if (isFirstStep) {
-                    innerTop += getPaddingTop() + outerVerticalPadding;
-                }
+
+                int innerTop = (int) (currentTop + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
+
                 int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
                 int innerRight = Math.min(innerLeft + v.getMeasuredWidth(), innerRightMax);
+
                 int innerBottomMax;
                 if (isLastStep) {
                     innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
@@ -413,8 +421,10 @@ public class VerticalStepper extends ViewGroup {
                     innerBottomMax = bottom;
                 }
                 int innerBottom = Math.min(innerTop + v.getMeasuredHeight(), innerBottomMax);
+
                 v.layout(innerLeft, innerTop, innerRight, innerBottom);
             }
+            currentTop += getYDistanceToNextStep(v, lp);
         }
     }
 
@@ -437,16 +447,31 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
+            int dyToNextStep = getYDistanceToNextStep(innerView, lp);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
-                drawConnector(canvas, lp);
+                drawConnector(canvas, lp, dyToNextStep);
                 canvas.restore();
             }
 
             canvas.restore();
+            if (hasMoreSteps) {
+                canvas.translate(0, dyToNextStep);
+            }
         }
         canvas.restore();
+    }
+
+    private int getYDistanceToNextStep(View innerView, LayoutParams lp) {
+        int dyToNextStep = (int) lp.titleBaselineRelativeToStepTop;
+        if (lp.active) {
+            dyToNextStep += titleMarginBottom + innerView.getHeight();
+        } else {
+            dyToNextStep += lp.summaryBottomRelativeToTitleBottom;
+        }
+        dyToNextStep += getInnerVerticalMargin(lp);
+        return dyToNextStep;
     }
 
     private void drawIcon(Canvas canvas, LayoutParams lp, int stepNumber) {
@@ -483,15 +508,11 @@ public class VerticalStepper extends ViewGroup {
         // TODO Handle optional case
     }
 
-    private void drawConnector(Canvas canvas, LayoutParams lp) {
+    private void drawConnector(Canvas canvas, LayoutParams lp, int yDistanceToNextStep) {
         canvas.translate((iconDimension - connectorWidth) / 2, 0);
         float startY = iconDimension + iconMarginVertical;
-        float stopY = getInactiveStepHeightIncludingVerticalMargin(lp) - iconMarginVertical;
+        float stopY = yDistanceToNextStep - iconMarginVertical;
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
-    }
-
-    private float getInactiveStepHeightIncludingVerticalMargin(LayoutParams lp) {
-        return lp.titleBottomRelativeToStepTop + lp.summaryBottomRelativeToTitleBottom + getInnerVerticalMargin(lp);
     }
 
     private TextPaint getTitleTextPaint(LayoutParams lp) {
