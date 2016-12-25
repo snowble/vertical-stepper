@@ -341,11 +341,6 @@ public class VerticalStepper extends ViewGroup {
             int usedHeight = innerViewVerticalPadding + height;
             int innerHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, lp.height);
 
-            boolean hasMoreSteps = i + 1 < innerViewsSize;
-            if (hasMoreSteps) {
-                height += getInnerVerticalMargin(lp);
-            }
-
             v.measure(innerWms, innerHms);
             widthWithoutPadding = Math.max(widthWithoutPadding, v.getMeasuredWidth() + innerViewHorizontalPadding);
             if (lp.active) {
@@ -365,6 +360,11 @@ public class VerticalStepper extends ViewGroup {
                 widthWithoutPadding = Math.max(widthWithoutPadding,
                         continueButton.getMeasuredWidth() + innerViewHorizontalPadding);
                 height += continueButton.getMeasuredHeight();
+            }
+
+            boolean hasMoreSteps = i + 1 < innerViewsSize;
+            if (hasMoreSteps) {
+                height += getInnerVerticalMargin(lp);
             }
         }
         width += widthWithoutPadding;
