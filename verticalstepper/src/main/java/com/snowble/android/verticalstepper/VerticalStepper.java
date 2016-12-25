@@ -290,6 +290,7 @@ public class VerticalStepper extends ViewGroup {
 
     private void initNavButtons(View innerView) {
         AppCompatButton continueButton = getContinueButton(innerView);
+        continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
         // TODO See if the anonymous inner class can be avoided
         continueButton.setOnClickListener(new OnClickListener() {
@@ -308,8 +309,10 @@ public class VerticalStepper extends ViewGroup {
         int visibility = innerView.getVisibility();
         if (visibility == VISIBLE) {
             innerView.setVisibility(GONE);
+            lp.continueButton.setVisibility(GONE);
         } else {
             innerView.setVisibility(VISIBLE);
+            lp.continueButton.setVisibility(VISIBLE);
         }
     }
 
