@@ -424,14 +424,14 @@ public class VerticalStepper extends ViewGroup {
             layoutTouchView(left, currentTop, right, bottom, v, isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(v);
-            layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
+            if (lp.active) {
+                layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
 
-            currentTop += getYDistanceToButtons(v, lp);
+                int buttonsTop = currentTop + getYDistanceToButtons(v, lp);
 
-            layoutNavButtons(left, currentTop, right, bottom, v, lp, isLastStep);
-
-            currentTop += lp.continueButton.getHeight();
-            currentTop += getInnerVerticalMargin(lp);
+                layoutNavButtons(left, buttonsTop, right, bottom, v, lp, isLastStep);
+            }
+            currentTop += getYDistanceToNextStep(v, lp);
         }
     }
 
@@ -460,53 +460,49 @@ public class VerticalStepper extends ViewGroup {
 
     private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
                                  View innerView, LayoutParams lp, boolean isLastStep) {
-        if (lp.active) {
-            int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
-                    + iconDimension + iconMarginRight;
+        int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
+                + iconDimension + iconMarginRight;
 
-            int innerTop =
-                    (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
+        int innerTop =
+                (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
 
-            int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
-            int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
+        int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+        int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
 
-            int innerBottomMax;
-            if (isLastStep) {
-                innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
-            } else {
-                innerBottomMax = bottom;
-            }
-            int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
-
-            innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
+        int innerBottomMax;
+        if (isLastStep) {
+            innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
+        } else {
+            innerBottomMax = bottom;
         }
+        int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
+
+        innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
     }
 
     private void layoutNavButtons(int left, int currentTop, int right, int bottom,
                                   View innerView, LayoutParams innerViewLp, boolean isLastStep) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
-        if (innerViewLp.active) {
-            AppCompatButton button = getContinueButton(innerView);
+        AppCompatButton button = getContinueButton(innerView);
 
-            int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
-                    + iconDimension + iconMarginRight;
+        int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
+                + iconDimension + iconMarginRight;
 
-            // TODO Add button margins
-            int buttonTop = currentTop;
+        // TODO Add button margins
+        int buttonTop = currentTop;
 
-            int buttonRightMax = right - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
-            int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
+        int buttonRightMax = right - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
+        int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
 
-            int buttonBottomMax;
-            if (isLastStep) {
-                buttonBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
-            } else {
-                buttonBottomMax = bottom;
-            }
-            int buttonBottom = Math.min(buttonTop + button.getMeasuredHeight(), buttonBottomMax);
-
-            button.layout(buttonLeft, buttonTop, buttonRight, buttonBottom);
+        int buttonBottomMax;
+        if (isLastStep) {
+            buttonBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
+        } else {
+            buttonBottomMax = bottom;
         }
+        int buttonBottom = Math.min(buttonTop + button.getMeasuredHeight(), buttonBottomMax);
+
+        button.layout(buttonLeft, buttonTop, buttonRight, buttonBottom);
     }
 
 
@@ -547,19 +543,27 @@ public class VerticalStepper extends ViewGroup {
 
     private int getYDistanceToNextStep(View innerView, LayoutParams lp) {
         int dyToNextStep = getYDistanceToButtons(innerView, lp);
-        dyToNextStep += lp.continueButton.getHeight();
+        if (lp.active) {
+            dyToNextStep += lp.continueButton.getHeight();
+        }
         dyToNextStep += getInnerVerticalMargin(lp);
         return dyToNextStep;
     }
 
     private int getYDistanceToButtons(View innerView, LayoutParams lp) {
-        int dyToNextStep = (int) lp.titleBaselineRelativeToStepTop;
+        int dyToButtons = getYDistanceToTextBottom(lp);
         if (lp.active) {
-            dyToNextStep += titleMarginBottom + innerView.getHeight();
-        } else {
-            dyToNextStep += lp.summaryBottomRelativeToTitleBottom;
+            dyToButtons += titleMarginBottom + innerView.getHeight();
         }
-        return dyToNextStep;
+        return dyToButtons;
+    }
+
+    private int getYDistanceToTextBottom(LayoutParams lp) {
+        int dyToTextBottom = (int) lp.titleBaselineRelativeToStepTop;
+        if (!lp.active) {
+            dyToTextBottom += lp.summaryBottomRelativeToTitleBottom;
+        }
+        return dyToTextBottom;
     }
 
     private void drawIcon(Canvas canvas, LayoutParams lp, int stepNumber) {
