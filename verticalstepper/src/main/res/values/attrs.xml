@@ -5,6 +5,8 @@
         <attr name="iconColorActive" format="color" />
         <!-- the color of the icon when the it's collapsed and incomplete -->
         <attr name="iconColorInactive" format="color" />
+        <!-- the style of the continue button shown inside a step -->
+        <attr name="continueButtonStyle" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="VerticalStepper_Layout">

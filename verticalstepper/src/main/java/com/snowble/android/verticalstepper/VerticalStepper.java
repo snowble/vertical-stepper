@@ -1,5 +1,6 @@
 package com.snowble.android.verticalstepper;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -13,6 +14,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatButton;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -56,6 +58,8 @@ public class VerticalStepper extends ViewGroup {
 
     private int touchViewHeight;
     private int touchViewBackground;
+
+    private ContextThemeWrapper continueButtonContextWrapper;
 
     private int connectorWidth;
     private Paint connectorPaint;
@@ -114,6 +118,7 @@ public class VerticalStepper extends ViewGroup {
                     defStyleAttr, defStyleRes);
             try {
                 initIconPropertiesFromAttrs(a);
+                initNavButtonPropertiesFromAttrs(a);
             } finally {
                 a.recycle();
             }
@@ -126,6 +131,13 @@ public class VerticalStepper extends ViewGroup {
                 ResourcesCompat.getColor(resources, defaultActiveColor, context.getTheme()));
         iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
                 ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
+    }
+
+    private void initNavButtonPropertiesFromAttrs(TypedArray a) {
+        @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
+        int continueButtonStyle = a.getResourceId(
+                R.styleable.VerticalStepper_continueButtonStyle, R.style.Widget_AppCompat_Button_Colored);
+        continueButtonContextWrapper = new ContextThemeWrapper(context, continueButtonStyle);
     }
 
     private void initPadding() {
@@ -272,7 +284,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void createAndAttachNavButtons(View innerView) {
-        getInternalLayoutParams(innerView).continueButton = new AppCompatButton(context);
+        getInternalLayoutParams(innerView).continueButton = new AppCompatButton(continueButtonContextWrapper, null, 0);
     }
 
     private void initTouchView(final View innerView) {
