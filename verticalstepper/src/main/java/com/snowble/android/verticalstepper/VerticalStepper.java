@@ -255,7 +255,7 @@ public class VerticalStepper extends ViewGroup {
 
         for (View v : innerViews) {
             initTouchView(v);
-            initNavigationButtons(v);
+            initNavButtons(v);
         }
     }
 
@@ -264,14 +264,14 @@ public class VerticalStepper extends ViewGroup {
         innerViews.add(innerView);
 
         createAndAttachTouchView(innerView);
-        createAndAttachStepNavigationButtons(innerView);
+        createAndAttachNavButtons(innerView);
     }
 
     private void createAndAttachTouchView(View innerView) {
         getInternalLayoutParams(innerView).touchView = new InternalTouchView(context);
     }
 
-    private void createAndAttachStepNavigationButtons(View innerView) {
+    private void createAndAttachNavButtons(View innerView) {
         getInternalLayoutParams(innerView).continueButton = new AppCompatButton(context);
     }
 
@@ -288,7 +288,7 @@ public class VerticalStepper extends ViewGroup {
         addView(touchView);
     }
 
-    private void initNavigationButtons(View innerView) {
+    private void initNavButtons(View innerView) {
         AppCompatButton continueButton = getContinueButton(innerView);
         continueButton.setText(R.string.continue_button);
         // TODO See if the anonymous inner class can be avoided
@@ -425,7 +425,6 @@ public class VerticalStepper extends ViewGroup {
 
             currentTop += getYDistanceToButtons(v, lp);
 
-            // TODO Be consistent with nav vs navigation naming
             layoutNavButtons(left, currentTop, right, bottom, v, lp, isLastStep);
 
             currentTop += lp.continueButton.getHeight();
