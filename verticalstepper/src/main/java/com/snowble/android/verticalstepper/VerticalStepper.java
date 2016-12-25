@@ -382,10 +382,12 @@ public class VerticalStepper extends ViewGroup {
             if (isFirstStep) {
                 currentTop += getPaddingTop() + outerVerticalPadding;
             }
+
             layoutTouchView(left, currentTop, right, bottom, v, isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(v);
             layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
+
             currentTop += getYDistanceToNextStep(v, lp);
         }
     }
