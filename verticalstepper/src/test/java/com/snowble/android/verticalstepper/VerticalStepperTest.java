@@ -45,8 +45,8 @@ public class VerticalStepperTest {
     private void testStepToggle(boolean initialActivateState, int initialVisibility,
                                 boolean finalExpectedActiveState, int finalExpectedVisibility) {
         VerticalStepper.LayoutParams lp = createTestLayoutParams();
-        lp.active = initialActivateState;
-        when(lp.continueButton.getVisibility()).thenReturn(initialVisibility);
+        lp.setActive(initialActivateState);
+        when(lp.getContinueButton().getVisibility()).thenReturn(initialVisibility);
 
         View innerView = mock(View.class);
         when(innerView.getVisibility()).thenReturn(initialVisibility);
@@ -54,9 +54,9 @@ public class VerticalStepperTest {
 
         stepper.toggleStepExpandedState(innerView);
 
-        assertThat(lp.active).isEqualTo(finalExpectedActiveState);
+        assertThat(lp.isActive()).isEqualTo(finalExpectedActiveState);
         verify(innerView).setVisibility(finalExpectedVisibility);
-        verify(lp.continueButton).setVisibility(finalExpectedVisibility);
+        verify(lp.getContinueButton()).setVisibility(finalExpectedVisibility);
     }
 
     private VerticalStepper.LayoutParams createTestLayoutParams() {
@@ -65,7 +65,7 @@ public class VerticalStepperTest {
         attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
         attributeSetBuilder.addAttribute(R.attr.step_title, "title");
         VerticalStepper.LayoutParams lp = new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-        lp.continueButton = mock(AppCompatButton.class);
+        lp.setContinueButton(mock(AppCompatButton.class));
         return lp;
     }
 

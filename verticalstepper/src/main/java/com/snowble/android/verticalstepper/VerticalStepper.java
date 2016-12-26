@@ -281,11 +281,12 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void createAndAttachTouchView(View innerView) {
-        getInternalLayoutParams(innerView).touchView = new InternalTouchView(context);
+        getInternalLayoutParams(innerView).setTouchView(new InternalTouchView(context));
     }
 
     private void createAndAttachNavButtons(View innerView) {
-        getInternalLayoutParams(innerView).continueButton = new AppCompatButton(continueButtonContextWrapper, null, 0);
+        getInternalLayoutParams(innerView).setContinueButton(
+                new AppCompatButton(continueButtonContextWrapper, null, 0));
     }
 
     private void initTouchView(final View innerView) {
@@ -320,11 +321,11 @@ public class VerticalStepper extends ViewGroup {
         LayoutParams lp = getInternalLayoutParams(innerView);
         toggleActiveState(lp);
         toggleViewVisibility(innerView);
-        toggleViewVisibility(lp.continueButton);
+        toggleViewVisibility(lp.getContinueButton());
     }
 
     private void toggleActiveState(LayoutParams lp) {
-        lp.active = !lp.active;
+        lp.setActive(!lp.isActive());
     }
 
     private void toggleViewVisibility(View view) {
@@ -366,7 +367,7 @@ public class VerticalStepper extends ViewGroup {
 
             v.measure(innerWms, innerHms);
             widthWithoutPadding = Math.max(widthWithoutPadding, v.getMeasuredWidth() + innerViewHorizontalPadding);
-            if (lp.active) {
+            if (lp.isActive()) {
                 height += v.getMeasuredHeight() + innerViewVerticalPadding;
 
                 // TODO Add margins for buttons
@@ -416,13 +417,13 @@ public class VerticalStepper extends ViewGroup {
     private float getStepDecoratorTextWidth(LayoutParams lp) {
         lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
         lp.measureSummaryHorizontalDimensions(summaryTextPaint);
-        return Math.max(lp.titleWidth, lp.summaryWidth);
+        return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
     }
 
     private int getStepDecoratorHeight(LayoutParams lp) {
         lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
-        int textTotalHeight = (int) (lp.titleBottomRelativeToStepTop + lp.summaryBottomRelativeToTitleBottom);
+        int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -447,7 +448,7 @@ public class VerticalStepper extends ViewGroup {
             layoutTouchView(left, currentTop, right, bottom, v, isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(v);
-            if (lp.active) {
+            if (lp.isActive()) {
                 layoutInnerView(left, currentTop, right, bottom, v, isLastStep);
 
                 int buttonsTop = currentTop + getYDistanceToButtons(v, lp);
@@ -487,7 +488,7 @@ public class VerticalStepper extends ViewGroup {
         int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + iconDimension + iconMarginRight;
 
-        int innerTop = (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop
+        int innerTop = (int) (topAdjustedForPadding + lp.topMargin + lp.getTitleBottomRelativeToStepTop()
                 + titleMarginBottomToInnerView);
 
         int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
@@ -568,8 +569,8 @@ public class VerticalStepper extends ViewGroup {
 
     private int getYDistanceToNextStep(View innerView, LayoutParams lp) {
         int dyToNextStep = getYDistanceToButtons(innerView, lp);
-        if (lp.active) {
-            dyToNextStep += lp.continueButton.getHeight();
+        if (lp.isActive()) {
+            dyToNextStep += lp.getContinueButton().getHeight();
         }
         dyToNextStep += getBottomMarginToNextStep(lp);
         return dyToNextStep;
@@ -577,16 +578,16 @@ public class VerticalStepper extends ViewGroup {
 
     private int getYDistanceToButtons(View innerView, LayoutParams lp) {
         int dyToButtons = getYDistanceToTextBottom(lp);
-        if (lp.active) {
+        if (lp.isActive()) {
             dyToButtons += innerView.getHeight() + titleMarginBottomToInnerView;
         }
         return dyToButtons;
     }
 
     private int getYDistanceToTextBottom(LayoutParams lp) {
-        int dyToTextBottom = (int) lp.titleBaselineRelativeToStepTop;
-        if (!lp.active) {
-            dyToTextBottom += lp.summaryBottomRelativeToTitleBottom;
+        int dyToTextBottom = (int) lp.getTitleBaselineRelativeToStepTop();
+        if (!lp.isActive()) {
+            dyToTextBottom += lp.getSummaryBottomRelativeToTitleBottom();
         }
         return dyToTextBottom;
     }
@@ -616,11 +617,11 @@ public class VerticalStepper extends ViewGroup {
         canvas.translate(getStepDecoratorIconWidth(), 0);
 
         TextPaint paint = getTitleTextPaint(lp);
-        canvas.drawText(lp.title, 0, lp.titleBaselineRelativeToStepTop, paint);
+        canvas.drawText(lp.getTitle(), 0, lp.getTitleBaselineRelativeToStepTop(), paint);
 
-        if (!TextUtils.isEmpty(lp.summary) && !lp.active) {
-            canvas.translate(0, lp.titleBottomRelativeToStepTop);
-            canvas.drawText(lp.summary, 0, lp.summaryBaselineRelativeToTitleBottom, summaryTextPaint);
+        if (!TextUtils.isEmpty(lp.getSummary()) && !lp.isActive()) {
+            canvas.translate(0, lp.getTitleBottomRelativeToStepTop());
+            canvas.drawText(lp.getSummary(), 0, lp.getSummaryBaselineRelativeToTitleBottom(), summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -633,23 +634,23 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private TextPaint getTitleTextPaint(LayoutParams lp) {
-        return lp.active ? titleActiveTextPaint : titleInactiveTextPaint;
+        return lp.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
     private int getBottomMarginToNextStep(LayoutParams lp) {
-        return lp.active ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
+        return lp.isActive() ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
     }
 
     private Paint getIconColor(LayoutParams lp) {
-        return lp.active ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
+        return lp.isActive() ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
     }
 
     private static InternalTouchView getTouchView(View innerView) {
-        return getInternalLayoutParams(innerView).touchView;
+        return getInternalLayoutParams(innerView).getTouchView();
     }
 
     private static AppCompatButton getContinueButton(View innerView) {
-        return getInternalLayoutParams(innerView).continueButton;
+        return getInternalLayoutParams(innerView).getContinueButton();
     }
 
     private static LayoutParams getInternalLayoutParams(View innerView) {
@@ -680,23 +681,25 @@ public class VerticalStepper extends ViewGroup {
 
         private static Rect tmpRectTitleTextBounds = new Rect();
 
-        InternalTouchView touchView;
-        AppCompatButton continueButton;
+        private InternalTouchView touchView;
+        private AppCompatButton continueButton;
 
         @SuppressWarnings("NullableProblems")
         @NonNull
+        private
         String title;
-        float titleWidth;
-        float titleBaselineRelativeToStepTop;
-        float titleBottomRelativeToStepTop;
+        private float titleWidth;
+        private float titleBaselineRelativeToStepTop;
+        private float titleBottomRelativeToStepTop;
 
         @Nullable
+        private
         String summary;
-        float summaryWidth;
-        float summaryBaselineRelativeToTitleBottom;
-        float summaryBottomRelativeToTitleBottom;
+        private float summaryWidth;
+        private float summaryBaselineRelativeToTitleBottom;
+        private float summaryBottomRelativeToTitleBottom;
 
-        boolean active;
+        private boolean active;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -704,15 +707,15 @@ public class VerticalStepper extends ViewGroup {
             TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
             try {
                 //noinspection ConstantConditions
-                title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
-                summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
+                setTitle(a.getString(R.styleable.VerticalStepper_Layout_step_title));
+                setSummary(a.getString(R.styleable.VerticalStepper_Layout_step_summary));
             } finally {
                 a.recycle();
             }
-            if (TextUtils.isEmpty(title)) {
+            if (TextUtils.isEmpty(getTitle())) {
                 throw new IllegalArgumentException("step_title cannot be empty.");
             }
-            active = false;
+            setActive(false);
         }
 
         public LayoutParams(int width, int height) {
@@ -721,6 +724,96 @@ public class VerticalStepper extends ViewGroup {
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+
+        InternalTouchView getTouchView() {
+            return touchView;
+        }
+
+        void setTouchView(InternalTouchView touchView) {
+            this.touchView = touchView;
+        }
+
+        AppCompatButton getContinueButton() {
+            return continueButton;
+        }
+
+        void setContinueButton(AppCompatButton continueButton) {
+            this.continueButton = continueButton;
+        }
+
+        @NonNull
+        String getTitle() {
+            return title;
+        }
+
+        void setTitle(@NonNull String title) {
+            this.title = title;
+        }
+
+        float getTitleWidth() {
+            return titleWidth;
+        }
+
+        void setTitleWidth(float titleWidth) {
+            this.titleWidth = titleWidth;
+        }
+
+        float getTitleBaselineRelativeToStepTop() {
+            return titleBaselineRelativeToStepTop;
+        }
+
+        void setTitleBaselineRelativeToStepTop(float titleBaselineRelativeToStepTop) {
+            this.titleBaselineRelativeToStepTop = titleBaselineRelativeToStepTop;
+        }
+
+        float getTitleBottomRelativeToStepTop() {
+            return titleBottomRelativeToStepTop;
+        }
+
+        void setTitleBottomRelativeToStepTop(float titleBottomRelativeToStepTop) {
+            this.titleBottomRelativeToStepTop = titleBottomRelativeToStepTop;
+        }
+
+        @Nullable
+        String getSummary() {
+            return summary;
+        }
+
+        void setSummary(@Nullable String summary) {
+            this.summary = summary;
+        }
+
+        float getSummaryWidth() {
+            return summaryWidth;
+        }
+
+        void setSummaryWidth(float summaryWidth) {
+            this.summaryWidth = summaryWidth;
+        }
+
+        float getSummaryBaselineRelativeToTitleBottom() {
+            return summaryBaselineRelativeToTitleBottom;
+        }
+
+        void setSummaryBaselineRelativeToTitleBottom(float summaryBaselineRelativeToTitleBottom) {
+            this.summaryBaselineRelativeToTitleBottom = summaryBaselineRelativeToTitleBottom;
+        }
+
+        float getSummaryBottomRelativeToTitleBottom() {
+            return summaryBottomRelativeToTitleBottom;
+        }
+
+        void setSummaryBottomRelativeToTitleBottom(float summaryBottomRelativeToTitleBottom) {
+            this.summaryBottomRelativeToTitleBottom = summaryBottomRelativeToTitleBottom;
+        }
+
+        boolean isActive() {
+            return active;
+        }
+
+        void setActive(boolean active) {
+            this.active = active;
         }
 
         void measureTitleHorizontalDimensions(TextPaint titlePaint) {
