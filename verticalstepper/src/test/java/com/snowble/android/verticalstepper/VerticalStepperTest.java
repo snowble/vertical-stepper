@@ -59,6 +59,44 @@ public class VerticalStepperTest {
         verify(lp.getContinueButton()).setVisibility(finalExpectedVisibility);
     }
 
+    @Test
+    public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        float textWidth = 10f;
+        when(lp.getTitleWidth()).thenReturn(textWidth);
+        when(lp.getSummaryWidth()).thenReturn(textWidth);
+
+        int iconWidth = stepper.iconDimension + stepper.iconMarginRight;
+
+        assertThat(stepper.getStepDecoratorWidth(lp)).isEqualTo(iconWidth + (int) textWidth);
+    }
+
+    @Test
+    public void getStepDecoratorIconWidth_ShouldReturnIconWidthAndMarginSum() {
+        assertThat(stepper.getStepDecoratorIconWidth())
+                .isEqualTo(stepper.iconDimension + stepper.iconMarginRight);
+    }
+
+    @Test
+    public void getStepDecoratorTextWidth_LargerTitle_ShouldReturnTitle() {
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        when(lp.getTitleWidth()).thenReturn(20f);
+        when(lp.getSummaryWidth()).thenReturn(10f);
+
+        float width = stepper.getStepDecoratorTextWidth(lp);
+        assertThat(width).isEqualTo(20f);
+    }
+
+    @Test
+    public void getStepDecoratorTextWidth_LargerSummary_ShouldReturnSummary() {
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        when(lp.getTitleWidth()).thenReturn(20f);
+        when(lp.getSummaryWidth()).thenReturn(25f);
+
+        float width = stepper.getStepDecoratorTextWidth(lp);
+        assertThat(width).isEqualTo(25f);
+    }
+
     private VerticalStepper.LayoutParams createTestLayoutParams() {
         Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
         attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
