@@ -41,8 +41,10 @@ public class VerticalStepper extends ViewGroup {
     private int inactiveBottomMarginToNextStep;
     private int activeBottomMarginToNextStep;
 
-    private int iconDimension;
-    private int iconMarginRight;
+    @VisibleForTesting
+    int iconDimension;
+    @VisibleForTesting
+    int iconMarginRight;
     private int iconMarginVertical;
     private int iconActiveColor;
     private int iconInactiveColor;
@@ -406,15 +408,18 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
-    private int getStepDecoratorWidth(LayoutParams lp) {
+    @VisibleForTesting
+    int getStepDecoratorWidth(LayoutParams lp) {
         return getStepDecoratorIconWidth() + (int) getStepDecoratorTextWidth(lp);
     }
 
-    private int getStepDecoratorIconWidth() {
+    @VisibleForTesting
+    int getStepDecoratorIconWidth() {
         return iconDimension + iconMarginRight;
     }
 
-    private float getStepDecoratorTextWidth(LayoutParams lp) {
+    @VisibleForTesting
+    float getStepDecoratorTextWidth(LayoutParams lp) {
         lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
         lp.measureSummaryHorizontalDimensions(summaryTextPaint);
         return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
