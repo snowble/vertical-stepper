@@ -387,7 +387,7 @@ public class VerticalStepper extends ViewGroup {
 
             boolean hasMoreSteps = i + 1 < innerViewsSize;
             if (hasMoreSteps) {
-                height += getInnerVerticalMargin(lp);
+                height += getBottomMarginToNextStep(lp);
             }
         }
         width += widthWithoutPadding;
@@ -568,7 +568,7 @@ public class VerticalStepper extends ViewGroup {
         if (lp.active) {
             dyToNextStep += lp.continueButton.getHeight();
         }
-        dyToNextStep += getInnerVerticalMargin(lp);
+        dyToNextStep += getBottomMarginToNextStep(lp);
         return dyToNextStep;
     }
 
@@ -633,7 +633,7 @@ public class VerticalStepper extends ViewGroup {
         return lp.active ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
-    private int getInnerVerticalMargin(LayoutParams lp) {
+    private int getBottomMarginToNextStep(LayoutParams lp) {
         return lp.active ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
     }
 
