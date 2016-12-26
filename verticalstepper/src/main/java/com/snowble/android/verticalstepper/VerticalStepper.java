@@ -352,13 +352,13 @@ public class VerticalStepper extends ViewGroup {
             int innerViewHorizontalPadding = iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
             int innerViewVerticalPadding = lp.topMargin + lp.bottomMargin;
 
-            int stepDecoratorWidth = measureStepDecoratorWidth(lp);
+            int stepDecoratorWidth = getStepDecoratorWidth(lp);
             widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
 
             int innerWms =
                     getChildMeasureSpec(widthMeasureSpec, horizontalPadding + innerViewHorizontalPadding, lp.width);
 
-            int stepDecoratorHeight = measureStepDecoratorHeight(lp);
+            int stepDecoratorHeight = getStepDecoratorHeight(lp);
             height += stepDecoratorHeight;
 
             int usedHeight = innerViewVerticalPadding + height;
@@ -405,18 +405,21 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
-    private int measureStepDecoratorWidth(LayoutParams lp) {
-        int stepDecoratorWidth = iconDimension;
-        stepDecoratorWidth += iconMarginRight;
-
-        lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
-        lp.measureSummaryHorizontalDimensions(summaryTextPaint);
-        stepDecoratorWidth += Math.max(lp.titleWidth, lp.summaryWidth);
-
-        return stepDecoratorWidth;
+    private int getStepDecoratorWidth(LayoutParams lp) {
+        return getStepDecoratorIconWidth() + (int) getStepDecoratorTextWidth(lp);
     }
 
-    private int measureStepDecoratorHeight(LayoutParams lp) {
+    private int getStepDecoratorIconWidth() {
+        return iconDimension + iconMarginRight;
+    }
+
+    private float getStepDecoratorTextWidth(LayoutParams lp) {
+        lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
+        lp.measureSummaryHorizontalDimensions(summaryTextPaint);
+        return Math.max(lp.titleWidth, lp.summaryWidth);
+    }
+
+    private int getStepDecoratorHeight(LayoutParams lp) {
         lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.titleBottomRelativeToStepTop + lp.summaryBottomRelativeToTitleBottom);
@@ -610,7 +613,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, LayoutParams lp) {
-        canvas.translate(iconDimension + iconMarginRight, 0);
+        canvas.translate(getStepDecoratorIconWidth(), 0);
 
         TextPaint paint = getTitleTextPaint(lp);
         canvas.drawText(lp.title, 0, lp.titleBaselineRelativeToStepTop, paint);
