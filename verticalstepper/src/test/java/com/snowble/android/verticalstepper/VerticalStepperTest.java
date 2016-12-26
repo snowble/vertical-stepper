@@ -33,7 +33,7 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void toggleStepActiveState_ShouldToggleState() {
+    public void toggleStepExpandedState_Inactive_ShouldBecomeActiveAndExpanded() {
         VerticalStepper.LayoutParams lp = mockLayoutParams();
         lp.active = false;
         when(lp.continueButton.getVisibility()).thenReturn(View.GONE);
@@ -47,6 +47,23 @@ public class VerticalStepperTest {
         assertThat(lp.active).isTrue();
         verify(innerView).setVisibility(View.VISIBLE);
         verify(lp.continueButton).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void toggleStepExpandedState_Active_ShouldBecomeInactiveAndCollapsed() {
+        VerticalStepper.LayoutParams lp = mockLayoutParams();
+        lp.active = true;
+        when(lp.continueButton.getVisibility()).thenReturn(View.VISIBLE);
+
+        View innerView = mock(View.class);
+        when(innerView.getVisibility()).thenReturn(View.VISIBLE);
+        when(innerView.getLayoutParams()).thenReturn(lp);
+
+        stepper.toggleStepExpandedState(innerView);
+
+        assertThat(lp.active).isFalse();
+        verify(innerView).setVisibility(View.GONE);
+        verify(lp.continueButton).setVisibility(View.GONE);
     }
 
     private VerticalStepper.LayoutParams mockLayoutParams() {
