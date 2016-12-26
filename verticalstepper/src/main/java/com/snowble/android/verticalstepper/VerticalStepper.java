@@ -38,8 +38,8 @@ public class VerticalStepper extends ViewGroup {
     private int outerHorizontalPadding;
     private int outerVerticalPadding;
 
-    private int innerInactiveVerticalMargin;
-    private int innerActiveVerticalMargin;
+    private int inactiveBottomMarginToNextStep;
+    private int activeBottomMarginToNextStep;
 
     private int iconDimension;
     private int iconMarginRight;
@@ -55,7 +55,7 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint titleActiveTextPaint;
     private TextPaint titleInactiveTextPaint;
     private TextPaint summaryTextPaint;
-    private int titleMarginBottom;
+    private int titleMarginBottomToInnerView;
 
     private int touchViewHeight;
     private int touchViewBackground;
@@ -144,8 +144,8 @@ public class VerticalStepper extends ViewGroup {
     private void initPadding() {
         outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
         outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
-        innerInactiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_inactive_margin_vertical);
-        innerActiveVerticalMargin = resources.getDimensionPixelSize(R.dimen.inner_active_margin_vertical);
+        inactiveBottomMarginToNextStep = resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step);
+        activeBottomMarginToNextStep = resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step);
     }
 
     private void initIconProperties() {
@@ -192,7 +192,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initTitleDimensions() {
-        titleMarginBottom = resources.getDimensionPixelSize(R.dimen.title_margin_bottom);
+        titleMarginBottomToInnerView = resources.getDimensionPixelSize(R.dimen.title_margin_bottom_to_inner_view);
     }
 
     private void initTitleTextPaint() {
@@ -483,8 +483,8 @@ public class VerticalStepper extends ViewGroup {
         int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + iconDimension + iconMarginRight;
 
-        int innerTop =
-                (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop + titleMarginBottom);
+        int innerTop = (int) (topAdjustedForPadding + lp.topMargin + lp.titleBottomRelativeToStepTop
+                + titleMarginBottomToInnerView);
 
         int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
         int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
@@ -573,7 +573,7 @@ public class VerticalStepper extends ViewGroup {
     private int getYDistanceToButtons(View innerView, LayoutParams lp) {
         int dyToButtons = getYDistanceToTextBottom(lp);
         if (lp.active) {
-            dyToButtons += titleMarginBottom + innerView.getHeight();
+            dyToButtons += titleMarginBottomToInnerView + innerView.getHeight();
         }
         return dyToButtons;
     }
@@ -632,7 +632,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private int getInnerVerticalMargin(LayoutParams lp) {
-        return lp.active ? innerActiveVerticalMargin : innerInactiveVerticalMargin;
+        return lp.active ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
     }
 
     private Paint getIconColor(LayoutParams lp) {
