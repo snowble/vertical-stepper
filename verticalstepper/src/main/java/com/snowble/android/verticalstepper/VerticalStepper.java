@@ -294,7 +294,7 @@ public class VerticalStepper extends ViewGroup {
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleStepActiveState(innerView);
+                toggleStepExpandedState(innerView);
             }
         });
         addView(touchView);
@@ -314,17 +314,23 @@ public class VerticalStepper extends ViewGroup {
         addView(continueButton);
     }
 
-    private void toggleStepActiveState(View innerView) {
+    private void toggleStepExpandedState(View innerView) {
         LayoutParams lp = getInternalLayoutParams(innerView);
-        lp.active = !lp.active;
+        toggleActiveState(lp);
+        toggleViewVisibility(innerView);
+        toggleViewVisibility(lp.continueButton);
+    }
 
-        int visibility = innerView.getVisibility();
+    private void toggleActiveState(LayoutParams lp) {
+        lp.active = !lp.active;
+    }
+
+    private void toggleViewVisibility(View view) {
+        int visibility = view.getVisibility();
         if (visibility == VISIBLE) {
-            innerView.setVisibility(GONE);
-            lp.continueButton.setVisibility(GONE);
+            view.setVisibility(GONE);
         } else {
-            innerView.setVisibility(VISIBLE);
-            lp.continueButton.setVisibility(VISIBLE);
+            view.setVisibility(VISIBLE);
         }
     }
 
