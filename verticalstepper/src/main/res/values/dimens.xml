@@ -8,14 +8,14 @@
     <dimen name="outer_padding_horizontal">24dp</dimen>
     <dimen name="outer_padding_vertical">24dp</dimen>
 
-    <dimen name="inner_active_margin_vertical">48dp</dimen>
-    <dimen name="inner_inactive_margin_vertical">40dp</dimen>
+    <dimen name="active_bottom_margin_to_next_step">48dp</dimen>
+    <dimen name="inactive_bottom_margin_to_next_step">40dp</dimen>
 
     <dimen name="touch_height">72dp</dimen>
 
     <dimen name="title_font_size">14sp</dimen>
     <dimen name="summary_font_size">14sp</dimen>
-    <dimen name="title_margin_bottom">16dp</dimen>
+    <dimen name="title_margin_bottom_to_inner_view">16dp</dimen>
 
     <dimen name="connector_width">1dp</dimen>
 </resources>
