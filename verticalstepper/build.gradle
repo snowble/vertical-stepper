@@ -21,6 +21,9 @@ android {
         sourceCompatibility project.ext.javaSrcVersion
         targetCompatibility project.ext.javaTargetVersion
     }
+    lintOptions {
+        warningsAsErrors true
+    }
 }
 
 dependencies {

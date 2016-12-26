@@ -10,7 +10,7 @@ android:
   - extra-android-m2repository
 script:
 - "./tools/commit-validator.sh"
-- "./gradlew assembleDebug"
+- "./gradlew assembleDebug :verticalstepper:lint :verticalstepper:testDebugUnitTest"
 notifications:
   email: false
   slack:
