@@ -11,6 +11,8 @@ android:
 script:
 - "./tools/commit-validator.sh"
 - "./gradlew assembleDebug :verticalstepper:lint :verticalstepper:testDebugUnitTest"
+after_failure:
+- "cat verticalstepper/build/outputs/lint-results-debug.xml"
 notifications:
   email: false
   slack:
