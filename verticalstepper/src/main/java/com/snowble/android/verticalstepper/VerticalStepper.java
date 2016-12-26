@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatButton;
@@ -314,7 +315,8 @@ public class VerticalStepper extends ViewGroup {
         addView(continueButton);
     }
 
-    private void toggleStepExpandedState(View innerView) {
+    @VisibleForTesting
+    void toggleStepExpandedState(View innerView) {
         LayoutParams lp = getInternalLayoutParams(innerView);
         toggleActiveState(lp);
         toggleViewVisibility(innerView);
