@@ -575,7 +575,7 @@ public class VerticalStepper extends ViewGroup {
     private int getYDistanceToButtons(View innerView, LayoutParams lp) {
         int dyToButtons = getYDistanceToTextBottom(lp);
         if (lp.active) {
-            dyToButtons += titleMarginBottomToInnerView + innerView.getHeight();
+            dyToButtons += innerView.getHeight() + titleMarginBottomToInnerView;
         }
         return dyToButtons;
     }
