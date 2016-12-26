@@ -445,11 +445,11 @@ public class VerticalStepper extends ViewGroup {
 
             LayoutParams lp = getInternalLayoutParams(v);
             if (lp.active) {
-                layoutInnerView(left, currentTop, right, bottom, v, lp, isLastStep);
+                layoutInnerView(left, currentTop, right, bottom, v, isLastStep);
 
                 int buttonsTop = currentTop + getYDistanceToButtons(v, lp);
 
-                layoutNavButtons(left, buttonsTop, right, bottom, v, lp, isLastStep);
+                layoutNavButtons(left, buttonsTop, right, bottom, v, isLastStep);
             }
             currentTop += getYDistanceToNextStep(v, lp);
         }
@@ -479,7 +479,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
-                                 View innerView, LayoutParams lp, boolean isLastStep) {
+                                 View innerView, boolean isLastStep) {
+        LayoutParams lp = getInternalLayoutParams(innerView);
         int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + iconDimension + iconMarginRight;
 
@@ -501,8 +502,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutNavButtons(int left, int currentTop, int right, int bottom,
-                                  View innerView, LayoutParams innerViewLp, boolean isLastStep) {
+                                  View innerView, boolean isLastStep) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
+        LayoutParams innerViewLp = getInternalLayoutParams(innerView);
         AppCompatButton button = getContinueButton(innerView);
 
         int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
