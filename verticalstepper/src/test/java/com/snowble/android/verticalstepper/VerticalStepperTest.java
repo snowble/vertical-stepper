@@ -89,7 +89,7 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void getStepDecoratorTextWidth_LargerTitle_ShouldReturnTitle() {
+    public void getStepDecoratorTextWidth_TallerTitle_ShouldReturnTitle() {
         VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         when(lp.getTitleWidth()).thenReturn(20f);
         when(lp.getSummaryWidth()).thenReturn(10f);
@@ -99,13 +99,35 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void getStepDecoratorTextWidth_LargerSummary_ShouldReturnSummary() {
+    public void getStepDecoratorTextWidth_TallerSummary_ShouldReturnSummary() {
         VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         when(lp.getTitleWidth()).thenReturn(20f);
         when(lp.getSummaryWidth()).thenReturn(25f);
 
         float width = stepper.getStepDecoratorTextWidth(lp);
         assertThat(width).isEqualTo(25f);
+    }
+
+    @Test
+    public void getStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        float lessThanHalfIconHeight = (stepper.iconDimension - 2) / 2;
+        when(lp.getTitleBottomRelativeToStepTop()).thenReturn(lessThanHalfIconHeight);
+        when(lp.getSummaryBottomRelativeToTitleBottom()).thenReturn(lessThanHalfIconHeight);
+
+        int height = stepper.getStepDecoratorHeight(lp);
+        assertThat(height).isEqualTo(stepper.iconDimension);
+    }
+
+    @Test
+    public void getStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        float twiceIconHeight = stepper.iconDimension * 2;
+        when(lp.getTitleBottomRelativeToStepTop()).thenReturn(twiceIconHeight);
+        when(lp.getSummaryBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
+
+        int height = stepper.getStepDecoratorHeight(lp);
+        assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
     }
 
     @Test
