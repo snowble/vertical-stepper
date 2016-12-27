@@ -1,7 +1,9 @@
 package com.snowble.android.verticalstepper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 
@@ -31,6 +33,37 @@ public class VerticalStepperTest {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         activity = activityController.create().get();
         stepper = new VerticalStepper(activity);
+    }
+
+    @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
+    @Test
+    public void initPropertiesFromAttrs_NoAttrsSet_ShouldUseDefaults() {
+        stepper.initPropertiesFromAttrs(null, 0, 0);
+
+        assertThat(stepper.iconActiveColor).isEqualTo(getColor(R.color.bg_active_icon));
+        assertThat(stepper.iconInactiveColor).isEqualTo(getColor(R.color.bg_inactive_icon));
+        assertThat(stepper.continueButtonStyle)
+                .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Colored);
+    }
+
+    @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
+    @Test
+    public void initPropertiesFromAttrs_AttrsSet_ShouldUseAttrs() {
+        Robolectric.AttributeSetBuilder builder = Robolectric.buildAttributeSet();
+        builder.addAttribute(R.attr.iconColorActive, "@android:color/black");
+        builder.addAttribute(R.attr.iconColorInactive, "@android:color/darker_gray");
+        builder.addAttribute(R.attr.continueButtonStyle, "@style/Widget.AppCompat.Button.Borderless");
+
+        stepper.initPropertiesFromAttrs(builder.build(), 0, 0);
+
+        assertThat(stepper.iconActiveColor).isEqualTo(getColor(android.R.color.black));
+        assertThat(stepper.iconInactiveColor).isEqualTo(getColor(android.R.color.darker_gray));
+        assertThat(stepper.continueButtonStyle)
+                .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Borderless);
+    }
+
+    private int getColor(int colorRes) {
+        return ResourcesCompat.getColor(activity.getResources(), colorRes, activity.getTheme());
     }
 
     @Test

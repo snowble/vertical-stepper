@@ -46,8 +46,10 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     int iconMarginRight;
     private int iconMarginVertical;
-    private int iconActiveColor;
-    private int iconInactiveColor;
+    @VisibleForTesting
+    int iconActiveColor;
+    @VisibleForTesting
+    int iconInactiveColor;
     private Paint iconActiveBackgroundPaint;
     private Paint iconInactiveBackgroundPaint;
     private RectF tmpRectIconBackground;
@@ -63,6 +65,8 @@ public class VerticalStepper extends ViewGroup {
     int touchViewHeight;
     private int touchViewBackground;
 
+    @VisibleForTesting
+    int continueButtonStyle;
     private ContextThemeWrapper continueButtonContextWrapper;
 
     private int connectorWidth;
@@ -116,16 +120,15 @@ public class VerticalStepper extends ViewGroup {
         initConnectorProperties();
     }
 
-    private void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
+    @VisibleForTesting
+    void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
                     defStyleAttr, defStyleRes);
-            try {
-                initIconPropertiesFromAttrs(a);
-                initNavButtonPropertiesFromAttrs(a);
-            } finally {
-                a.recycle();
-            }
+        try {
+            initIconPropertiesFromAttrs(a);
+            initNavButtonPropertiesFromAttrs(a);
+        } finally {
+            a.recycle();
         }
     }
 
@@ -137,9 +140,9 @@ public class VerticalStepper extends ViewGroup {
                 ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
     }
 
+    @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
     private void initNavButtonPropertiesFromAttrs(TypedArray a) {
-        @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
-        int continueButtonStyle = a.getResourceId(
+        continueButtonStyle = a.getResourceId(
                 R.styleable.VerticalStepper_continueButtonStyle, R.style.Widget_AppCompat_Button_Colored);
         continueButtonContextWrapper = new ContextThemeWrapper(context, continueButtonStyle);
     }
