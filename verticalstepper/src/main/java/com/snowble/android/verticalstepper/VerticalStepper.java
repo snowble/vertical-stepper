@@ -295,7 +295,6 @@ public class VerticalStepper extends ViewGroup {
     private void initTouchView(final View innerView) {
         InternalTouchView touchView = getTouchView(innerView);
         touchView.setBackgroundResource(touchViewBackground);
-        // TODO See if the anonymous inner class can be avoided
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -309,7 +308,6 @@ public class VerticalStepper extends ViewGroup {
         AppCompatButton continueButton = getContinueButton(innerView);
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
-        // TODO See if the anonymous inner class can be avoided
         continueButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
