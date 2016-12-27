@@ -59,6 +59,16 @@ public class VerticalStepperTest {
         verify(lp.getContinueButton()).setVisibility(finalExpectedVisibility);
     }
 
+    private VerticalStepper.LayoutParams createTestLayoutParams() {
+        Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
+        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
+        attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
+        attributeSetBuilder.addAttribute(R.attr.step_title, "title");
+        VerticalStepper.LayoutParams lp = new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
+        lp.setContinueButton(mock(AppCompatButton.class));
+        return lp;
+    }
+
     @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
         VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
@@ -95,16 +105,6 @@ public class VerticalStepperTest {
 
         float width = stepper.getStepDecoratorTextWidth(lp);
         assertThat(width).isEqualTo(25f);
-    }
-
-    private VerticalStepper.LayoutParams createTestLayoutParams() {
-        Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
-        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
-        attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
-        attributeSetBuilder.addAttribute(R.attr.step_title, "title");
-        VerticalStepper.LayoutParams lp = new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-        lp.setContinueButton(mock(AppCompatButton.class));
-        return lp;
     }
 
     private static class DummyActivity extends Activity {
