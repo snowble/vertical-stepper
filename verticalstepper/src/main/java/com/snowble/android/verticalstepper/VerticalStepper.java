@@ -426,7 +426,8 @@ public class VerticalStepper extends ViewGroup {
         return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
     }
 
-    private int getStepDecoratorHeight(LayoutParams lp) {
+    @VisibleForTesting
+    int getStepDecoratorHeight(LayoutParams lp) {
         lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
