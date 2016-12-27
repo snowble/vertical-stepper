@@ -67,6 +67,13 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void getResolvedAttributeData_MissingAttr_ShouldReturnDefault() {
+        int defaultData = 2;
+        int data = stepper.getResolvedAttributeData(R.attr.colorPrimary, defaultData);
+        assertThat(data).isEqualTo(defaultData);
+    }
+
+    @Test
     public void toggleStepExpandedState_Inactive_ShouldBecomeActiveAndExpanded() {
         testStepToggle(false, View.GONE, true, View.VISIBLE);
     }

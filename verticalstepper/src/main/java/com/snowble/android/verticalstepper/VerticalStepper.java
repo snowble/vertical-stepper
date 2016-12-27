@@ -230,7 +230,8 @@ public class VerticalStepper extends ViewGroup {
         touchViewBackground = getResolvedAttributeData(R.attr.selectableItemBackground, 0);
     }
 
-    private int getResolvedAttributeData(int attr, int defaultData) {
+    @VisibleForTesting
+    int getResolvedAttributeData(int attr, int defaultData) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(attr, value, false);
         int resolvedAttributeData;
