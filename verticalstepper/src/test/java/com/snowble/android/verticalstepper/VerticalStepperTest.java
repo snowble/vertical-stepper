@@ -8,6 +8,7 @@ import android.view.View;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -105,6 +106,25 @@ public class VerticalStepperTest {
 
         float width = stepper.getStepDecoratorTextWidth(lp);
         assertThat(width).isEqualTo(25f);
+    }
+
+    @Test
+    public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
+        VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
+        int width = 20;
+
+        ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
+        stepper.measureTouchView(width, touchView);
+        verify(touchView).measure(wmsCaptor.capture(), hmsCaptor.capture());
+
+        int actualWms = wmsCaptor.getValue();
+        assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
+        assertThat(View.MeasureSpec.getSize(actualWms)).isEqualTo(width);
+
+        int actualHms = hmsCaptor.getValue();
+        assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
+        assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
     }
 
     private static class DummyActivity extends Activity {

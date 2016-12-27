@@ -59,7 +59,8 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint summaryTextPaint;
     private int titleMarginBottomToInnerView;
 
-    private int touchViewHeight;
+    @VisibleForTesting
+    int touchViewHeight;
     private int touchViewBackground;
 
     private ContextThemeWrapper continueButtonContextWrapper;
@@ -432,7 +433,8 @@ public class VerticalStepper extends ViewGroup {
         return Math.max(iconDimension, textTotalHeight);
     }
 
-    private void measureTouchView(int width, InternalTouchView view) {
+    @VisibleForTesting
+    void measureTouchView(int width, InternalTouchView view) {
         int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
         int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
         view.measure(wms, hms);
@@ -858,7 +860,8 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private static class InternalTouchView extends View {
+    @VisibleForTesting
+    static class InternalTouchView extends View {
         public InternalTouchView(Context context) {
             super(context);
         }
