@@ -28,7 +28,7 @@ public class VerticalStepperTest {
 
     @Before
     public void before() {
-        ActivityController<DummyActivity> activityController = Robolectric.buildActivity(DummyActivity.class);
+        ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         activity = activityController.create().get();
         stepper = new VerticalStepper(activity);
     }
@@ -147,8 +147,5 @@ public class VerticalStepperTest {
         int actualHms = hmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
         assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
-    }
-
-    private static class DummyActivity extends Activity {
     }
 }
