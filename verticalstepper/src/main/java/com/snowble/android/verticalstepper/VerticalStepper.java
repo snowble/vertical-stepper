@@ -30,6 +30,8 @@ import java.util.Locale;
 
 public class VerticalStepper extends ViewGroup {
 
+    private static final int ZERO_SIZE_MARGIN = 0;
+
     private Context context;
     private Resources resources;
 
@@ -399,7 +401,7 @@ public class VerticalStepper extends ViewGroup {
             if (hasMoreSteps) {
                 bottomMarginHeights.add(getBottomMarginToNextStep(lp));
             } else {
-                bottomMarginHeights.add(0);
+                bottomMarginHeights.add(ZERO_SIZE_MARGIN);
             }
         }
     }
