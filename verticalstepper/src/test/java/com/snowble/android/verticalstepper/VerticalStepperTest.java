@@ -25,12 +25,21 @@ public class VerticalStepperTest {
 
     private Activity activity;
     private VerticalStepper stepper;
+    private View mockInnerView;
+    private VerticalStepper.InternalTouchView mockTouchView;
+    private VerticalStepper.LayoutParams mockLayoutParams;
 
     @Before
     public void before() {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         activity = activityController.create().get();
         stepper = new VerticalStepper(activity);
+
+        mockInnerView = mock(View.class);
+        mockTouchView = mock(VerticalStepper.InternalTouchView.class);
+        mockLayoutParams = mock(VerticalStepper.LayoutParams.class);
+        when(mockInnerView.getLayoutParams()).thenReturn(mockLayoutParams);
+        when(mockLayoutParams.getTouchView()).thenReturn(mockTouchView);
     }
 
     @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
@@ -75,38 +84,30 @@ public class VerticalStepperTest {
 
     @Test
     public void initInnerView_ShouldSetVisibilityToGone() {
-        View innerView = mock(View.class);
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-        when(innerView.getLayoutParams()).thenReturn(lp);
+        stepper.initInnerView(mockInnerView);
 
-        stepper.initInnerView(innerView);
-
-        verify(innerView).setVisibility(View.GONE);
+        verify(mockInnerView).setVisibility(View.GONE);
     }
 
     @Test
     public void initInnerView_ShouldInitializeStepViews() {
-        View innerView = mock(View.class);
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-        when(innerView.getLayoutParams()).thenReturn(lp);
+        stepper.initInnerView(mockInnerView);
 
-        stepper.initInnerView(innerView);
-
-        verify(lp).setTouchView((VerticalStepper.InternalTouchView) notNull());
-        verify(lp).setContinueButton((AppCompatButton) notNull());
+        verify(mockLayoutParams).setTouchView((VerticalStepper.InternalTouchView) notNull());
+        verify(mockLayoutParams).setContinueButton((AppCompatButton) notNull());
     }
 
     @Test
-    public void initTouchView_ShouldSetClickListenerAndAttachToStepper() {
-        View innerView = mock(View.class);
-        VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-        when(innerView.getLayoutParams()).thenReturn(lp);
-        when(lp.getTouchView()).thenReturn(touchView);
+    public void initTouchView_ShouldSetClickListener() {
+        stepper.initTouchView(mockInnerView);
 
-        stepper.initTouchView(innerView);
+        verify(mockTouchView).setOnClickListener((View.OnClickListener) notNull());
+    }
 
-        verify(touchView).setOnClickListener((View.OnClickListener) notNull());
+    @Test
+    public void initTouchView_ShouldAttachToStepper() {
+        stepper.initTouchView(mockInnerView);
+
         assertThat(stepper.getChildCount()).isEqualTo(1);
     }
 
@@ -126,14 +127,13 @@ public class VerticalStepperTest {
         lp.setActive(initialActivateState);
         when(lp.getContinueButton().getVisibility()).thenReturn(initialVisibility);
 
-        View innerView = mock(View.class);
-        when(innerView.getVisibility()).thenReturn(initialVisibility);
-        when(innerView.getLayoutParams()).thenReturn(lp);
+        when(mockInnerView.getVisibility()).thenReturn(initialVisibility);
+        when(mockInnerView.getLayoutParams()).thenReturn(lp);
 
-        stepper.toggleStepExpandedState(innerView);
+        stepper.toggleStepExpandedState(mockInnerView);
 
         assertThat(lp.isActive()).isEqualTo(finalExpectedActiveState);
-        verify(innerView).setVisibility(finalExpectedVisibility);
+        verify(mockInnerView).setVisibility(finalExpectedVisibility);
         verify(lp.getContinueButton()).setVisibility(finalExpectedVisibility);
     }
 
@@ -142,21 +142,22 @@ public class VerticalStepperTest {
         attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
         attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
         attributeSetBuilder.addAttribute(R.attr.step_title, "title");
-        VerticalStepper.LayoutParams lp = new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
+        VerticalStepper.LayoutParams lp =
+                new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
         lp.setContinueButton(mock(AppCompatButton.class));
         return lp;
     }
 
     @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         float textWidth = 10f;
-        when(lp.getTitleWidth()).thenReturn(textWidth);
-        when(lp.getSummaryWidth()).thenReturn(textWidth);
+        when(mockLayoutParams.getTitleWidth()).thenReturn(textWidth);
+        when(mockLayoutParams.getSummaryWidth()).thenReturn(textWidth);
 
         int iconWidth = stepper.iconDimension + stepper.iconMarginRight;
 
-        assertThat(stepper.getStepDecoratorWidth(lp)).isEqualTo(iconWidth + (int) textWidth);
+        assertThat(stepper.getStepDecoratorWidth(mockLayoutParams))
+                .isEqualTo(iconWidth + (int) textWidth);
     }
 
     @Test
@@ -167,55 +168,56 @@ public class VerticalStepperTest {
 
     @Test
     public void getStepDecoratorTextWidth_TallerTitle_ShouldReturnTitle() {
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-        when(lp.getTitleWidth()).thenReturn(20f);
-        when(lp.getSummaryWidth()).thenReturn(10f);
+        when(mockLayoutParams.getTitleWidth()).thenReturn(20f);
+        when(mockLayoutParams.getSummaryWidth()).thenReturn(10f);
 
-        float width = stepper.getStepDecoratorTextWidth(lp);
+        float width = stepper.getStepDecoratorTextWidth(mockLayoutParams);
+
         assertThat(width).isEqualTo(20f);
     }
 
     @Test
     public void getStepDecoratorTextWidth_TallerSummary_ShouldReturnSummary() {
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-        when(lp.getTitleWidth()).thenReturn(20f);
-        when(lp.getSummaryWidth()).thenReturn(25f);
+        when(mockLayoutParams.getTitleWidth()).thenReturn(20f);
+        when(mockLayoutParams.getSummaryWidth()).thenReturn(25f);
 
-        float width = stepper.getStepDecoratorTextWidth(lp);
+        float width = stepper.getStepDecoratorTextWidth(mockLayoutParams);
+
         assertThat(width).isEqualTo(25f);
     }
 
     @Test
     public void getStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         float lessThanHalfIconHeight = (stepper.iconDimension - 2) / 2;
-        when(lp.getTitleBottomRelativeToStepTop()).thenReturn(lessThanHalfIconHeight);
-        when(lp.getSummaryBottomRelativeToTitleBottom()).thenReturn(lessThanHalfIconHeight);
+        when(mockLayoutParams.getTitleBottomRelativeToStepTop()).thenReturn(lessThanHalfIconHeight);
+        when(mockLayoutParams.getSummaryBottomRelativeToTitleBottom())
+                .thenReturn(lessThanHalfIconHeight);
 
-        int height = stepper.getStepDecoratorHeight(lp);
+        int height = stepper.getStepDecoratorHeight(mockLayoutParams);
+
         assertThat(height).isEqualTo(stepper.iconDimension);
     }
 
     @Test
     public void getStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
-        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         float twiceIconHeight = stepper.iconDimension * 2;
-        when(lp.getTitleBottomRelativeToStepTop()).thenReturn(twiceIconHeight);
-        when(lp.getSummaryBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
+        when(mockLayoutParams.getTitleBottomRelativeToStepTop()).thenReturn(twiceIconHeight);
+        when(mockLayoutParams.getSummaryBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
 
-        int height = stepper.getStepDecoratorHeight(lp);
+        int height = stepper.getStepDecoratorHeight(mockLayoutParams);
+
         assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
     }
 
     @Test
     public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
-        VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
-        int width = 20;
-
         ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
-        stepper.measureTouchView(width, touchView);
-        verify(touchView).measure(wmsCaptor.capture(), hmsCaptor.capture());
+        int width = 20;
+
+        stepper.measureTouchView(width, mockTouchView);
+
+        verify(mockTouchView).measure(wmsCaptor.capture(), hmsCaptor.capture());
 
         int actualWms = wmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
