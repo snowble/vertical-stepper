@@ -280,7 +280,8 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void initInnerView(final View innerView) {
+    @VisibleForTesting
+    void initInnerView(final View innerView) {
         innerView.setVisibility(View.GONE);
         innerViews.add(innerView);
 

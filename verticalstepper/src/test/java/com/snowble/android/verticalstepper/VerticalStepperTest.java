@@ -72,6 +72,25 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void initInnerView_ShouldSetVisibilityToGone() {
+        View innerView = mock(View.class);
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        when(innerView.getLayoutParams()).thenReturn(lp);
+        stepper.initInnerView(innerView);
+        verify(innerView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void initInnerView_ShouldInitializeStepViews() {
+        View innerView = mock(View.class);
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        when(innerView.getLayoutParams()).thenReturn(lp);
+        stepper.initInnerView(innerView);
+        verify(lp).setTouchView((VerticalStepper.InternalTouchView) notNull());
+        verify(lp).setContinueButton((AppCompatButton) notNull());
+    }
+
+    @Test
     public void toggleStepExpandedState_Inactive_ShouldBecomeActiveAndExpanded() {
         testStepToggle(false, View.GONE, true, View.VISIBLE);
     }
