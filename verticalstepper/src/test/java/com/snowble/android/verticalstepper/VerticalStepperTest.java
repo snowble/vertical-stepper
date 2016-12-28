@@ -213,6 +213,7 @@ public class VerticalStepperTest {
     }
 
     // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
+    // This applies to all onMeasure() tests
     @SuppressLint("WrongCall")
     @Test
     public void onMeasure_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
@@ -224,7 +225,6 @@ public class VerticalStepperTest {
         assertThat(stepper.getMeasuredWidth()).isEqualTo(stepper.getHorizontalPadding());
     }
 
-    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
     @SuppressLint("WrongCall")
     @Test
     public void onMeasure_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
@@ -239,7 +239,6 @@ public class VerticalStepperTest {
         assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
-    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
     @SuppressLint("WrongCall")
     @Test
     public void onMeasure_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
@@ -254,7 +253,6 @@ public class VerticalStepperTest {
         assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
-    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
     @SuppressLint("WrongCall")
     @Test
     public void onMeasure_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
@@ -270,10 +268,69 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void onMeasure_OneStepUnspecifiedSpec_ShouldMeasurePaddingStepDecorationsAndInnerView() {
+        int innerViewMeasuredWidth = 100;
+        int innerViewMeasuredHeight = 400;
+        mockInnerViewMeasurements(innerViewMeasuredWidth, innerViewMeasuredHeight);
+
+        int buttonMeasuredWidth = 80;
+        int buttonMeasuredHeight = 20;
+        mockContinueButtonMeasurements(buttonMeasuredWidth, buttonMeasuredHeight);
+
+        float titleWidth = 10f;
+        float summaryWidth = 20f;
+        mockLayoutParamsWidths(titleWidth, summaryWidth);
+
+        float titleBottom = 24f;
+        float summaryBottom = 20f;
+        mockLayoutParamsHeights(titleBottom, summaryBottom);
+
+        stepper.addView(mockInnerView);
+        stepper.onAttachedToWindow();
+
+        testSingleChildInactiveMeasurement(innerViewMeasuredWidth, titleBottom, summaryBottom);
+        testSingleChildActiveMeasurement(innerViewMeasuredWidth, innerViewMeasuredHeight,
+                titleBottom, summaryBottom,
+                buttonMeasuredHeight);
+    }
+
+    @SuppressLint("WrongCall")
+    private void testSingleChildInactiveMeasurement(int innerViewMeasuredWidth,
+                                                    float titleBottom, float summaryBottom) {
+        when(mockLayoutParams.isActive()).thenReturn(false);
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+        stepper.onMeasure(ms, ms);
+
+        assertThat(stepper.getMeasuredWidth())
+                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams)
+                + innerViewMeasuredWidth);
+        assertThat(stepper.getMeasuredHeight())
+                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalPadding(mockLayoutParams)
+                + (int) (titleBottom + summaryBottom));
+    }
+
+    @SuppressLint("WrongCall")
+    private void testSingleChildActiveMeasurement(int innerViewMeasuredWidth, int innerViewMeasuredHeight,
+                                                  float titleBottom, float summaryBottom,
+                                                  int buttonMeasuredHeight) {
+        when(mockLayoutParams.isActive()).thenReturn(true);
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+        stepper.onMeasure(ms, ms);
+
+        assertThat(stepper.getMeasuredWidth())
+                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams)
+                        + innerViewMeasuredWidth);
+        assertThat(stepper.getMeasuredHeight())
+                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalPadding(mockLayoutParams)
+                        + (int) (titleBottom + summaryBottom) + innerViewMeasuredHeight + buttonMeasuredHeight);
+    }
+
+    @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
         float textWidth = 10f;
-        when(mockLayoutParams.getTitleWidth()).thenReturn(textWidth);
-        when(mockLayoutParams.getSummaryWidth()).thenReturn(textWidth);
+        mockLayoutParamsWidths(textWidth, textWidth);
 
         int iconWidth = stepper.iconDimension + stepper.iconMarginRight;
 
@@ -291,8 +348,7 @@ public class VerticalStepperTest {
 
     @Test
     public void getStepDecoratorTextWidth_TallerTitle_ShouldReturnTitle() {
-        when(mockLayoutParams.getTitleWidth()).thenReturn(20f);
-        when(mockLayoutParams.getSummaryWidth()).thenReturn(10f);
+        mockLayoutParamsWidths(20f, 10f);
 
         float width = stepper.getStepDecoratorTextWidth(mockLayoutParams);
 
@@ -301,8 +357,7 @@ public class VerticalStepperTest {
 
     @Test
     public void getStepDecoratorTextWidth_TallerSummary_ShouldReturnSummary() {
-        when(mockLayoutParams.getTitleWidth()).thenReturn(20f);
-        when(mockLayoutParams.getSummaryWidth()).thenReturn(25f);
+        mockLayoutParamsWidths(20f, 25f);
 
         float width = stepper.getStepDecoratorTextWidth(mockLayoutParams);
 
@@ -312,9 +367,7 @@ public class VerticalStepperTest {
     @Test
     public void getStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
         float lessThanHalfIconHeight = (stepper.iconDimension - 2) / 2;
-        when(mockLayoutParams.getTitleBottomRelativeToStepTop()).thenReturn(lessThanHalfIconHeight);
-        when(mockLayoutParams.getSummaryBottomRelativeToTitleBottom())
-                .thenReturn(lessThanHalfIconHeight);
+        mockLayoutParamsHeights(lessThanHalfIconHeight, lessThanHalfIconHeight);
 
         int height = stepper.getStepDecoratorHeight(mockLayoutParams);
 
@@ -324,8 +377,7 @@ public class VerticalStepperTest {
     @Test
     public void getStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
         float twiceIconHeight = stepper.iconDimension * 2;
-        when(mockLayoutParams.getTitleBottomRelativeToStepTop()).thenReturn(twiceIconHeight);
-        when(mockLayoutParams.getSummaryBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
+        mockLayoutParamsHeights(twiceIconHeight, twiceIconHeight);
 
         int height = stepper.getStepDecoratorHeight(mockLayoutParams);
 
@@ -349,5 +401,25 @@ public class VerticalStepperTest {
         int actualHms = hmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
         assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
+    }
+
+    private void mockInnerViewMeasurements(int measuredWidth, int measuredHeight) {
+        when(mockInnerView.getMeasuredWidth()).thenReturn(measuredWidth);
+        when(mockInnerView.getMeasuredHeight()).thenReturn(measuredHeight);
+    }
+
+    private void mockContinueButtonMeasurements(int measuredWidth, int measuredHeight) {
+        when(mockContinueButton.getMeasuredWidth()).thenReturn(measuredWidth);
+        when(mockContinueButton.getMeasuredHeight()).thenReturn(measuredHeight);
+    }
+
+    private void mockLayoutParamsWidths(float titleWidth, float summaryWidth) {
+        when(mockLayoutParams.getTitleWidth()).thenReturn(titleWidth);
+        when(mockLayoutParams.getSummaryWidth()).thenReturn(summaryWidth);
+    }
+
+    private void mockLayoutParamsHeights(float titleBottom, float summaryBottom) {
+        when(mockLayoutParams.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
+        when(mockLayoutParams.getSummaryBottomRelativeToTitleBottom()).thenReturn(summaryBottom);
     }
 }
