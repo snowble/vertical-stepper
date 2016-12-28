@@ -190,6 +190,63 @@ public class VerticalStepperTest {
                         stepper.getPaddingTop() + stepper.getPaddingBottom());
     }
 
+    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
+    @SuppressLint("WrongCall")
+    @Test
+    public void onMeasure_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+        stepper.onMeasure(ms, ms);
+
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(stepper.getVerticalPadding());
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(stepper.getHorizontalPadding());
+    }
+
+    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
+    @SuppressLint("WrongCall")
+    @Test
+    public void onMeasure_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
+        int width = stepper.getHorizontalPadding() / 2;
+        int height = stepper.getVerticalPadding() / 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
+
+        stepper.onMeasure(wms, hms);
+
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
+    @SuppressLint("WrongCall")
+    @Test
+    public void onMeasure_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
+        int width = stepper.getHorizontalPadding() / 2;
+        int height = stepper.getVerticalPadding() / 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+
+        stepper.onMeasure(wms, hms);
+
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
+    @SuppressLint("WrongCall")
+    @Test
+    public void onMeasure_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
+        int width = stepper.getHorizontalPadding() * 2;
+        int height = stepper.getVerticalPadding() * 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+
+        stepper.onMeasure(wms, hms);
+
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
+    }
+
     @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
         float textWidth = 10f;
