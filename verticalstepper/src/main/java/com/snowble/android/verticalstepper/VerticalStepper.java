@@ -35,8 +35,10 @@ public class VerticalStepper extends ViewGroup {
 
     private List<View> innerViews;
 
-    private int outerHorizontalPadding;
-    private int outerVerticalPadding;
+    @VisibleForTesting
+    int outerHorizontalPadding;
+    @VisibleForTesting
+    int outerVerticalPadding;
 
     private int inactiveBottomMarginToNextStep;
     private int activeBottomMarginToNextStep;
@@ -348,8 +350,8 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int horizontalPadding = outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
-        int verticalPadding = outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
+        int horizontalPadding = getHorizontalPadding();
+        int verticalPadding = getVerticalPadding();
 
         int width = horizontalPadding;
         int height = verticalPadding;
@@ -413,6 +415,16 @@ public class VerticalStepper extends ViewGroup {
         }
 
         setMeasuredDimension(width, height);
+    }
+
+    @VisibleForTesting
+    int getVerticalPadding() {
+        return outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
+    }
+
+    @VisibleForTesting
+    int getHorizontalPadding() {
+        return outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
     }
 
     @VisibleForTesting
