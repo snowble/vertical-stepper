@@ -298,7 +298,8 @@ public class VerticalStepper extends ViewGroup {
                 new AppCompatButton(continueButtonContextWrapper, null, 0));
     }
 
-    private void initTouchView(final View innerView) {
+    @VisibleForTesting
+    void initTouchView(final View innerView) {
         InternalTouchView touchView = getTouchView(innerView);
         touchView.setBackgroundResource(touchViewBackground);
         touchView.setOnClickListener(new OnClickListener() {
