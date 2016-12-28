@@ -27,6 +27,7 @@ public class VerticalStepperTest {
     private VerticalStepper stepper;
     private View mockInnerView;
     private VerticalStepper.InternalTouchView mockTouchView;
+    private AppCompatButton mockContinueButton;
     private VerticalStepper.LayoutParams mockLayoutParams;
 
     @Before
@@ -36,9 +37,11 @@ public class VerticalStepperTest {
         stepper = new VerticalStepper(activity);
 
         mockInnerView = mock(View.class);
-        mockTouchView = mock(VerticalStepper.InternalTouchView.class);
         mockLayoutParams = mock(VerticalStepper.LayoutParams.class);
         when(mockInnerView.getLayoutParams()).thenReturn(mockLayoutParams);
+        mockContinueButton = mock(AppCompatButton.class);
+        when(mockLayoutParams.getContinueButton()).thenReturn(mockContinueButton);
+        mockTouchView = mock(VerticalStepper.InternalTouchView.class);
         when(mockLayoutParams.getTouchView()).thenReturn(mockTouchView);
     }
 
@@ -107,6 +110,27 @@ public class VerticalStepperTest {
     @Test
     public void initTouchView_ShouldAttachToStepper() {
         stepper.initTouchView(mockInnerView);
+
+        assertThat(stepper.getChildCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void initNavButtons_ShouldSetVisibilityToGone() {
+        stepper.initNavButtons(mockInnerView);
+
+        verify(mockContinueButton).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void initNavButtons_ShouldSetClickListener() {
+        stepper.initNavButtons(mockInnerView);
+
+        verify(mockContinueButton).setOnClickListener((View.OnClickListener) notNull());
+    }
+
+    @Test
+    public void initNavButtons_ShouldAttachToStepper() {
+        stepper.initNavButtons(mockInnerView);
 
         assertThat(stepper.getChildCount()).isEqualTo(1);
     }

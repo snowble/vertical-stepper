@@ -311,7 +311,8 @@ public class VerticalStepper extends ViewGroup {
         addView(touchView);
     }
 
-    private void initNavButtons(View innerView) {
+    @VisibleForTesting
+    void initNavButtons(View innerView) {
         AppCompatButton continueButton = getContinueButton(innerView);
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
