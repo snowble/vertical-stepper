@@ -212,63 +212,57 @@ public class VerticalStepperTest {
         assertThat(verticalPadding).isEqualTo(lp.topMargin + lp.bottomMargin);
     }
 
-    // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
-    // This applies to all onMeasure() tests
-    @SuppressLint("WrongCall")
     @Test
-    public void onMeasure_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
+    public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
-        stepper.onMeasure(ms, ms);
+        stepper.doMeasurement(ms, ms);
 
         assertThat(stepper.getMeasuredHeight()).isEqualTo(stepper.getVerticalPadding());
         assertThat(stepper.getMeasuredWidth()).isEqualTo(stepper.getHorizontalPadding());
     }
 
-    @SuppressLint("WrongCall")
     @Test
-    public void onMeasure_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
+    public void doMeasurement_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
         int width = stepper.getHorizontalPadding() / 2;
         int height = stepper.getVerticalPadding() / 2;
         int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
         int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
 
-        stepper.onMeasure(wms, hms);
+        stepper.doMeasurement(wms, hms);
 
         assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
         assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
-    @SuppressLint("WrongCall")
     @Test
-    public void onMeasure_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
+    public void doMeasurement_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
         int width = stepper.getHorizontalPadding() / 2;
         int height = stepper.getVerticalPadding() / 2;
         int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
         int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
 
-        stepper.onMeasure(wms, hms);
+        stepper.doMeasurement(wms, hms);
 
         assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
         assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
-    @SuppressLint("WrongCall")
     @Test
-    public void onMeasure_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
+    public void doMeasurement_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
         int width = stepper.getHorizontalPadding() * 2;
         int height = stepper.getVerticalPadding() * 2;
         int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
         int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
 
-        stepper.onMeasure(wms, hms);
+        stepper.doMeasurement(wms, hms);
 
         assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
         assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
-    public void onMeasure_OneStepUnspecifiedSpec_ShouldMeasurePaddingStepDecorationsAndInnerView() {
+    public void doMeasurement_OneStepUnspecifiedSpec_ShouldMeasurePaddingStepDecorationsAndInnerView() {
         int innerViewMeasuredWidth = 100;
         int innerViewMeasuredHeight = 400;
         mockInnerViewMeasurements(innerViewMeasuredWidth, innerViewMeasuredHeight);
@@ -294,13 +288,12 @@ public class VerticalStepperTest {
                 buttonMeasuredHeight);
     }
 
-    @SuppressLint("WrongCall")
     private void testSingleChildInactiveMeasurement(int innerViewMeasuredWidth,
                                                     float titleBottom, float summaryBottom) {
         when(mockLayoutParams.isActive()).thenReturn(false);
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
-        stepper.onMeasure(ms, ms);
+        stepper.doMeasurement(ms, ms);
 
         assertThat(stepper.getMeasuredWidth())
                 .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams)
@@ -310,14 +303,13 @@ public class VerticalStepperTest {
                 + (int) (titleBottom + summaryBottom));
     }
 
-    @SuppressLint("WrongCall")
     private void testSingleChildActiveMeasurement(int innerViewMeasuredWidth, int innerViewMeasuredHeight,
                                                   float titleBottom, float summaryBottom,
                                                   int buttonMeasuredHeight) {
         when(mockLayoutParams.isActive()).thenReturn(true);
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
-        stepper.onMeasure(ms, ms);
+        stepper.doMeasurement(ms, ms);
 
         assertThat(stepper.getMeasuredWidth())
                 .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams)

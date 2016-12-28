@@ -355,6 +355,11 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        doMeasurement(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @VisibleForTesting
+    void doMeasurement(int widthMeasureSpec, int heightMeasureSpec) {
         int horizontalPadding = getHorizontalPadding();
         int verticalPadding = getVerticalPadding();
 
