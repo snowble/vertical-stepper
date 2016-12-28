@@ -67,7 +67,9 @@ public class VerticalStepperTest {
     @Test
     public void getResolvedAttributeData_MissingAttr_ShouldReturnDefault() {
         int defaultData = 2;
+
         int data = stepper.getResolvedAttributeData(R.attr.colorPrimary, defaultData);
+
         assertThat(data).isEqualTo(defaultData);
     }
 
@@ -76,7 +78,9 @@ public class VerticalStepperTest {
         View innerView = mock(View.class);
         VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         when(innerView.getLayoutParams()).thenReturn(lp);
+
         stepper.initInnerView(innerView);
+
         verify(innerView).setVisibility(View.GONE);
     }
 
@@ -85,9 +89,25 @@ public class VerticalStepperTest {
         View innerView = mock(View.class);
         VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
         when(innerView.getLayoutParams()).thenReturn(lp);
+
         stepper.initInnerView(innerView);
+
         verify(lp).setTouchView((VerticalStepper.InternalTouchView) notNull());
         verify(lp).setContinueButton((AppCompatButton) notNull());
+    }
+
+    @Test
+    public void initTouchView_ShouldSetClickListenerAndAttachToStepper() {
+        View innerView = mock(View.class);
+        VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
+        VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+        when(innerView.getLayoutParams()).thenReturn(lp);
+        when(lp.getTouchView()).thenReturn(touchView);
+
+        stepper.initTouchView(innerView);
+
+        verify(touchView).setOnClickListener((View.OnClickListener) notNull());
+        assertThat(stepper.getChildCount()).isEqualTo(1);
     }
 
     @Test
