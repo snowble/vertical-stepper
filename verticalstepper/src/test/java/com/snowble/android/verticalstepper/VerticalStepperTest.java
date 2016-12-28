@@ -286,7 +286,7 @@ public class VerticalStepperTest {
         mockLayoutParamsHeights(titleBottom, summaryBottom);
 
         stepper.addView(mockInnerView);
-        stepper.onAttachedToWindow();
+        stepper.initChildViews();
 
         testSingleChildInactiveMeasurement(innerViewMeasuredWidth, titleBottom, summaryBottom);
         testSingleChildActiveMeasurement(innerViewMeasuredWidth, innerViewMeasuredHeight,
