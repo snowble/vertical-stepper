@@ -173,6 +173,24 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void getHorizontalPadding_ShouldReturnAllPadding() {
+        int horizontalPadding = stepper.getHorizontalPadding();
+
+        assertThat(horizontalPadding)
+                .isEqualTo((stepper.outerHorizontalPadding * 2) +
+                        stepper.getPaddingLeft() + stepper.getPaddingRight());
+    }
+
+    @Test
+    public void getVerticalPadding_ShouldReturnAllPadding() {
+        int verticalPadding = stepper.getVerticalPadding();
+
+        assertThat(verticalPadding)
+                .isEqualTo((stepper.outerVerticalPadding * 2) +
+                        stepper.getPaddingTop() + stepper.getPaddingBottom());
+    }
+
+    @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
         float textWidth = 10f;
         when(mockLayoutParams.getTitleWidth()).thenReturn(textWidth);
@@ -186,7 +204,9 @@ public class VerticalStepperTest {
 
     @Test
     public void getStepDecoratorIconWidth_ShouldReturnIconWidthAndMarginSum() {
-        assertThat(stepper.getStepDecoratorIconWidth())
+        int iconWidth = stepper.getStepDecoratorIconWidth();
+
+        assertThat(iconWidth)
                 .isEqualTo(stepper.iconDimension + stepper.iconMarginRight);
     }
 
