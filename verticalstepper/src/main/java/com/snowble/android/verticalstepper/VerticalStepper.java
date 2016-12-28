@@ -361,8 +361,8 @@ public class VerticalStepper extends ViewGroup {
             View v = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(v);
 
-            int innerViewHorizontalPadding = iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
-            int innerViewVerticalPadding = lp.topMargin + lp.bottomMargin;
+            int innerViewHorizontalPadding = getInnerViewHorizontalPadding(lp);
+            int innerViewVerticalPadding = getInnerViewVerticalPadding(lp);
 
             int stepDecoratorWidth = getStepDecoratorWidth(lp);
             widthWithoutPadding = Math.max(widthWithoutPadding, stepDecoratorWidth);
@@ -385,10 +385,8 @@ public class VerticalStepper extends ViewGroup {
                 // TODO Add proper dimensions
                 int navButtonsWms = getChildMeasureSpec(widthMeasureSpec,
                         horizontalPadding + innerViewHorizontalPadding, LayoutParams.WRAP_CONTENT);
-
                 int navButtonsHms = getChildMeasureSpec(heightMeasureSpec,
                         height, LayoutParams.WRAP_CONTENT);
-
                 AppCompatButton continueButton = getContinueButton(v);
                 continueButton.measure(navButtonsWms, navButtonsHms);
 
@@ -425,6 +423,16 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     int getHorizontalPadding() {
         return outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
+    }
+
+    @VisibleForTesting
+    int getInnerViewVerticalPadding(LayoutParams lp) {
+        return lp.topMargin + lp.bottomMargin;
+    }
+
+    @VisibleForTesting
+    int getInnerViewHorizontalPadding(LayoutParams lp) {
+        return iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
     }
 
     @VisibleForTesting

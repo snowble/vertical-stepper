@@ -189,6 +189,28 @@ public class VerticalStepperTest {
                 .isEqualTo((stepper.outerVerticalPadding * 2) +
                         stepper.getPaddingTop() + stepper.getPaddingBottom());
     }
+    @Test
+    public void getInnerViewHorizontalPadding_ShouldReturnPaddingAndIconLeftAdjustment() {
+        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        lp.leftMargin = 20;
+        lp.rightMargin = 10;
+
+        int horizontalPadding = stepper.getInnerViewHorizontalPadding(lp);
+
+        assertThat(horizontalPadding)
+                .isEqualTo(lp.leftMargin + lp.rightMargin + stepper.iconDimension + stepper.iconMarginRight);
+    }
+
+    @Test
+    public void getInnerViewVerticalPadding_ShouldReturnAllMargins() {
+        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        lp.topMargin = 10;
+        lp.bottomMargin = 20;
+
+        int verticalPadding = stepper.getInnerViewVerticalPadding(lp);
+
+        assertThat(verticalPadding).isEqualTo(lp.topMargin + lp.bottomMargin);
+    }
 
     // In production code, we would call measure() instead of onMeasure() but that's not what we're testing here.
     @SuppressLint("WrongCall")
