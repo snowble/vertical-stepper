@@ -118,6 +118,8 @@ public class VerticalStepper extends ViewGroup {
         initSummaryProperties();
         initTouchViewProperties();
         initConnectorProperties();
+
+        innerViews = new ArrayList<>();
     }
 
     @VisibleForTesting
@@ -268,7 +270,6 @@ public class VerticalStepper extends ViewGroup {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         int childCount = getChildCount();
-        innerViews = new ArrayList<>(childCount);
         for (int i = 0; i < childCount; i++) {
             initInnerView(getChildAt(i));
         }
