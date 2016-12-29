@@ -228,24 +228,24 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void getInnerViewHorizontalPadding_ShouldReturnPaddingAndIconLeftAdjustment() {
+    public void getInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
         VerticalStepper.LayoutParams lp = createTestLayoutParams();
         lp.leftMargin = 20;
         lp.rightMargin = 10;
 
-        int horizontalPadding = stepper.getInnerViewHorizontalPadding(lp);
+        int horizontalPadding = stepper.getInnerViewHorizontalUsedSpace(lp);
 
         assertThat(horizontalPadding)
                 .isEqualTo(lp.leftMargin + lp.rightMargin + stepper.iconDimension + stepper.iconMarginRight);
     }
 
     @Test
-    public void getInnerViewVerticalPadding_ShouldReturnAllMargins() {
+    public void getInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
         VerticalStepper.LayoutParams lp = createTestLayoutParams();
         lp.topMargin = 10;
         lp.bottomMargin = 20;
 
-        int verticalPadding = stepper.getInnerViewVerticalPadding(lp);
+        int verticalPadding = stepper.getInnerViewVerticalUsedSpace(lp);
 
         assertThat(verticalPadding).isEqualTo(lp.topMargin + lp.bottomMargin);
     }
@@ -407,10 +407,10 @@ public class VerticalStepperTest {
         stepper.doMeasurement(ms, ms);
 
         assertThat(stepper.getMeasuredWidth())
-                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams1)
+                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams1)
                 + innerViewMeasuredWidth);
         assertThat(stepper.getMeasuredHeight())
-                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalPadding(mockLayoutParams1)
+                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalUsedSpace(mockLayoutParams1)
                 + (int) (titleBottom + summaryBottom));
     }
 
@@ -423,10 +423,10 @@ public class VerticalStepperTest {
         stepper.doMeasurement(ms, ms);
 
         assertThat(stepper.getMeasuredWidth())
-                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalPadding(mockLayoutParams1)
+                .isEqualTo(stepper.getHorizontalPadding() + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams1)
                         + innerViewMeasuredWidth);
         assertThat(stepper.getMeasuredHeight())
-                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalPadding(mockLayoutParams1)
+                .isEqualTo(stepper.getVerticalPadding() + stepper.getInnerViewVerticalUsedSpace(mockLayoutParams1)
                         + (int) (titleBottom + summaryBottom) + innerViewMeasuredHeight + buttonMeasuredHeight);
     }
 

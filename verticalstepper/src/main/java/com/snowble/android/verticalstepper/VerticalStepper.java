@@ -422,8 +422,8 @@ public class VerticalStepper extends ViewGroup {
             View innerView = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(innerView);
 
-            int usedWidthFromPadding = stepperHorizontalPadding + getInnerViewHorizontalPadding(lp);
-            int innerViewVerticalPadding = getInnerViewVerticalPadding(lp);
+            int usedWidthFromPadding = stepperHorizontalPadding + getInnerViewHorizontalUsedSpace(lp);
+            int innerViewVerticalPadding = getInnerViewVerticalUsedSpace(lp);
             int usedHeight = innerViewVerticalPadding + currentHeight;
             measureInnerView(widthMeasureSpec, heightMeasureSpec, innerView, usedWidthFromPadding, usedHeight);
 
@@ -467,7 +467,7 @@ public class VerticalStepper extends ViewGroup {
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View innerView = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(innerView);
-            int innerViewHorizontalPadding = getInnerViewHorizontalPadding(lp);
+            int innerViewHorizontalPadding = getInnerViewHorizontalUsedSpace(lp);
 
             width = Math.max(width, getStepDecoratorWidth(lp));
 
@@ -500,12 +500,12 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int getInnerViewVerticalPadding(LayoutParams lp) {
+    int getInnerViewVerticalUsedSpace(LayoutParams lp) {
         return lp.topMargin + lp.bottomMargin;
     }
 
     @VisibleForTesting
-    int getInnerViewHorizontalPadding(LayoutParams lp) {
+    int getInnerViewHorizontalUsedSpace(LayoutParams lp) {
         return iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
     }
 
