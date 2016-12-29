@@ -37,7 +37,8 @@ public class VerticalStepper extends ViewGroup {
     private Resources resources;
 
     private List<View> innerViews;
-    private List<Integer> decoratorHeights;
+    @VisibleForTesting
+    List<Integer> decoratorHeights;
     @VisibleForTesting
     List<Integer> bottomMarginHeights;
     private List<Integer> childrenHeights;
@@ -391,7 +392,8 @@ public class VerticalStepper extends ViewGroup {
         setMeasuredDimension(width, height);
     }
 
-    private void measureStepDecoratorHeights() {
+    @VisibleForTesting
+    void measureStepDecoratorHeights() {
         decoratorHeights.clear();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             LayoutParams lp = getInternalLayoutParams(innerViews.get(i));
