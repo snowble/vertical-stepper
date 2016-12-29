@@ -67,8 +67,10 @@ public class VerticalStepper extends ViewGroup {
     private TextPaint iconTextPaint;
     private Rect tmpRectIconTextBounds;
 
-    private TextPaint titleActiveTextPaint;
-    private TextPaint titleInactiveTextPaint;
+    @VisibleForTesting
+    TextPaint titleActiveTextPaint;
+    @VisibleForTesting
+    TextPaint titleInactiveTextPaint;
     private TextPaint summaryTextPaint;
     private int titleMarginBottomToInnerView;
 
@@ -740,7 +742,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
     }
 
-    private TextPaint getTitleTextPaint(LayoutParams lp) {
+    @VisibleForTesting
+    TextPaint getTitleTextPaint(LayoutParams lp) {
         return lp.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
