@@ -402,12 +402,7 @@ public class VerticalStepper extends ViewGroup {
         bottomMarginHeights.clear();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             LayoutParams lp = getInternalLayoutParams(innerViews.get(i));
-            boolean hasMoreSteps = i + 1 < innerViewsSize;
-            if (hasMoreSteps) {
-                bottomMarginHeights.add(getBottomMarginToNextStep(lp));
-            } else {
-                bottomMarginHeights.add(ZERO_SIZE_MARGIN);
-            }
+            bottomMarginHeights.add(getBottomMarginToNextStep(lp, i == innerViewsSize - 1));
         }
     }
 
@@ -567,7 +562,7 @@ public class VerticalStepper extends ViewGroup {
 
                 layoutNavButtons(left, buttonsTop, right, bottom, v, isLastStep);
             }
-            currentTop += getYDistanceToNextStep(v, lp);
+            currentTop += getYDistanceToNextStep(v, lp, isLastStep);
         }
     }
 
@@ -663,7 +658,7 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
-            int dyToNextStep = getYDistanceToNextStep(innerView, lp);
+            int dyToNextStep = getYDistanceToNextStep(innerView, lp, i == innerViewsSize - 1);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
@@ -679,12 +674,12 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private int getYDistanceToNextStep(View innerView, LayoutParams lp) {
+    private int getYDistanceToNextStep(View innerView, LayoutParams lp, boolean isLastStep) {
         int dyToNextStep = getYDistanceToButtons(innerView, lp);
         if (lp.isActive()) {
             dyToNextStep += lp.getContinueButton().getHeight();
         }
-        dyToNextStep += getBottomMarginToNextStep(lp);
+        dyToNextStep += getBottomMarginToNextStep(lp, isLastStep);
         return dyToNextStep;
     }
 
@@ -749,8 +744,12 @@ public class VerticalStepper extends ViewGroup {
         return lp.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
-    private int getBottomMarginToNextStep(LayoutParams lp) {
-        return lp.isActive() ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
+    private int getBottomMarginToNextStep(LayoutParams lp, boolean isLastStep) {
+        if (isLastStep) {
+            return ZERO_SIZE_MARGIN;
+        } else {
+            return lp.isActive() ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
+        }
     }
 
     private Paint getIconColor(LayoutParams lp) {
