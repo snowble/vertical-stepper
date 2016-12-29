@@ -227,11 +227,38 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void measureStepDecoratorHeights_NoSteps_ShouldHaveEmptyDecoratorHeights() {
+        stepper.measureStepDecoratorHeights();
+
+        assertThat(stepper.decoratorHeights).isEmpty();
+    }
+
+    @Test
+    public void measureStepDecoratorHeights_OneStep_ShouldHaveDecoratorHeightsWithSingleElement() {
+        stepper.addView(mockInnerView1);
+        stepper.initChildViews();
+
+        stepper.measureStepDecoratorHeights();
+
+        assertThat(stepper.decoratorHeights).hasSize(1);
+    }
+
+    @Test
+    public void measureStepDecoratorHeights_TwoSteps_ShouldHaveDecoratorHeightsWithTwoElements() {
+        stepper.addView(mockInnerView1);
+        stepper.addView(mockInnerView2);
+        stepper.initChildViews();
+
+        stepper.measureStepDecoratorHeights();
+
+        assertThat(stepper.decoratorHeights).hasSize(2);
+    }
+
+    @Test
     public void measureBottomMarginHeights_NoSteps_ShouldHaveEmptyMarginHeights() {
         stepper.measureStepBottomMarginHeights();
 
-        assertThat(stepper.bottomMarginHeights)
-                .isEmpty();
+        assertThat(stepper.bottomMarginHeights).isEmpty();
     }
 
     @Test
@@ -241,8 +268,7 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        assertThat(stepper.bottomMarginHeights)
-                .hasSize(1);
+        assertThat(stepper.bottomMarginHeights).hasSize(1);
     }
 
     @Test
@@ -253,8 +279,7 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        assertThat(stepper.bottomMarginHeights)
-                .hasSize(2);
+        assertThat(stepper.bottomMarginHeights).hasSize(2);
     }
 
     @Test
