@@ -43,7 +43,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     List<Integer> bottomMarginHeights;
     @VisibleForTesting
-    List<Integer> childrenHeights;
+    List<Integer> childrenVisibleHeights;
 
     @VisibleForTesting
     int outerHorizontalPadding;
@@ -138,7 +138,7 @@ public class VerticalStepper extends ViewGroup {
         innerViews = new ArrayList<>();
         decoratorHeights = new ArrayList<>();
         bottomMarginHeights = new ArrayList<>();
-        childrenHeights = new ArrayList<>();
+        childrenVisibleHeights = new ArrayList<>();
     }
 
     @VisibleForTesting
@@ -415,7 +415,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void measureChildViews(int widthMeasureSpec, int heightMeasureSpec) {
         int stepperHorizontalPadding = getHorizontalPadding();
-        childrenHeights.clear();
+        childrenVisibleHeights.clear();
         int currentHeight = getVerticalPadding();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             currentHeight += decoratorHeights.get(i);
@@ -438,7 +438,7 @@ public class VerticalStepper extends ViewGroup {
 
                 childrenHeight += continueButton.getMeasuredHeight();
             }
-            childrenHeights.add(childrenHeight);
+            childrenVisibleHeights.add(childrenHeight);
 
             currentHeight += bottomMarginHeights.get(i);
         }
@@ -483,7 +483,7 @@ public class VerticalStepper extends ViewGroup {
         int height = getVerticalPadding();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             height += decoratorHeights.get(i);
-            height += childrenHeights.get(i);
+            height += childrenVisibleHeights.get(i);
             height += bottomMarginHeights.get(i);
         }
         return height;
