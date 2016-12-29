@@ -234,18 +234,18 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void measureBottomMarginHeights_OneStep_ShouldAddJustZeroMarginToMarginHeights() {
+    public void measureBottomMarginHeights_OneStep_ShouldHaveMarginHeightsWithSingleElement() {
         stepper.addView(mockInnerView1);
         stepper.initChildViews();
 
         stepper.measureStepBottomMarginHeights();
 
         assertThat(stepper.bottomMarginHeights)
-                .containsExactly(VerticalStepper.ZERO_SIZE_MARGIN);
+                .hasSize(1);
     }
 
     @Test
-    public void measureBottomMarginHeights_TwoStepsBothInactive_ShouldAddInactiveMarginAndZeroMarginToMarginHeights() {
+    public void measureBottomMarginHeights_TwoSteps_ShouldHaveMarginHeightsWithTwoElements() {
         stepper.addView(mockInnerView1);
         stepper.addView(mockInnerView2);
         stepper.initChildViews();
@@ -253,20 +253,7 @@ public class VerticalStepperTest {
         stepper.measureStepBottomMarginHeights();
 
         assertThat(stepper.bottomMarginHeights)
-                .containsExactly(stepper.inactiveBottomMarginToNextStep, VerticalStepper.ZERO_SIZE_MARGIN);
-    }
-
-    @Test
-    public void measureBottomMarginHeights_TwoStepsOneActive_ShouldAddActiveMarginAndZeroMarginToMarginHeights() {
-        when(mockLayoutParams1.isActive()).thenReturn(true);
-        stepper.addView(mockInnerView1);
-        stepper.addView(mockInnerView2);
-        stepper.initChildViews();
-
-        stepper.measureStepBottomMarginHeights();
-
-        assertThat(stepper.bottomMarginHeights)
-                .containsExactly(stepper.activeBottomMarginToNextStep, VerticalStepper.ZERO_SIZE_MARGIN);
+                .hasSize(2);
     }
 
     @Test
@@ -450,6 +437,29 @@ public class VerticalStepperTest {
         int actualHms = hmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
         assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
+    }
+
+    @Test
+    public void getBottomMarginToNextStep_LastStep_ShouldReturnZeroSizedMargin() {
+        int margin = stepper.getBottomMarginToNextStep(mockLayoutParams1, true);
+
+        assertThat(margin).isEqualTo(VerticalStepper.ZERO_SIZE_MARGIN);
+    }
+
+    @Test
+    public void getBottomMarginToNextStep_NotLastStepInactive_ShouldReturnInactiveMargin() {
+        when(mockLayoutParams1.isActive()).thenReturn(false);
+        int margin = stepper.getBottomMarginToNextStep(mockLayoutParams1, false);
+
+        assertThat(margin).isEqualTo(stepper.inactiveBottomMarginToNextStep);
+    }
+
+    @Test
+    public void getBottomMarginToNextStep_NotLastStepActive_ShouldReturnActiveMargin() {
+        when(mockLayoutParams1.isActive()).thenReturn(true);
+        int margin = stepper.getBottomMarginToNextStep(mockLayoutParams1, false);
+
+        assertThat(margin).isEqualTo(stepper.activeBottomMarginToNextStep);
     }
 
     private void mockInnerViewMeasurements(int measuredWidth, int measuredHeight) {

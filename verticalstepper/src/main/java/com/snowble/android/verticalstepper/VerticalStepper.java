@@ -744,7 +744,8 @@ public class VerticalStepper extends ViewGroup {
         return lp.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
-    private int getBottomMarginToNextStep(LayoutParams lp, boolean isLastStep) {
+    @VisibleForTesting
+    int getBottomMarginToNextStep(LayoutParams lp, boolean isLastStep) {
         if (isLastStep) {
             return ZERO_SIZE_MARGIN;
         } else {
