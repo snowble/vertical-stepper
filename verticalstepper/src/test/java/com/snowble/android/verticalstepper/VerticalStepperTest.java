@@ -301,14 +301,14 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void measureChildViews_NoActiveSteps_ShouldHaveChildrenHeightsWithZeros() {
+    public void measureChildViews_NoActiveSteps_ShouldHaveChildrenVisibleHeightsWithZeros() {
         initTwoSteps();
         initStepperStateForChildMeasurement();
 
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         stepper.measureChildViews(ms, ms);
 
-        assertThat(stepper.childrenHeights).containsExactly(0, 0);
+        assertThat(stepper.childrenVisibleHeights).containsExactly(0, 0);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class VerticalStepperTest {
 
         verify(mockInnerView1).measure(anyInt(), anyInt());
         verify(mockInnerView2).measure(anyInt(), anyInt());
-        assertThat(stepper.childrenHeights).containsExactly(0, 0);
+        assertThat(stepper.childrenVisibleHeights).containsExactly(0, 0);
     }
 
     @Test
