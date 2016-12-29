@@ -107,17 +107,14 @@ public class VerticalStepperTest {
 
     @Test
     public void initChildViews_OneStep_ShouldHaveInnerViewsWithSingleElement() {
-        stepper.addView(mockInnerView1);
-        stepper.initChildViews();
+        initSingleStep();
 
         assertThat(stepper.innerViews).hasSize(1);
     }
 
     @Test
     public void initChildViews_TwoSteps_ShouldHaveInnerViewsWithTwoElements() {
-        stepper.addView(mockInnerView1);
-        stepper.addView(mockInnerView2);
-        stepper.initChildViews();
+        initTwoSteps();
 
         assertThat(stepper.innerViews).hasSize(2);
     }
@@ -259,8 +256,7 @@ public class VerticalStepperTest {
 
     @Test
     public void measureStepDecoratorHeights_OneStep_ShouldHaveDecoratorHeightsWithSingleElement() {
-        stepper.addView(mockInnerView1);
-        stepper.initChildViews();
+        initSingleStep();
 
         stepper.measureStepDecoratorHeights();
 
@@ -269,9 +265,7 @@ public class VerticalStepperTest {
 
     @Test
     public void measureStepDecoratorHeights_TwoSteps_ShouldHaveDecoratorHeightsWithTwoElements() {
-        stepper.addView(mockInnerView1);
-        stepper.addView(mockInnerView2);
-        stepper.initChildViews();
+        initTwoSteps();
 
         stepper.measureStepDecoratorHeights();
 
@@ -287,8 +281,7 @@ public class VerticalStepperTest {
 
     @Test
     public void measureBottomMarginHeights_OneStep_ShouldHaveMarginHeightsWithSingleElement() {
-        stepper.addView(mockInnerView1);
-        stepper.initChildViews();
+        initSingleStep();
 
         stepper.measureStepBottomMarginHeights();
 
@@ -297,9 +290,7 @@ public class VerticalStepperTest {
 
     @Test
     public void measureBottomMarginHeights_TwoSteps_ShouldHaveMarginHeightsWithTwoElements() {
-        stepper.addView(mockInnerView1);
-        stepper.addView(mockInnerView2);
-        stepper.initChildViews();
+        initTwoSteps();
 
         stepper.measureStepBottomMarginHeights();
 
@@ -373,8 +364,7 @@ public class VerticalStepperTest {
         float summaryBottom = 20f;
         mockLayoutParamsHeights(titleBottom, summaryBottom);
 
-        stepper.addView(mockInnerView1);
-        stepper.initChildViews();
+        initSingleStep();
 
         testSingleChildInactiveMeasurement(innerViewMeasuredWidth, titleBottom, summaryBottom);
         testSingleChildActiveMeasurement(innerViewMeasuredWidth, innerViewMeasuredHeight,
@@ -526,6 +516,17 @@ public class VerticalStepperTest {
         int margin = stepper.getBottomMarginToNextStep(mockLayoutParams1, false);
 
         assertThat(margin).isEqualTo(stepper.activeBottomMarginToNextStep);
+    }
+
+    private void initSingleStep() {
+        stepper.addView(mockInnerView1);
+        stepper.initChildViews();
+    }
+
+    private void initTwoSteps() {
+        stepper.addView(mockInnerView1);
+        stepper.addView(mockInnerView2);
+        stepper.initChildViews();
     }
 
     private void mockInnerViewMeasurements(int measuredWidth, int measuredHeight) {
