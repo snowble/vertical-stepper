@@ -287,6 +287,36 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void measureChildViews_NoSteps_ShouldHaveEmptyChildrenVisibleHeights() {
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        stepper.measureChildViews(ms, ms);
+
+        assertThat(stepper.childrenVisibleHeights).isEmpty();
+    }
+
+    @Test
+    public void measureChildViews_OneStep_ShouldHaveChildrenVisibleHeightsWithSingleElement() {
+        initOneStep();
+        initStepperStateForChildMeasurement(1);
+
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        stepper.measureChildViews(ms, ms);
+
+        assertThat(stepper.childrenVisibleHeights).hasSize(1);
+    }
+
+    @Test
+    public void measureChildViews_TwoSteps_ShouldHaveChildrenVisibleHeightsWithTwoElements() {
+        initTwoSteps();
+        initStepperStateForChildMeasurement(2);
+
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        stepper.measureChildViews(ms, ms);
+
+        assertThat(stepper.childrenVisibleHeights).hasSize(2);
+    }
+
+    @Test
     public void measureChildViews_NoActiveSteps_ShouldMeasureViews() {
         initTwoSteps();
         initStepperStateForChildMeasurement(2);
@@ -350,13 +380,11 @@ public class VerticalStepperTest {
 
         int innerWms = allValues.get(0);
         assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-
         int innerHms = allValues.get(1);
         assertExpectedHeightMeasureSpecIncludingInnerUsedSpace(lp, maxHeight, innerHms, 0);
 
         int continueWms = allValues.get(2);
         assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-
         int continueHms = allValues.get(3);
         assertExpectedHeightMeasureSpec(maxHeight, continueHms, 0);
     }
@@ -385,13 +413,11 @@ public class VerticalStepperTest {
 
         int innerWms = allValues.get(0);
         assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-
         int innerHms = allValues.get(1);
         assertExpectedHeightMeasureSpecIncludingInnerUsedSpace(lp, maxHeight, innerHms, 0);
 
         int continueWms = allValues.get(2);
         assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-
         int continueHms = allValues.get(3);
         assertExpectedHeightMeasureSpec(maxHeight, continueHms, 0);
     }
@@ -420,13 +446,11 @@ public class VerticalStepperTest {
 
         int innerWms = allValues.get(0);
         assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-
         int innerHms = allValues.get(1);
         assertExpectedHeightMeasureSpecIncludingInnerUsedSpace(lp, maxHeight, innerHms, 0);
 
         int continueWms = allValues.get(2);
         assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-
         int continueHms = allValues.get(3);
         assertExpectedHeightMeasureSpec(maxHeight, continueHms, innerHeight);
     }
