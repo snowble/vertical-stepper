@@ -198,17 +198,6 @@ public class VerticalStepperTest {
         verify(lp.getContinueButton()).setVisibility(finalExpectedVisibility);
     }
 
-    private VerticalStepper.LayoutParams createTestLayoutParams() {
-        Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
-        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
-        attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
-        attributeSetBuilder.addAttribute(R.attr.step_title, "title");
-        VerticalStepper.LayoutParams lp =
-                new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-        lp.setContinueButton(mock(AppCompatButton.class));
-        return lp;
-    }
-
     @Test
     public void getHorizontalPadding_ShouldReturnAllPadding() {
         int horizontalPadding = stepper.getHorizontalPadding();
@@ -229,9 +218,7 @@ public class VerticalStepperTest {
 
     @Test
     public void getInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
-        lp.leftMargin = 20;
-        lp.rightMargin = 10;
+        VerticalStepper.LayoutParams lp = createTestLayoutParams(20, 0, 10, 0);
 
         int horizontalPadding = stepper.getInnerViewHorizontalUsedSpace(lp);
 
@@ -241,9 +228,7 @@ public class VerticalStepperTest {
 
     @Test
     public void getInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
-        lp.topMargin = 10;
-        lp.bottomMargin = 20;
+        VerticalStepper.LayoutParams lp = createTestLayoutParams(0, 10, 0, 20);
 
         int verticalPadding = stepper.getInnerViewVerticalUsedSpace(lp);
 
@@ -341,6 +326,64 @@ public class VerticalStepperTest {
         stepper.measureChildViews(ms, ms);
 
         assertThat(stepper.childrenVisibleHeights).containsExactly(innerViewHeight + buttonHeight);
+    }
+
+    @Test
+    public void measureChildViews_OneInactiveStepNoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+        initOneStep();
+        initStepperStateForChildMeasurement();
+        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+
+        testMeasureChildViewsForUsedSpace(lp);
+    }
+
+    @Test
+    public void measureChildViews_OneInactiveStepHasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+        initOneStep();
+        initStepperStateForChildMeasurement();
+        int horizontalMargin = 10;
+        int verticalMargin = 20;
+        VerticalStepper.LayoutParams lp = createTestLayoutParams(horizontalMargin / 2, verticalMargin / 2,
+                horizontalMargin / 2, verticalMargin / 2);
+        when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+
+        testMeasureChildViewsForUsedSpace(lp);
+    }
+
+    private void testMeasureChildViewsForUsedSpace(VerticalStepper.LayoutParams lp) {
+        int maxWidth = 1080;
+        int maxHeight = 1920;
+        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
+        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+
+        stepper.measureChildViews(wms, hms);
+
+        ArgumentCaptor<Integer> innerSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mockInnerView1).measure(innerSpecsCaptor.capture(), innerSpecsCaptor.capture());
+        verify(mockContinueButton1).measure(innerSpecsCaptor.capture(), innerSpecsCaptor.capture());
+
+        int innerWms = innerSpecsCaptor.getAllValues().get(0);
+        int innerViewHorizontalUsedSpace =
+                stepper.getInnerViewHorizontalUsedSpace(lp) + stepper.getHorizontalPadding();
+        assertThat(View.MeasureSpec.getSize(innerWms))
+                .isEqualTo(maxWidth - innerViewHorizontalUsedSpace);
+
+        int innerHms = innerSpecsCaptor.getAllValues().get(1);
+        int innerViewVerticalUsedSpace = stepper.getInnerViewVerticalUsedSpace(lp) + stepper.getVerticalPadding();
+        assertThat(View.MeasureSpec.getSize(innerHms))
+                .isEqualTo(maxHeight - innerViewVerticalUsedSpace);
+
+        int continueWms = innerSpecsCaptor.getAllValues().get(2);
+        int continueHorizontalUsedSpace =
+                stepper.getInnerViewHorizontalUsedSpace(lp) + stepper.getHorizontalPadding();
+        assertThat(View.MeasureSpec.getSize(continueWms))
+                .isEqualTo(maxWidth - continueHorizontalUsedSpace);
+
+        int continueHms = innerSpecsCaptor.getAllValues().get(3);
+        int continueVerticalUsedSpace = stepper.getVerticalPadding();
+        assertThat(View.MeasureSpec.getSize(continueHms))
+                .isEqualTo(maxHeight - continueVerticalUsedSpace);
     }
 
     @Test
@@ -600,4 +643,29 @@ public class VerticalStepperTest {
         when(mockLayoutParams1.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
         when(mockLayoutParams1.getSummaryBottomRelativeToTitleBottom()).thenReturn(summaryBottom);
     }
+
+    private VerticalStepper.LayoutParams createTestLayoutParams(int leftMargin, int topMargin,
+                                                                int rightMargin, int bottomMargin) {
+        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        lp.leftMargin = leftMargin;
+        lp.topMargin = topMargin;
+        lp.rightMargin = rightMargin;
+        lp.bottomMargin = bottomMargin;
+
+        return lp;
+    }
+
+    private VerticalStepper.LayoutParams createTestLayoutParams() {
+        Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
+        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
+        attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
+        attributeSetBuilder.addAttribute(R.attr.step_title, "title");
+        VerticalStepper.LayoutParams lp =
+                new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
+        lp.setContinueButton(mockContinueButton1);
+        lp.width = VerticalStepper.LayoutParams.MATCH_PARENT;
+        lp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
+        return lp;
+    }
+
 }
