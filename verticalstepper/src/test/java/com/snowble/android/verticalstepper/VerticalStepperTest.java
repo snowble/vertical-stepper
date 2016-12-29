@@ -359,28 +359,27 @@ public class VerticalStepperTest {
 
         stepper.measureChildViews(wms, hms);
 
-        ArgumentCaptor<Integer> innerSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(innerSpecsCaptor.capture(), innerSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(innerSpecsCaptor.capture(), innerSpecsCaptor.capture());
+        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
+        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
 
-        int innerWms = innerSpecsCaptor.getAllValues().get(0);
-        int innerViewHorizontalUsedSpace =
-                stepper.getInnerViewHorizontalUsedSpace(lp) + stepper.getHorizontalPadding();
+        int innerWms = childSpecsCaptor.getAllValues().get(0);
+        int innerViewHorizontalUsedSpace = stepper.getInnerViewHorizontalUsedSpace(lp) + stepper.getHorizontalPadding();
         assertThat(View.MeasureSpec.getSize(innerWms))
                 .isEqualTo(maxWidth - innerViewHorizontalUsedSpace);
 
-        int innerHms = innerSpecsCaptor.getAllValues().get(1);
+        int innerHms = childSpecsCaptor.getAllValues().get(1);
         int innerViewVerticalUsedSpace = stepper.getInnerViewVerticalUsedSpace(lp) + stepper.getVerticalPadding();
         assertThat(View.MeasureSpec.getSize(innerHms))
                 .isEqualTo(maxHeight - innerViewVerticalUsedSpace);
 
-        int continueWms = innerSpecsCaptor.getAllValues().get(2);
+        int continueWms = childSpecsCaptor.getAllValues().get(2);
         int continueHorizontalUsedSpace =
                 stepper.getInnerViewHorizontalUsedSpace(lp) + stepper.getHorizontalPadding();
         assertThat(View.MeasureSpec.getSize(continueWms))
                 .isEqualTo(maxWidth - continueHorizontalUsedSpace);
 
-        int continueHms = innerSpecsCaptor.getAllValues().get(3);
+        int continueHms = childSpecsCaptor.getAllValues().get(3);
         int continueVerticalUsedSpace = stepper.getVerticalPadding();
         assertThat(View.MeasureSpec.getSize(continueHms))
                 .isEqualTo(maxHeight - continueVerticalUsedSpace);
