@@ -99,6 +99,30 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void initChildViews_NoSteps_ShouldHaveEmptyInnerViews() {
+        stepper.initChildViews();
+
+        assertThat(stepper.innerViews).isEmpty();
+    }
+
+    @Test
+    public void initChildViews_OneStep_ShouldHaveInnerViewsWithSingleElement() {
+        stepper.addView(mockInnerView1);
+        stepper.initChildViews();
+
+        assertThat(stepper.innerViews).hasSize(1);
+    }
+
+    @Test
+    public void initChildViews_TwoSteps_ShouldHaveInnerViewsWithTwoElements() {
+        stepper.addView(mockInnerView1);
+        stepper.addView(mockInnerView2);
+        stepper.initChildViews();
+
+        assertThat(stepper.innerViews).hasSize(2);
+    }
+
+    @Test
     public void initInnerView_ShouldSetVisibilityToGone() {
         stepper.initInnerView(mockInnerView1);
 

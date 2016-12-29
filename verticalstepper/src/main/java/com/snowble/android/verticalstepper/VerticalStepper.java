@@ -36,7 +36,8 @@ public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
 
-    private List<View> innerViews;
+    @VisibleForTesting
+    List<View> innerViews;
     @VisibleForTesting
     List<Integer> decoratorHeights;
     @VisibleForTesting
