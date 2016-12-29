@@ -17,6 +17,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.util.ActivityController;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Java6Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -298,6 +301,30 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void measureChildViews_NoActiveSteps_ShouldHaveChildrenHeightsWithZeros() {
+        initTwoSteps();
+        initStepperStateForChildMeasurement();
+
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        stepper.measureChildViews(ms, ms);
+
+        assertThat(stepper.childrenHeights).containsExactly(0, 0);
+    }
+
+    @Test
+    public void measureChildViews_NoActiveSteps_ShouldMeasureViews() {
+        initTwoSteps();
+        initStepperStateForChildMeasurement();
+
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        stepper.measureChildViews(ms, ms);
+
+        verify(mockInnerView1).measure(anyInt(), anyInt());
+        verify(mockInnerView2).measure(anyInt(), anyInt());
+        assertThat(stepper.childrenHeights).containsExactly(0, 0);
+    }
+
+    @Test
     public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
@@ -527,6 +554,12 @@ public class VerticalStepperTest {
         stepper.addView(mockInnerView1);
         stepper.addView(mockInnerView2);
         stepper.initChildViews();
+    }
+
+    private void initStepperStateForChildMeasurement() {
+        List<Integer> dummyHeights = Arrays.asList(0, 0);
+        stepper.decoratorHeights.addAll(dummyHeights);
+        stepper.bottomMarginHeights.addAll(dummyHeights);
     }
 
     private void mockInnerViewMeasurements(int measuredWidth, int measuredHeight) {
