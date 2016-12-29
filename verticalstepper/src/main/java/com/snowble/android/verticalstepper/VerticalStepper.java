@@ -430,12 +430,14 @@ public class VerticalStepper extends ViewGroup {
             int childrenHeight = 0;
             if (lp.isActive()) {
                 childrenHeight += innerView.getMeasuredHeight() + innerViewVerticalPadding;
-                currentHeight += childrenHeight;
+            }
+            currentHeight += childrenHeight;
 
-                AppCompatButton continueButton = getContinueButton(innerView);
-                measureNavButton(widthMeasureSpec, heightMeasureSpec, continueButton,
-                        usedWidthFromPadding, currentHeight);
+            AppCompatButton continueButton = getContinueButton(innerView);
+            measureNavButton(widthMeasureSpec, heightMeasureSpec, continueButton,
+                    usedWidthFromPadding, currentHeight);
 
+            if (lp.isActive()) {
                 childrenHeight += continueButton.getMeasuredHeight();
             }
             childrenVisibleHeights.add(childrenHeight);
