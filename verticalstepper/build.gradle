@@ -45,4 +45,6 @@ dependencies {
     testCompile 'org.robolectric:shadows-support-v4:3.1.4'
     // Workaround for robolectric issue: https://github.com/robolectric/robolectric/issues/1932#issuecomment-219796474
     testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
+    provided 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
+    testCompile 'org.robolectric:android-all:6.0.0_r1-robolectric-0'
 }
