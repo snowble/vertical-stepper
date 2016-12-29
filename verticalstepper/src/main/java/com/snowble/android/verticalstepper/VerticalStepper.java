@@ -30,14 +30,16 @@ import java.util.Locale;
 
 public class VerticalStepper extends ViewGroup {
 
-    private static final int ZERO_SIZE_MARGIN = 0;
+    @VisibleForTesting
+    static final int ZERO_SIZE_MARGIN = 0;
 
     private Context context;
     private Resources resources;
 
     private List<View> innerViews;
     private List<Integer> decoratorHeights;
-    private List<Integer> bottomMarginHeights;
+    @VisibleForTesting
+    List<Integer> bottomMarginHeights;
     private List<Integer> childrenHeights;
 
     @VisibleForTesting
@@ -45,8 +47,10 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     int outerVerticalPadding;
 
-    private int inactiveBottomMarginToNextStep;
-    private int activeBottomMarginToNextStep;
+    @VisibleForTesting
+    int inactiveBottomMarginToNextStep;
+    @VisibleForTesting
+    int activeBottomMarginToNextStep;
 
     @VisibleForTesting
     int iconDimension;
@@ -393,7 +397,8 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void measureStepBottomMarginHeights() {
+    @VisibleForTesting
+    void measureStepBottomMarginHeights() {
         bottomMarginHeights.clear();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             LayoutParams lp = getInternalLayoutParams(innerViews.get(i));
