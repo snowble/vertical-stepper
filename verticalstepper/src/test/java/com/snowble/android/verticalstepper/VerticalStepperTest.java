@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
+import android.text.TextPaint;
 import android.view.View;
 
 import org.junit.Before;
@@ -437,6 +438,22 @@ public class VerticalStepperTest {
         int actualHms = hmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
         assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
+    }
+
+    @Test
+    public void getTitleTextPaint_InactiveStep_ShouldReturnInactiveStepPaint() {
+        when(mockLayoutParams1.isActive()).thenReturn(false);
+        TextPaint paint = stepper.getTitleTextPaint(mockLayoutParams1);
+
+        assertThat(paint).isEqualTo(stepper.titleInactiveTextPaint);
+    }
+
+    @Test
+    public void getTitleTextPaint_ActiveStep_ShouldReturnActiveStepPaint() {
+        when(mockLayoutParams1.isActive()).thenReturn(true);
+        TextPaint paint = stepper.getTitleTextPaint(mockLayoutParams1);
+
+        assertThat(paint).isEqualTo(stepper.titleActiveTextPaint);
     }
 
     @Test
