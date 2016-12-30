@@ -662,6 +662,25 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
+        ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
+        int width = 20;
+
+        stepper.measureTouchView(width, mockTouchView1);
+
+        verify(mockTouchView1).measure(wmsCaptor.capture(), hmsCaptor.capture());
+
+        int actualWms = wmsCaptor.getValue();
+        assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
+        assertThat(View.MeasureSpec.getSize(actualWms)).isEqualTo(width);
+
+        int actualHms = hmsCaptor.getValue();
+        assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
+        assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
+    }
+
+    @Test
     public void getStepDecoratorWidth_ShouldReturnIconAndTextSum() {
         float textWidth = 10f;
         mockLayoutParamsWidths(textWidth, textWidth);
@@ -716,25 +735,6 @@ public class VerticalStepperTest {
         int height = stepper.getStepDecoratorHeight(mockLayoutParams1);
 
         assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
-    }
-
-    @Test
-    public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
-        ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
-        int width = 20;
-
-        stepper.measureTouchView(width, mockTouchView1);
-
-        verify(mockTouchView1).measure(wmsCaptor.capture(), hmsCaptor.capture());
-
-        int actualWms = wmsCaptor.getValue();
-        assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
-        assertThat(View.MeasureSpec.getSize(actualWms)).isEqualTo(width);
-
-        int actualHms = hmsCaptor.getValue();
-        assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
-        assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
     }
 
     @Test
