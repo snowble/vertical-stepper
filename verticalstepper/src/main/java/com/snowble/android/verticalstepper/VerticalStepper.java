@@ -486,7 +486,8 @@ public class VerticalStepper extends ViewGroup {
         return width;
     }
 
-    private int calculateHeight() {
+    @VisibleForTesting
+    int calculateHeight() {
         int height = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             height += decoratorHeights.get(i);
