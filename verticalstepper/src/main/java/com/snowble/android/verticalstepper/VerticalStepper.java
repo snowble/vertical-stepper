@@ -490,6 +490,19 @@ public class VerticalStepper extends ViewGroup {
         return height;
     }
 
+    private void measureTouchViews(int width) {
+        for (View v : innerViews) {
+            measureTouchView(width, getTouchView(v));
+        }
+    }
+
+    @VisibleForTesting
+    void measureTouchView(int width, InternalTouchView view) {
+        int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+        int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
+        view.measure(wms, hms);
+    }
+
     @VisibleForTesting
     int getVerticalPadding() {
         return outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
@@ -533,19 +546,6 @@ public class VerticalStepper extends ViewGroup {
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
         return Math.max(iconDimension, textTotalHeight);
-    }
-
-    private void measureTouchViews(int width) {
-        for (View v : innerViews) {
-            measureTouchView(width, getTouchView(v));
-        }
-    }
-
-    @VisibleForTesting
-    void measureTouchView(int width, InternalTouchView view) {
-        int wms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-        int hms = MeasureSpec.makeMeasureSpec(touchViewHeight, MeasureSpec.EXACTLY);
-        view.measure(wms, hms);
     }
 
     @Override
