@@ -684,7 +684,7 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void calculateStepDecoratorTextWidth_TallerTitle_ShouldReturnTitle() {
+    public void calculateStepDecoratorTextWidth_WiderTitle_ShouldReturnTitle() {
         mockLayoutParamsWidths(20f, 10f);
 
         float width = stepper.calculateStepDecoratorTextWidth(mockLayoutParams1);
@@ -693,7 +693,7 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void calculateStepDecoratorTextWidth_TallerSummary_ShouldReturnSummary() {
+    public void calculateStepDecoratorTextWidth_WiderSummary_ShouldReturnSummary() {
         mockLayoutParamsWidths(20f, 25f);
 
         float width = stepper.calculateStepDecoratorTextWidth(mockLayoutParams1);
