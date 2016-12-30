@@ -556,6 +556,28 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void calculateWidth_NoSteps_ShouldReturnHorizontalPadding() {
+        int width = stepper.calculateWidth();
+
+        assertThat(width)
+                .isEqualTo(stepper.calculateHorizontalPadding());
+    }
+
+    @Test
+    public void calculateWidth_OneStep_ShouldReturnHorizontalPaddingAndStepWidth() {
+        initOneStep();
+        int innerWidth = stepper.calculateStepDecoratorWidth(mockLayoutParams1) * 2;
+        when(mockInnerView1.getMeasuredWidth()).thenReturn(innerWidth);
+        when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
+
+        int width = stepper.calculateWidth();
+
+        assertThat(width)
+                .isEqualTo(stepper.calculateHorizontalPadding()
+                        + innerWidth + stepper.calculateInnerViewHorizontalUsedSpace(mockLayoutParams1));
+    }
+
+    @Test
     public void calculateMaxStepWidth_DecoratorsHaveMaxWidth_ShouldReturnDecoratorsWidth() {
         initOneStep();
         when(mockInnerView1.getMeasuredWidth()).thenReturn(0);

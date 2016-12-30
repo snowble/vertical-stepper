@@ -380,7 +380,7 @@ public class VerticalStepper extends ViewGroup {
         measureStepDecoratorHeights();
         measureStepBottomMarginHeights();
         measureChildViews(widthMeasureSpec, heightMeasureSpec);
-        int width = calculateHorizontalPadding() + calculateMaxStepWidth();
+        int width = calculateWidth();
         int height = calculateHeight();
 
         width = Math.max(width, getSuggestedMinimumWidth());
@@ -461,6 +461,11 @@ public class VerticalStepper extends ViewGroup {
         int navButtonsWms = getChildMeasureSpec(widthMeasureSpec, usedWidth, LayoutParams.WRAP_CONTENT);
         int navButtonsHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, LayoutParams.WRAP_CONTENT);
         continueButton.measure(navButtonsWms, navButtonsHms);
+    }
+
+    @VisibleForTesting
+    int calculateWidth() {
+        return calculateHorizontalPadding() + calculateMaxStepWidth();
     }
 
     @VisibleForTesting
