@@ -368,25 +368,9 @@ public class VerticalStepperTest {
 
         int maxWidth = 1080;
         int maxHeight = 1920;
-        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        measureChildViews(maxWidth, maxHeight);
 
-        stepper.measureChildViews(wms, hms);
-
-        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        List<Integer> allValues = childSpecsCaptor.getAllValues();
-
-        int innerWms = allValues.get(0);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-        int innerHms = allValues.get(1);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms, stepper.calculateInnerViewVerticalUsedSpace(lp));
-
-        int continueWms = allValues.get(2);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-        int continueHms = allValues.get(3);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms, 0);
+        assertExpectedStep1MeasureSpecs(lp, maxWidth, maxHeight, stepper.calculateInnerViewVerticalUsedSpace(lp), 0);
     }
 
     @Test
@@ -401,25 +385,9 @@ public class VerticalStepperTest {
 
         int maxWidth = 1080;
         int maxHeight = 1920;
-        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        measureChildViews(maxWidth, maxHeight);
 
-        stepper.measureChildViews(wms, hms);
-
-        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        List<Integer> allValues = childSpecsCaptor.getAllValues();
-
-        int innerWms = allValues.get(0);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-        int innerHms = allValues.get(1);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms, stepper.calculateInnerViewVerticalUsedSpace(lp));
-
-        int continueWms = allValues.get(2);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-        int continueHms = allValues.get(3);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms, 0);
+        assertExpectedStep1MeasureSpecs(lp, maxWidth, maxHeight, stepper.calculateInnerViewVerticalUsedSpace(lp), 0);
     }
 
     @Test
@@ -434,29 +402,14 @@ public class VerticalStepperTest {
 
         int maxWidth = 1080;
         int maxHeight = 1920;
-        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        measureChildViews(maxWidth, maxHeight);
 
-        stepper.measureChildViews(wms, hms);
-
-        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        List<Integer> allValues = childSpecsCaptor.getAllValues();
-
-        int innerWms = allValues.get(0);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-        int innerHms = allValues.get(1);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms, stepper.calculateInnerViewVerticalUsedSpace(lp));
-
-        int continueWms = allValues.get(2);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-        int continueHms = allValues.get(3);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms, innerHeight);
+        assertExpectedStep1MeasureSpecs(lp, maxWidth, maxHeight,
+                stepper.calculateInnerViewVerticalUsedSpace(lp), innerHeight);
     }
 
     @Test
-    public void measureChildViews_OneStep_ShouldMeasureChildrenAccountingForDecorator() {
+    public void measureChildViews_OneInactiveStep_ShouldMeasureChildrenAccountingForDecorator() {
         initOneStep();
         int decoratorHeight = 100;
         int bottomMargin = 30;
@@ -467,30 +420,14 @@ public class VerticalStepperTest {
 
         int maxWidth = 1080;
         int maxHeight = 1920;
-        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        measureChildViews(maxWidth, maxHeight);
 
-        stepper.measureChildViews(wms, hms);
-
-        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        List<Integer> allValues = childSpecsCaptor.getAllValues();
-
-        int innerWms = allValues.get(0);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
-        int innerHms = allValues.get(1);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms,
-                stepper.calculateInnerViewVerticalUsedSpace(lp) + decoratorHeight);
-
-        int continueWms = allValues.get(2);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
-        int continueHms = allValues.get(3);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms, decoratorHeight);
+        assertExpectedStep1MeasureSpecs(lp, maxWidth, maxHeight,
+                stepper.calculateInnerViewVerticalUsedSpace(lp) + decoratorHeight, decoratorHeight);
     }
 
     @Test
-    public void measureChildViews_TwoSteps_ShouldMeasureChildrenAccountingForBottomMargin() {
+    public void measureChildViews_TwoInactiveSteps_ShouldMeasureChildrenAccountingForBottomMargin() {
         initTwoSteps();
         int decoratorHeight = 100;
         int bottomMargin = 30;
@@ -505,39 +442,57 @@ public class VerticalStepperTest {
 
         int maxWidth = 1080;
         int maxHeight = 1920;
-        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        measureChildViews(maxWidth, maxHeight);
 
-        stepper.measureChildViews(wms, hms);
+        assertExpectedStep1MeasureSpecs(lp, maxWidth, maxHeight,
+                stepper.calculateInnerViewVerticalUsedSpace(lp) + decoratorHeight, decoratorHeight);
 
-        ArgumentCaptor<Integer> childSpecsCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockInnerView1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton1).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockInnerView2).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        verify(mockContinueButton2).measure(childSpecsCaptor.capture(), childSpecsCaptor.capture());
-        List<Integer> allValues = childSpecsCaptor.getAllValues();
+        assertExpectedStep2MeasureSpecs(lp2, maxWidth, maxHeight,
+                stepper.calculateInnerViewVerticalUsedSpace(lp2) + decoratorHeight * 2 + bottomMargin,
+                decoratorHeight * 2 + bottomMargin);
+    }
 
-        Integer innerWms1 = allValues.get(0);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms1);
-        Integer innerHms1 = allValues.get(1);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms1,
-                stepper.calculateInnerViewVerticalUsedSpace(lp) + decoratorHeight);
+    private void assertExpectedStep1MeasureSpecs(VerticalStepper.LayoutParams lp,
+                                                 int maxWidth, int maxHeight,
+                                                 int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        assertExpectedStepMeasureSpecs(captureStep1MeasureSpecs(), lp, maxWidth, maxHeight,
+                additionalInnerUsedSpace, additionalContinueUsedSpace);
+    }
 
-        Integer continueWms1 = allValues.get(2);
-        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms1);
-        Integer continueHms1 = allValues.get(3);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms1, decoratorHeight);
+    private void assertExpectedStep2MeasureSpecs(VerticalStepper.LayoutParams lp,
+                                                 int maxWidth, int maxHeight,
+                                                 int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        assertExpectedStepMeasureSpecs(captureStep2MeasureSpecs(), lp, maxWidth, maxHeight,
+                additionalInnerUsedSpace, additionalContinueUsedSpace);
+    }
 
-        Integer innerWms2 = allValues.get(4);
-        assertExpectedWidthMeasureSpec(lp2, maxWidth, innerWms2);
-        Integer innerHms2 = allValues.get(5);
-        assertExpectedHeightMeasureSpec(maxHeight, innerHms2,
-                stepper.calculateInnerViewVerticalUsedSpace(lp2) + decoratorHeight * 2 + bottomMargin);
+    private List<Integer> captureStep1MeasureSpecs() {
+        return captureStepMeasureSpecs(mockInnerView1, mockContinueButton1);
+    }
 
-        Integer continueWms2 = allValues.get(6);
-        assertExpectedWidthMeasureSpec(lp2, maxWidth, continueWms2);
-        Integer continueHms2 = allValues.get(7);
-        assertExpectedHeightMeasureSpec(maxHeight, continueHms2, decoratorHeight * 2 + bottomMargin);
+    private List<Integer> captureStep2MeasureSpecs() {
+        return captureStepMeasureSpecs(mockInnerView2, mockContinueButton2);
+    }
+
+    private List<Integer> captureStepMeasureSpecs(View innerView, View continueButton) {
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        verify(innerView).measure(captor.capture(), captor.capture());
+        verify(continueButton).measure(captor.capture(), captor.capture());
+        return captor.getAllValues();
+    }
+
+    private void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, VerticalStepper.LayoutParams lp,
+                                                int maxWidth, int maxHeight,
+                                                int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        int innerWms = measureSpecs.get(0);
+        assertExpectedWidthMeasureSpec(lp, maxWidth, innerWms);
+        int innerHms = measureSpecs.get(1);
+        assertExpectedHeightMeasureSpec(maxHeight, innerHms, additionalInnerUsedSpace);
+
+        int continueWms = measureSpecs.get(2);
+        assertExpectedWidthMeasureSpec(lp, maxWidth, continueWms);
+        int continueHms = measureSpecs.get(3);
+        assertExpectedHeightMeasureSpec(maxHeight, continueHms, additionalContinueUsedSpace);
     }
 
     private void assertExpectedHeightMeasureSpec(int maxHeight, int heightMeasureSpec,
@@ -902,6 +857,12 @@ public class VerticalStepperTest {
     private void mockLayoutParamsHeights(float titleBottom, float summaryBottom) {
         when(mockLayoutParams1.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
         when(mockLayoutParams1.getSummaryBottomRelativeToTitleBottom()).thenReturn(summaryBottom);
+    }
+
+    private void measureChildViews(int maxWidth, int maxHeight) {
+        int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
+        int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+        stepper.measureChildViews(wms, hms);
     }
 
     private VerticalStepper.LayoutParams createTestLayoutParams(int leftMargin, int topMargin,
