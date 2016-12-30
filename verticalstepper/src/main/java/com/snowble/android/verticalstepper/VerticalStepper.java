@@ -671,7 +671,7 @@ public class VerticalStepper extends ViewGroup {
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
-                drawConnector(canvas, lp, dyToNextStep);
+                drawConnector(canvas, dyToNextStep);
                 canvas.restore();
             }
 
@@ -742,7 +742,7 @@ public class VerticalStepper extends ViewGroup {
         // TODO Handle optional case
     }
 
-    private void drawConnector(Canvas canvas, LayoutParams lp, int yDistanceToNextStep) {
+    private void drawConnector(Canvas canvas, int yDistanceToNextStep) {
         canvas.translate((iconDimension - connectorWidth) / 2, 0);
         float startY = iconDimension + iconMarginVertical;
         float stopY = yDistanceToNextStep - iconMarginVertical;
