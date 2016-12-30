@@ -634,6 +634,14 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void calculateHeight_NoSteps_ShouldReturnVerticalPadding() {
+        int width = stepper.calculateHeight();
+
+        assertThat(width)
+                .isEqualTo(stepper.calculateVerticalPadding());
+    }
+
+    @Test
     public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
