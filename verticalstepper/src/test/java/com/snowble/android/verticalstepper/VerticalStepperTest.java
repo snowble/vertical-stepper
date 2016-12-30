@@ -646,63 +646,6 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void doMeasurement_OneStepUnspecifiedSpec_ShouldMeasurePaddingStepDecorationsAndInnerView() {
-        int innerViewMeasuredWidth = 100;
-        int innerViewMeasuredHeight = 400;
-        mockInnerViewMeasurements(innerViewMeasuredWidth, innerViewMeasuredHeight);
-
-        int buttonMeasuredWidth = 80;
-        int buttonMeasuredHeight = 20;
-        mockContinueButtonMeasurements(buttonMeasuredWidth, buttonMeasuredHeight);
-
-        float titleWidth = 10f;
-        float summaryWidth = 20f;
-        mockLayoutParamsWidths(titleWidth, summaryWidth);
-
-        float titleBottom = 24f;
-        float summaryBottom = 20f;
-        mockLayoutParamsHeights(titleBottom, summaryBottom);
-
-        initOneStep();
-
-        testSingleChildInactiveMeasurement(innerViewMeasuredWidth, titleBottom, summaryBottom);
-        testSingleChildActiveMeasurement(innerViewMeasuredWidth, innerViewMeasuredHeight,
-                titleBottom, summaryBottom,
-                buttonMeasuredHeight);
-    }
-
-    private void testSingleChildInactiveMeasurement(int innerViewMeasuredWidth,
-                                                    float titleBottom, float summaryBottom) {
-        when(mockLayoutParams1.isActive()).thenReturn(false);
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-
-        stepper.doMeasurement(ms, ms);
-
-        assertThat(stepper.getMeasuredWidth())
-                .isEqualTo(stepper.calculateHorizontalPadding() + stepper.calculateInnerViewHorizontalUsedSpace(mockLayoutParams1)
-                + innerViewMeasuredWidth);
-        assertThat(stepper.getMeasuredHeight())
-                .isEqualTo(stepper.calculateVerticalPadding() + stepper.calculateInnerViewVerticalUsedSpace(mockLayoutParams1)
-                + (int) (titleBottom + summaryBottom));
-    }
-
-    private void testSingleChildActiveMeasurement(int innerViewMeasuredWidth, int innerViewMeasuredHeight,
-                                                  float titleBottom, float summaryBottom,
-                                                  int buttonMeasuredHeight) {
-        when(mockLayoutParams1.isActive()).thenReturn(true);
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-
-        stepper.doMeasurement(ms, ms);
-
-        assertThat(stepper.getMeasuredWidth())
-                .isEqualTo(stepper.calculateHorizontalPadding() + stepper.calculateInnerViewHorizontalUsedSpace(mockLayoutParams1)
-                        + innerViewMeasuredWidth);
-        assertThat(stepper.getMeasuredHeight())
-                .isEqualTo(stepper.calculateVerticalPadding() + stepper.calculateInnerViewVerticalUsedSpace(mockLayoutParams1)
-                        + (int) (titleBottom + summaryBottom) + innerViewMeasuredHeight + buttonMeasuredHeight);
-    }
-
-    @Test
     public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
         ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -837,16 +780,6 @@ public class VerticalStepperTest {
                                                      List<Integer> bottomMarginHeights) {
         stepper.decoratorHeights.addAll(decoratorHeights);
         stepper.bottomMarginHeights.addAll(bottomMarginHeights);
-    }
-
-    private void mockInnerViewMeasurements(int measuredWidth, int measuredHeight) {
-        when(mockInnerView1.getMeasuredWidth()).thenReturn(measuredWidth);
-        when(mockInnerView1.getMeasuredHeight()).thenReturn(measuredHeight);
-    }
-
-    private void mockContinueButtonMeasurements(int measuredWidth, int measuredHeight) {
-        when(mockContinueButton1.getMeasuredWidth()).thenReturn(measuredWidth);
-        when(mockContinueButton1.getMeasuredHeight()).thenReturn(measuredHeight);
     }
 
     private void mockLayoutParamsWidths(float titleWidth, float summaryWidth) {
