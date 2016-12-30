@@ -380,7 +380,7 @@ public class VerticalStepper extends ViewGroup {
         measureStepDecoratorHeights();
         measureStepBottomMarginHeights();
         measureChildViews(widthMeasureSpec, heightMeasureSpec);
-        int width = getHorizontalPadding() + measureMaxStepDecoratorWidth();
+        int width = getHorizontalPadding() + measureMaxStepWidth();
         int height = measureHeight();
 
         width = Math.max(width, getSuggestedMinimumWidth());
@@ -464,7 +464,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int measureMaxStepDecoratorWidth() {
+    int measureMaxStepWidth() {
         int width = 0;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View innerView = innerViews.get(i);
