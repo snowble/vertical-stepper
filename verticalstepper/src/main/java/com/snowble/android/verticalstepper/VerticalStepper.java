@@ -511,23 +511,23 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int calculateVerticalPadding() {
-        return outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
-    }
-
-    @VisibleForTesting
     int calculateHorizontalPadding() {
         return outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
     }
 
     @VisibleForTesting
-    int calculateInnerViewVerticalUsedSpace(LayoutParams lp) {
-        return lp.topMargin + lp.bottomMargin;
+    int calculateVerticalPadding() {
+        return outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
     }
 
     @VisibleForTesting
     int calculateInnerViewHorizontalUsedSpace(LayoutParams lp) {
         return iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
+    }
+
+    @VisibleForTesting
+    int calculateInnerViewVerticalUsedSpace(LayoutParams lp) {
+        return lp.topMargin + lp.bottomMargin;
     }
 
     @VisibleForTesting
