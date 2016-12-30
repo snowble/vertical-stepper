@@ -380,8 +380,8 @@ public class VerticalStepper extends ViewGroup {
         measureStepDecoratorHeights();
         measureStepBottomMarginHeights();
         measureChildViews(widthMeasureSpec, heightMeasureSpec);
-        int width = getHorizontalPadding() + measureMaxStepWidth();
-        int height = measureHeight();
+        int width = calculateHorizontalPadding() + calculateMaxStepWidth();
+        int height = calculateHeight();
 
         width = Math.max(width, getSuggestedMinimumWidth());
         height = Math.max(height, getSuggestedMinimumHeight());
@@ -399,7 +399,7 @@ public class VerticalStepper extends ViewGroup {
         decoratorHeights.clear();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             LayoutParams lp = getInternalLayoutParams(innerViews.get(i));
-            decoratorHeights.add(getStepDecoratorHeight(lp));
+            decoratorHeights.add(calculateStepDecoratorHeight(lp));
         }
     }
 
@@ -415,15 +415,15 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void measureChildViews(int widthMeasureSpec, int heightMeasureSpec) {
         childrenVisibleHeights.clear();
-        int stepperHorizontalPadding = getHorizontalPadding();
-        int currentHeight = getVerticalPadding();
+        int stepperHorizontalPadding = calculateHorizontalPadding();
+        int currentHeight = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             currentHeight += decoratorHeights.get(i);
             View innerView = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(innerView);
 
-            int usedWidthFromPadding = stepperHorizontalPadding + getInnerViewHorizontalUsedSpace(lp);
-            int innerViewVerticalPadding = getInnerViewVerticalUsedSpace(lp);
+            int usedWidthFromPadding = stepperHorizontalPadding + calculateInnerViewHorizontalUsedSpace(lp);
+            int innerViewVerticalPadding = calculateInnerViewVerticalUsedSpace(lp);
             int usedHeight = innerViewVerticalPadding + currentHeight;
             measureInnerView(widthMeasureSpec, heightMeasureSpec, innerView, usedWidthFromPadding, usedHeight);
 
@@ -464,14 +464,14 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int measureMaxStepWidth() {
+    int calculateMaxStepWidth() {
         int width = 0;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View innerView = innerViews.get(i);
             LayoutParams lp = getInternalLayoutParams(innerView);
-            int innerViewHorizontalPadding = getInnerViewHorizontalUsedSpace(lp);
+            int innerViewHorizontalPadding = calculateInnerViewHorizontalUsedSpace(lp);
 
-            width = Math.max(width, getStepDecoratorWidth(lp));
+            width = Math.max(width, calculateStepDecoratorWidth(lp));
 
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
@@ -481,8 +481,8 @@ public class VerticalStepper extends ViewGroup {
         return width;
     }
 
-    private int measureHeight() {
-        int height = getVerticalPadding();
+    private int calculateHeight() {
+        int height = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             height += decoratorHeights.get(i);
             height += childrenVisibleHeights.get(i);
@@ -505,44 +505,44 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int getVerticalPadding() {
+    int calculateVerticalPadding() {
         return outerVerticalPadding + outerVerticalPadding + getPaddingTop() + getPaddingBottom();
     }
 
     @VisibleForTesting
-    int getHorizontalPadding() {
+    int calculateHorizontalPadding() {
         return outerHorizontalPadding + outerHorizontalPadding + getPaddingLeft() + getPaddingRight();
     }
 
     @VisibleForTesting
-    int getInnerViewVerticalUsedSpace(LayoutParams lp) {
+    int calculateInnerViewVerticalUsedSpace(LayoutParams lp) {
         return lp.topMargin + lp.bottomMargin;
     }
 
     @VisibleForTesting
-    int getInnerViewHorizontalUsedSpace(LayoutParams lp) {
+    int calculateInnerViewHorizontalUsedSpace(LayoutParams lp) {
         return iconDimension + iconMarginRight + lp.leftMargin + lp.rightMargin;
     }
 
     @VisibleForTesting
-    int getStepDecoratorWidth(LayoutParams lp) {
-        return getStepDecoratorIconWidth() + (int) getStepDecoratorTextWidth(lp);
+    int calculateStepDecoratorWidth(LayoutParams lp) {
+        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth(lp);
     }
 
     @VisibleForTesting
-    int getStepDecoratorIconWidth() {
+    int calculateStepDecoratorIconWidth() {
         return iconDimension + iconMarginRight;
     }
 
     @VisibleForTesting
-    float getStepDecoratorTextWidth(LayoutParams lp) {
+    float calculateStepDecoratorTextWidth(LayoutParams lp) {
         lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
         lp.measureSummaryHorizontalDimensions(summaryTextPaint);
         return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
     }
 
     @VisibleForTesting
-    int getStepDecoratorHeight(LayoutParams lp) {
+    int calculateStepDecoratorHeight(LayoutParams lp) {
         lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
@@ -567,11 +567,11 @@ public class VerticalStepper extends ViewGroup {
             if (lp.isActive()) {
                 layoutInnerView(left, currentTop, right, bottom, v, isLastStep);
 
-                int buttonsTop = currentTop + getYDistanceToButtons(v, lp);
+                int buttonsTop = currentTop + calculateYDistanceToButtons(v, lp);
 
                 layoutNavButtons(left, buttonsTop, right, bottom, v, isLastStep);
             }
-            currentTop += getYDistanceToNextStep(v, lp, isLastStep);
+            currentTop += calculateYDistanceToNextStep(v, lp, isLastStep);
         }
     }
 
@@ -667,7 +667,7 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
-            int dyToNextStep = getYDistanceToNextStep(innerView, lp, i == innerViewsSize - 1);
+            int dyToNextStep = calculateYDistanceToNextStep(innerView, lp, i == innerViewsSize - 1);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
@@ -683,8 +683,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private int getYDistanceToNextStep(View innerView, LayoutParams lp, boolean isLastStep) {
-        int dyToNextStep = getYDistanceToButtons(innerView, lp);
+    private int calculateYDistanceToNextStep(View innerView, LayoutParams lp, boolean isLastStep) {
+        int dyToNextStep = calculateYDistanceToButtons(innerView, lp);
         if (lp.isActive()) {
             dyToNextStep += lp.getContinueButton().getHeight();
         }
@@ -692,15 +692,15 @@ public class VerticalStepper extends ViewGroup {
         return dyToNextStep;
     }
 
-    private int getYDistanceToButtons(View innerView, LayoutParams lp) {
-        int dyToButtons = getYDistanceToTextBottom(lp);
+    private int calculateYDistanceToButtons(View innerView, LayoutParams lp) {
+        int dyToButtons = calculateYDistanceToTextBottom(lp);
         if (lp.isActive()) {
             dyToButtons += innerView.getHeight() + titleMarginBottomToInnerView;
         }
         return dyToButtons;
     }
 
-    private int getYDistanceToTextBottom(LayoutParams lp) {
+    private int calculateYDistanceToTextBottom(LayoutParams lp) {
         int dyToTextBottom = (int) lp.getTitleBaselineRelativeToStepTop();
         if (!lp.isActive()) {
             dyToTextBottom += lp.getSummaryBottomRelativeToTitleBottom();
@@ -730,7 +730,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, LayoutParams lp) {
-        canvas.translate(getStepDecoratorIconWidth(), 0);
+        canvas.translate(calculateStepDecoratorIconWidth(), 0);
 
         TextPaint paint = getTitleTextPaint(lp);
         canvas.drawText(lp.getTitle(), 0, lp.getTitleBaselineRelativeToStepTop(), paint);
