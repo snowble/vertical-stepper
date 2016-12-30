@@ -556,6 +556,62 @@ public class VerticalStepperTest {
     }
 
     @Test
+    public void measureMaxStepDecoratorWidth_DecoratorsHaveMaxWidth_ShouldReturnDecoratorsWidth() {
+        initOneStep();
+        when(mockInnerView1.getMeasuredWidth()).thenReturn(0);
+        when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
+
+        int maxWidth = stepper.measureMaxStepDecoratorWidth();
+
+        assertThat(maxWidth)
+                .isEqualTo(stepper.getStepDecoratorWidth(mockLayoutParams1));
+    }
+
+    @Test
+    public void measureMaxStepDecoratorWidth_InnerViewHasMaxWidth_ShouldReturnInnerViewWidth() {
+        initOneStep();
+        int width = stepper.getStepDecoratorWidth(mockLayoutParams1) * 2;
+        when(mockInnerView1.getMeasuredWidth()).thenReturn(width);
+        when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
+
+        int maxWidth = stepper.measureMaxStepDecoratorWidth();
+
+        assertThat(maxWidth)
+                .isEqualTo(width + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams1));
+    }
+
+    @Test
+    public void measureMaxStepDecoratorWidth_NavButtonsHaveMaxWidth_ShouldReturnNavButtonsWidth() {
+        initOneStep();
+        int width = stepper.getStepDecoratorWidth(mockLayoutParams1) * 2;
+        when(mockContinueButton1.getMeasuredWidth()).thenReturn(width);
+        when(mockInnerView1.getMeasuredWidth()).thenReturn(0);
+
+        int maxWidth = stepper.measureMaxStepDecoratorWidth();
+
+        assertThat(maxWidth)
+                .isEqualTo(width + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams1));
+    }
+
+    @Test
+    public void measureMaxStepDecoratorWidth_TwoSteps_ShouldReturnLargerStepWidth() {
+        initTwoSteps();
+        int width1 = stepper.getStepDecoratorWidth(mockLayoutParams1) * 2;
+        when(mockInnerView1.getMeasuredWidth()).thenReturn(width1);
+        when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
+
+        int width2 = stepper.getStepDecoratorWidth(mockLayoutParams2) * 3;
+        when(mockInnerView2.getMeasuredWidth()).thenReturn(width2);
+        when(mockContinueButton2.getMeasuredWidth()).thenReturn(0);
+
+        int maxWidth = stepper.measureMaxStepDecoratorWidth();
+
+        assertThat(maxWidth)
+                .isNotEqualTo(width1 + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams1))
+                .isEqualTo(width2 + stepper.getInnerViewHorizontalUsedSpace(mockLayoutParams2));
+    }
+
+    @Test
     public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
