@@ -200,40 +200,52 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void calculateHorizontalPadding_ShouldReturnAllPadding() {
-        int horizontalPadding = stepper.calculateHorizontalPadding();
+    public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
+        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
-        assertThat(horizontalPadding)
-                .isEqualTo((stepper.outerHorizontalPadding * 2) +
-                        stepper.getPaddingLeft() + stepper.getPaddingRight());
+        stepper.doMeasurement(ms, ms);
+
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(stepper.calculateVerticalPadding());
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(stepper.calculateHorizontalPadding());
     }
 
     @Test
-    public void calculateVerticalPadding_ShouldReturnAllPadding() {
-        int verticalPadding = stepper.calculateVerticalPadding();
+    public void doMeasurement_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
+        int width = stepper.calculateHorizontalPadding() / 2;
+        int height = stepper.calculateVerticalPadding() / 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
 
-        assertThat(verticalPadding)
-                .isEqualTo((stepper.outerVerticalPadding * 2) +
-                        stepper.getPaddingTop() + stepper.getPaddingBottom());
+        stepper.doMeasurement(wms, hms);
+
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
-    public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams(20, 0, 10, 0);
+    public void doMeasurement_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
+        int width = stepper.calculateHorizontalPadding() / 2;
+        int height = stepper.calculateVerticalPadding() / 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
 
-        int horizontalPadding = stepper.calculateInnerViewHorizontalUsedSpace(lp);
+        stepper.doMeasurement(wms, hms);
 
-        assertThat(horizontalPadding)
-                .isEqualTo(lp.leftMargin + lp.rightMargin + stepper.iconDimension + stepper.iconMarginRight);
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
-    public void calculateInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams(0, 10, 0, 20);
+    public void doMeasurement_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
+        int width = stepper.calculateHorizontalPadding() * 2;
+        int height = stepper.calculateVerticalPadding() * 2;
+        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
 
-        int verticalPadding = stepper.calculateInnerViewVerticalUsedSpace(lp);
+        stepper.doMeasurement(wms, hms);
 
-        assertThat(verticalPadding).isEqualTo(lp.topMargin + lp.bottomMargin);
+        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
+        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
@@ -597,55 +609,6 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-
-        stepper.doMeasurement(ms, ms);
-
-        assertThat(stepper.getMeasuredHeight()).isEqualTo(stepper.calculateVerticalPadding());
-        assertThat(stepper.getMeasuredWidth()).isEqualTo(stepper.calculateHorizontalPadding());
-    }
-
-    @Test
-    public void doMeasurement_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
-        int width = stepper.calculateHorizontalPadding() / 2;
-        int height = stepper.calculateVerticalPadding() / 2;
-        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
-        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST);
-
-        stepper.doMeasurement(wms, hms);
-
-        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
-        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
-    }
-
-    @Test
-    public void doMeasurement_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
-        int width = stepper.calculateHorizontalPadding() / 2;
-        int height = stepper.calculateVerticalPadding() / 2;
-        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
-        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
-
-        stepper.doMeasurement(wms, hms);
-
-        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
-        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
-    }
-
-    @Test
-    public void doMeasurement_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
-        int width = stepper.calculateHorizontalPadding() * 2;
-        int height = stepper.calculateVerticalPadding() * 2;
-        int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
-        int hms = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
-
-        stepper.doMeasurement(wms, hms);
-
-        assertThat(stepper.getMeasuredWidth()).isEqualTo(width);
-        assertThat(stepper.getMeasuredHeight()).isEqualTo(height);
-    }
-
-    @Test
     public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
         ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -662,6 +625,43 @@ public class VerticalStepperTest {
         int actualHms = hmsCaptor.getValue();
         assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
         assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.touchViewHeight);
+    }
+
+    @Test
+    public void calculateHorizontalPadding_ShouldReturnAllPadding() {
+        int horizontalPadding = stepper.calculateHorizontalPadding();
+
+        assertThat(horizontalPadding)
+                .isEqualTo((stepper.outerHorizontalPadding * 2) +
+                        stepper.getPaddingLeft() + stepper.getPaddingRight());
+    }
+
+    @Test
+    public void calculateVerticalPadding_ShouldReturnAllPadding() {
+        int verticalPadding = stepper.calculateVerticalPadding();
+
+        assertThat(verticalPadding)
+                .isEqualTo((stepper.outerVerticalPadding * 2) +
+                        stepper.getPaddingTop() + stepper.getPaddingBottom());
+    }
+
+    @Test
+    public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
+        VerticalStepper.LayoutParams lp = createTestLayoutParams(20, 0, 10, 0);
+
+        int horizontalPadding = stepper.calculateInnerViewHorizontalUsedSpace(lp);
+
+        assertThat(horizontalPadding)
+                .isEqualTo(lp.leftMargin + lp.rightMargin + stepper.iconDimension + stepper.iconMarginRight);
+    }
+
+    @Test
+    public void calculateInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
+        VerticalStepper.LayoutParams lp = createTestLayoutParams(0, 10, 0, 20);
+
+        int verticalPadding = stepper.calculateInnerViewVerticalUsedSpace(lp);
+
+        assertThat(verticalPadding).isEqualTo(lp.topMargin + lp.bottomMargin);
     }
 
     @Test
@@ -821,5 +821,4 @@ public class VerticalStepperTest {
         lp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
         return lp;
     }
-
 }
