@@ -463,7 +463,8 @@ public class VerticalStepper extends ViewGroup {
         continueButton.measure(navButtonsWms, navButtonsHms);
     }
 
-    private int measureMaxStepDecoratorWidth() {
+    @VisibleForTesting
+    int measureMaxStepDecoratorWidth() {
         int width = 0;
         for (int i = 0, innerViewsSize = innerViews.size(); i < innerViewsSize; i++) {
             View innerView = innerViews.get(i);
