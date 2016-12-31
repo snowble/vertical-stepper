@@ -8,6 +8,8 @@ import android.support.v7.widget.AppCompatButton;
 import android.text.TextPaint;
 import android.view.View;
 
+import org.assertj.core.api.Condition;
+import org.assertj.core.data.Index;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ public class VerticalStepperTest {
 
     private Activity activity;
     private VerticalStepper stepper;
+
     private View mockInnerView1;
     private View mockInnerView2;
     private VerticalStepper.InternalTouchView mockTouchView1;
@@ -38,6 +41,10 @@ public class VerticalStepperTest {
     private AppCompatButton mockContinueButton2;
     private VerticalStepper.LayoutParams mockLayoutParams1;
     private VerticalStepper.LayoutParams mockLayoutParams2;
+
+    private Condition<VerticalStepper.StepView> greaterThanZeroDecoratorHeight;
+    private Condition<VerticalStepper.StepView> greaterThanZeroBottomMargin;
+    private Condition<VerticalStepper.StepView> zeroBottomMargin;
 
     @Before
     public void before() {
@@ -60,6 +67,26 @@ public class VerticalStepperTest {
         when(mockLayoutParams2.getContinueButton()).thenReturn(mockContinueButton2);
         mockTouchView2 = mock(VerticalStepper.InternalTouchView.class);
         when(mockLayoutParams2.getTouchView()).thenReturn(mockTouchView2);
+
+        greaterThanZeroDecoratorHeight = new Condition<VerticalStepper.StepView>() {
+            @Override
+            public boolean matches(VerticalStepper.StepView stepView) {
+                return stepView.decoratorHeight > 0;
+            }
+        };
+
+        zeroBottomMargin = new Condition<VerticalStepper.StepView>() {
+            @Override
+            public boolean matches(VerticalStepper.StepView stepView) {
+                return stepView.bottomMarginHeight == 0;
+            }
+        };
+        greaterThanZeroBottomMargin = new Condition<VerticalStepper.StepView>() {
+            @Override
+            public boolean matches(VerticalStepper.StepView stepView) {
+                return stepView.bottomMarginHeight > 0;
+            }
+        };
     }
 
     @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
@@ -104,35 +131,39 @@ public class VerticalStepperTest {
 
     @Test
     public void initChildViews_NoSteps_ShouldHaveEmptyInnerViews() {
-        stepper.initChildViews();
+        stepper.initStepViews();
 
-        assertThat(stepper.innerViews).isEmpty();
+        assertThat(stepper.stepViews).isEmpty();
     }
 
     @Test
     public void initChildViews_OneStep_ShouldHaveInnerViewsWithSingleElement() {
         initOneStep();
 
-        assertThat(stepper.innerViews).hasSize(1);
+        assertThat(stepper.stepViews)
+                .hasSize(1)
+                .doesNotContainNull();
     }
 
     @Test
     public void initChildViews_TwoSteps_ShouldHaveInnerViewsWithTwoElements() {
         initTwoSteps();
 
-        assertThat(stepper.innerViews).hasSize(2);
+        assertThat(stepper.stepViews)
+                .hasSize(2)
+                .doesNotContainNull();
     }
 
     @Test
     public void initInnerView_ShouldSetVisibilityToGone() {
-        stepper.initInnerView(mockInnerView1);
+        stepper.initStepView(mockInnerView1);
 
         verify(mockInnerView1).setVisibility(View.GONE);
     }
 
     @Test
     public void initInnerView_ShouldInitializeStepViews() {
-        stepper.initInnerView(mockInnerView1);
+        stepper.initStepView(mockInnerView1);
 
         verify(mockLayoutParams1).setTouchView((VerticalStepper.InternalTouchView) notNull());
         verify(mockLayoutParams1).setContinueButton((AppCompatButton) notNull());
@@ -249,35 +280,16 @@ public class VerticalStepperTest {
     }
 
     @Test
-    public void measureStepDecoratorHeights_NoSteps_ShouldHaveEmptyDecoratorHeights() {
-        stepper.measureStepDecoratorHeights();
-
-        assertThat(stepper.decoratorHeights).isEmpty();
-    }
-
-    @Test
-    public void measureStepDecoratorHeights_OneStep_ShouldHaveDecoratorHeightsWithSingleElement() {
-        initOneStep();
-
-        stepper.measureStepDecoratorHeights();
-
-        assertThat(stepper.decoratorHeights).hasSize(1);
-    }
-
-    @Test
     public void measureStepDecoratorHeights_TwoSteps_ShouldHaveDecoratorHeightsWithTwoElements() {
         initTwoSteps();
 
         stepper.measureStepDecoratorHeights();
 
-        assertThat(stepper.decoratorHeights).hasSize(2);
-    }
-
-    @Test
-    public void measureBottomMarginHeights_NoSteps_ShouldHaveEmptyMarginHeights() {
-        stepper.measureStepBottomMarginHeights();
-
-        assertThat(stepper.bottomMarginHeights).isEmpty();
+        assertThat(stepper.stepViews)
+                .hasSize(2)
+                .doesNotContainNull()
+                .has(greaterThanZeroDecoratorHeight, Index.atIndex(0))
+                .has(greaterThanZeroDecoratorHeight, Index.atIndex(1));
     }
 
     @Test
@@ -286,7 +298,10 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        assertThat(stepper.bottomMarginHeights).hasSize(1);
+        assertThat(stepper.stepViews)
+                .hasSize(1)
+                .doesNotContainNull()
+                .has(zeroBottomMargin, Index.atIndex(0));
     }
 
     @Test
@@ -295,37 +310,11 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        assertThat(stepper.bottomMarginHeights).hasSize(2);
-    }
-
-    @Test
-    public void measureChildViews_NoSteps_ShouldHaveEmptyChildrenVisibleHeights() {
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        stepper.measureChildViews(ms, ms);
-
-        assertThat(stepper.childrenVisibleHeights).isEmpty();
-    }
-
-    @Test
-    public void measureChildViews_OneStep_ShouldHaveChildrenVisibleHeightsWithSingleElement() {
-        initOneStep();
-        initStepperStateForChildMeasurement(1);
-
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        stepper.measureChildViews(ms, ms);
-
-        assertThat(stepper.childrenVisibleHeights).hasSize(1);
-    }
-
-    @Test
-    public void measureChildViews_TwoSteps_ShouldHaveChildrenVisibleHeightsWithTwoElements() {
-        initTwoSteps();
-        initStepperStateForChildMeasurement(2);
-
-        int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        stepper.measureChildViews(ms, ms);
-
-        assertThat(stepper.childrenVisibleHeights).hasSize(2);
+        assertThat(stepper.stepViews)
+                .hasSize(2)
+                .doesNotContainNull()
+                .has(greaterThanZeroBottomMargin, Index.atIndex(0))
+                .has(zeroBottomMargin, Index.atIndex(1));
     }
 
     @Test
@@ -352,7 +341,10 @@ public class VerticalStepperTest {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         stepper.measureChildViews(ms, ms);
 
-        assertThat(stepper.childrenVisibleHeights).containsExactly(0, 0);
+        assertThat(stepper.stepViews)
+                .hasSize(2)
+                .containsExactly(new VerticalStepper.StepView(mockInnerView1),
+                        new VerticalStepper.StepView(mockInnerView2));
     }
 
     @Test
@@ -368,7 +360,9 @@ public class VerticalStepperTest {
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         stepper.measureChildViews(ms, ms);
 
-        assertThat(stepper.childrenVisibleHeights).containsExactly(innerViewHeight + buttonHeight);
+        VerticalStepper.StepView step = new VerticalStepper.StepView(mockInnerView1);
+        step.childrenVisibleHeight = innerViewHeight + buttonHeight;
+        assertThat(stepper.stepViews).containsExactly(step);
     }
 
     @Test
@@ -762,13 +756,13 @@ public class VerticalStepperTest {
 
     private void initOneStep() {
         stepper.addView(mockInnerView1);
-        stepper.initChildViews();
+        stepper.initStepViews();
     }
 
     private void initTwoSteps() {
         stepper.addView(mockInnerView1);
         stepper.addView(mockInnerView2);
-        stepper.initChildViews();
+        stepper.initStepViews();
     }
 
     private void initStepperStateForChildMeasurement(int size) {
@@ -778,8 +772,12 @@ public class VerticalStepperTest {
 
     private void initStepperStateForChildMeasurement(List<Integer> decoratorHeights,
                                                      List<Integer> bottomMarginHeights) {
-        stepper.decoratorHeights.addAll(decoratorHeights);
-        stepper.bottomMarginHeights.addAll(bottomMarginHeights);
+        List<VerticalStepper.StepView> stepViews = stepper.stepViews;
+        for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
+            VerticalStepper.StepView stepView = stepViews.get(i);
+            stepView.decoratorHeight = decoratorHeights.get(i);
+            stepView.bottomMarginHeight = bottomMarginHeights.get(i);
+        }
     }
 
     private void mockLayoutParamsWidths(float titleWidth, float summaryWidth) {
@@ -814,11 +812,13 @@ public class VerticalStepperTest {
         attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
         attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
         attributeSetBuilder.addAttribute(R.attr.step_title, "title");
+
         VerticalStepper.LayoutParams lp =
                 new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
         lp.setContinueButton(mockContinueButton1);
         lp.width = VerticalStepper.LayoutParams.MATCH_PARENT;
         lp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
+
         return lp;
     }
 }
