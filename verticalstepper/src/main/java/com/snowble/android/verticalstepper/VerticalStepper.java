@@ -780,7 +780,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     static class StepView {
 
-        private static Rect tmpRectTitleTextBounds = new Rect();
+        private static final Rect TMP_RECT_TITLE_TEXT_BOUNDS = new Rect();
 
         @NonNull
         private final InternalTouchView touchView;
@@ -978,8 +978,8 @@ public class VerticalStepper extends ViewGroup {
         }
 
         private void measureTitleBaseline(TextPaint titlePaint, int heightToCenterIn) {
-            titlePaint.getTextBounds(title, 0, 1, tmpRectTitleTextBounds);
-            titleBaselineRelativeToStepTop = (heightToCenterIn / 2) + (tmpRectTitleTextBounds.height() / 2);
+            titlePaint.getTextBounds(title, 0, 1, TMP_RECT_TITLE_TEXT_BOUNDS);
+            titleBaselineRelativeToStepTop = (heightToCenterIn / 2) + (TMP_RECT_TITLE_TEXT_BOUNDS.height() / 2);
         }
 
         void measureSummaryVerticalDimensions(TextPaint summaryPaint) {
