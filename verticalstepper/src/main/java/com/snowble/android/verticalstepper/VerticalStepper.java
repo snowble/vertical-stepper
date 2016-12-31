@@ -331,14 +331,13 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void toggleStepExpandedState(StepView stepView) {
-        LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
-        toggleActiveState(lp);
+        toggleActiveState(stepView);
         toggleViewVisibility(stepView.getInnerView());
         toggleViewVisibility(stepView.getContinueButton());
     }
 
-    private void toggleActiveState(LayoutParams lp) {
-        lp.setActive(!lp.isActive());
+    private void toggleActiveState(StepView stepView) {
+        stepView.setActive(!stepView.isActive());
     }
 
     private void toggleViewVisibility(View view) {
@@ -379,7 +378,7 @@ public class VerticalStepper extends ViewGroup {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
             LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
-            stepView.setDecoratorHeight(calculateStepDecoratorHeight(lp));
+            stepView.setDecoratorHeight(calculateStepDecoratorHeight(lp, stepView));
         }
     }
 
@@ -387,8 +386,7 @@ public class VerticalStepper extends ViewGroup {
     void measureStepBottomMarginHeights() {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
-            LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
-            stepView.setBottomMarginHeight(getBottomMarginToNextStep(lp, i == innerViewsSize - 1));
+            stepView.setBottomMarginHeight(getBottomMarginToNextStep(stepView, i == innerViewsSize - 1));
         }
     }
 
@@ -410,7 +408,7 @@ public class VerticalStepper extends ViewGroup {
             measureInnerView(widthMeasureSpec, heightMeasureSpec, innerView, usedWidthFromPadding, usedHeight);
 
             int childrenHeight = 0;
-            if (lp.isActive()) {
+            if (stepView.isActive()) {
                 childrenHeight += innerView.getMeasuredHeight() + innerViewVerticalPadding;
             }
             currentHeight += childrenHeight;
@@ -418,7 +416,7 @@ public class VerticalStepper extends ViewGroup {
             AppCompatButton continueButton = stepView.getContinueButton();
             measureNavButton(widthMeasureSpec, heightMeasureSpec, continueButton, usedWidthFromPadding, currentHeight);
 
-            if (lp.isActive()) {
+            if (stepView.isActive()) {
                 childrenHeight += continueButton.getMeasuredHeight();
             }
             stepView.setChildrenVisibleHeight(childrenHeight);
@@ -460,7 +458,7 @@ public class VerticalStepper extends ViewGroup {
             LayoutParams lp = getInternalLayoutParams(innerView);
             int innerViewHorizontalPadding = calculateInnerViewHorizontalUsedSpace(lp);
 
-            width = Math.max(width, calculateStepDecoratorWidth(lp));
+            width = Math.max(width, calculateStepDecoratorWidth(lp, stepView));
 
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
@@ -515,8 +513,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int calculateStepDecoratorWidth(LayoutParams lp) {
-        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth(lp);
+    int calculateStepDecoratorWidth(LayoutParams lp, StepView stepView) {
+        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth(lp, stepView);
     }
 
     @VisibleForTesting
@@ -525,15 +523,15 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    float calculateStepDecoratorTextWidth(LayoutParams lp) {
-        lp.measureTitleHorizontalDimensions(getTitleTextPaint(lp));
+    float calculateStepDecoratorTextWidth(LayoutParams lp, StepView stepView) {
+        lp.measureTitleHorizontalDimensions(getTitleTextPaint(stepView));
         lp.measureSummaryHorizontalDimensions(summaryTextPaint);
         return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
     }
 
     @VisibleForTesting
-    int calculateStepDecoratorHeight(LayoutParams lp) {
-        lp.measureTitleVerticalDimensions(getTitleTextPaint(lp), iconDimension);
+    int calculateStepDecoratorHeight(LayoutParams lp, StepView stepView) {
+        lp.measureTitleVerticalDimensions(getTitleTextPaint(stepView), iconDimension);
         lp.measureSummaryVerticalDimensions(summaryTextPaint);
         int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
         return Math.max(iconDimension, textTotalHeight);
@@ -555,10 +553,10 @@ public class VerticalStepper extends ViewGroup {
             layoutTouchView(left, currentTop, right, bottom, stepView.getTouchView(), isLastStep);
 
             LayoutParams lp = getInternalLayoutParams(innerView);
-            if (lp.isActive()) {
+            if (stepView.isActive()) {
                 layoutInnerView(left, currentTop, right, bottom, innerView, isLastStep);
 
-                int buttonsTop = currentTop + calculateYDistanceToButtons(innerView, lp);
+                int buttonsTop = currentTop + calculateYDistanceToButtons(stepView, lp);
 
                 layoutNavButtons(left, buttonsTop, right, bottom, stepView, isLastStep);
             }
@@ -650,11 +648,11 @@ public class VerticalStepper extends ViewGroup {
             LayoutParams lp = getInternalLayoutParams(innerView);
 
             canvas.save();
-            drawIcon(canvas, lp, stepNumber);
+            drawIcon(canvas, stepView, stepNumber);
             canvas.restore();
 
             canvas.save();
-            drawText(canvas, lp);
+            drawText(canvas, lp, stepView);
             canvas.restore();
 
             int dyToNextStep = calculateYDistanceToNextStep(stepView, lp, i == innerViewsSize - 1);
@@ -674,37 +672,37 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private int calculateYDistanceToNextStep(StepView stepView, LayoutParams lp, boolean isLastStep) {
-        int dyToNextStep = calculateYDistanceToButtons(stepView.getInnerView(), lp);
-        if (lp.isActive()) {
+        int dyToNextStep = calculateYDistanceToButtons(stepView, lp);
+        if (stepView.isActive()) {
             dyToNextStep += stepView.getContinueButton().getHeight();
         }
-        dyToNextStep += getBottomMarginToNextStep(lp, isLastStep);
+        dyToNextStep += getBottomMarginToNextStep(stepView, isLastStep);
         return dyToNextStep;
     }
 
-    private int calculateYDistanceToButtons(View innerView, LayoutParams lp) {
-        int dyToButtons = calculateYDistanceToTextBottom(lp);
-        if (lp.isActive()) {
-            dyToButtons += innerView.getHeight() + titleMarginBottomToInnerView;
+    private int calculateYDistanceToButtons(StepView stepView, LayoutParams lp) {
+        int dyToButtons = calculateYDistanceToTextBottom(stepView, lp);
+        if (stepView.isActive()) {
+            dyToButtons += stepView.getInnerView().getHeight() + titleMarginBottomToInnerView;
         }
         return dyToButtons;
     }
 
-    private int calculateYDistanceToTextBottom(LayoutParams lp) {
+    private int calculateYDistanceToTextBottom(StepView stepView, LayoutParams lp) {
         int dyToTextBottom = (int) lp.getTitleBaselineRelativeToStepTop();
-        if (!lp.isActive()) {
+        if (!stepView.isActive()) {
             dyToTextBottom += lp.getSummaryBottomRelativeToTitleBottom();
         }
         return dyToTextBottom;
     }
 
-    private void drawIcon(Canvas canvas, LayoutParams lp, int stepNumber) {
-        drawIconBackground(canvas, lp);
+    private void drawIcon(Canvas canvas, StepView stepView, int stepNumber) {
+        drawIconBackground(canvas, stepView);
         drawIconText(canvas, stepNumber);
     }
 
-    private void drawIconBackground(Canvas canvas, LayoutParams lp) {
-        canvas.drawArc(tmpRectIconBackground, 0f, 360f, true, getIconColor(lp));
+    private void drawIconBackground(Canvas canvas, StepView stepView) {
+        canvas.drawArc(tmpRectIconBackground, 0f, 360f, true, getIconColor(stepView));
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -719,13 +717,13 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
-    private void drawText(Canvas canvas, LayoutParams lp) {
+    private void drawText(Canvas canvas, LayoutParams lp, StepView stepView) {
         canvas.translate(calculateStepDecoratorIconWidth(), 0);
 
-        TextPaint paint = getTitleTextPaint(lp);
+        TextPaint paint = getTitleTextPaint(stepView);
         canvas.drawText(lp.getTitle(), 0, lp.getTitleBaselineRelativeToStepTop(), paint);
 
-        if (!TextUtils.isEmpty(lp.getSummary()) && !lp.isActive()) {
+        if (!TextUtils.isEmpty(lp.getSummary()) && !stepView.isActive()) {
             canvas.translate(0, lp.getTitleBottomRelativeToStepTop());
             canvas.drawText(lp.getSummary(), 0, lp.getSummaryBaselineRelativeToTitleBottom(), summaryTextPaint);
         }
@@ -740,21 +738,21 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    TextPaint getTitleTextPaint(LayoutParams lp) {
-        return lp.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
+    TextPaint getTitleTextPaint(StepView stepView) {
+        return stepView.isActive() ? titleActiveTextPaint : titleInactiveTextPaint;
     }
 
     @VisibleForTesting
-    int getBottomMarginToNextStep(LayoutParams lp, boolean isLastStep) {
+    int getBottomMarginToNextStep(StepView stepView, boolean isLastStep) {
         if (isLastStep) {
             return ZERO_SIZE_MARGIN;
         } else {
-            return lp.isActive() ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
+            return stepView.isActive() ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
         }
     }
 
-    private Paint getIconColor(LayoutParams lp) {
-        return lp.isActive() ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
+    private Paint getIconColor(StepView stepView) {
+        return stepView.isActive() ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
     }
 
     private static LayoutParams getInternalLayoutParams(View innerView) {
@@ -786,6 +784,7 @@ public class VerticalStepper extends ViewGroup {
         private InternalTouchView touchView;
         private AppCompatButton continueButton;
         private View innerView;
+        private boolean active;
 
         private int decoratorHeight;
         private int bottomMarginHeight;
@@ -795,6 +794,7 @@ public class VerticalStepper extends ViewGroup {
             this.innerView = innerView;
             this.touchView = touchView;
             this.continueButton = continueButton;
+            this.active = false;
         }
 
         @Override
@@ -860,6 +860,14 @@ public class VerticalStepper extends ViewGroup {
         AppCompatButton getContinueButton() {
             return continueButton;
         }
+
+        boolean isActive() {
+            return active;
+        }
+
+        void setActive(boolean active) {
+            this.active = active;
+        }
     }
 
     public static class LayoutParams extends MarginLayoutParams {
@@ -881,8 +889,6 @@ public class VerticalStepper extends ViewGroup {
         private float summaryBaselineRelativeToTitleBottom;
         private float summaryBottomRelativeToTitleBottom;
 
-        private boolean active;
-
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
 
@@ -897,7 +903,6 @@ public class VerticalStepper extends ViewGroup {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("step_title cannot be empty.");
             }
-            active = false;
         }
 
         public LayoutParams(int width, int height) {
@@ -944,14 +949,6 @@ public class VerticalStepper extends ViewGroup {
 
         float getSummaryBottomRelativeToTitleBottom() {
             return summaryBottomRelativeToTitleBottom;
-        }
-
-        boolean isActive() {
-            return active;
-        }
-
-        void setActive(boolean active) {
-            this.active = active;
         }
 
         void measureTitleHorizontalDimensions(TextPaint titlePaint) {
