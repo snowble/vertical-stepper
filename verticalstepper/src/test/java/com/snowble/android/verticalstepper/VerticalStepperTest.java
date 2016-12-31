@@ -71,20 +71,20 @@ public class VerticalStepperTest {
         greaterThanZeroDecoratorHeight = new Condition<VerticalStepper.StepView>() {
             @Override
             public boolean matches(VerticalStepper.StepView stepView) {
-                return stepView.decoratorHeight > 0;
+                return stepView.getDecoratorHeight() > 0;
             }
         };
 
         zeroBottomMargin = new Condition<VerticalStepper.StepView>() {
             @Override
             public boolean matches(VerticalStepper.StepView stepView) {
-                return stepView.bottomMarginHeight == 0;
+                return stepView.getBottomMarginHeight() == 0;
             }
         };
         greaterThanZeroBottomMargin = new Condition<VerticalStepper.StepView>() {
             @Override
             public boolean matches(VerticalStepper.StepView stepView) {
-                return stepView.bottomMarginHeight > 0;
+                return stepView.getBottomMarginHeight() > 0;
             }
         };
     }
@@ -361,7 +361,7 @@ public class VerticalStepperTest {
         stepper.measureChildViews(ms, ms);
 
         VerticalStepper.StepView step = new VerticalStepper.StepView(mockInnerView1);
-        step.childrenVisibleHeight = innerViewHeight + buttonHeight;
+        step.setChildrenVisibleHeight(innerViewHeight + buttonHeight);
         assertThat(stepper.stepViews).containsExactly(step);
     }
 
@@ -775,8 +775,8 @@ public class VerticalStepperTest {
         List<VerticalStepper.StepView> stepViews = stepper.stepViews;
         for (int i = 0, stepViewsSize = stepViews.size(); i < stepViewsSize; i++) {
             VerticalStepper.StepView stepView = stepViews.get(i);
-            stepView.decoratorHeight = decoratorHeights.get(i);
-            stepView.bottomMarginHeight = bottomMarginHeights.get(i);
+            stepView.setDecoratorHeight(decoratorHeights.get(i));
+            stepView.setBottomMarginHeight(bottomMarginHeights.get(i));
         }
     }
 

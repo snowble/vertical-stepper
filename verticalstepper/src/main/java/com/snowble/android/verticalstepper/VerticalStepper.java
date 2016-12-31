@@ -290,8 +290,8 @@ public class VerticalStepper extends ViewGroup {
         }
 
         for (StepView v : stepViews) {
-            initTouchView(v.innerView);
-            initNavButtons(v.innerView);
+            initTouchView(v.getInnerView());
+            initNavButtons(v.getInnerView());
         }
     }
 
@@ -389,8 +389,8 @@ public class VerticalStepper extends ViewGroup {
     void measureStepDecoratorHeights() {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
-            LayoutParams lp = getInternalLayoutParams(stepView.innerView);
-            stepView.decoratorHeight = calculateStepDecoratorHeight(lp);
+            LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
+            stepView.setDecoratorHeight(calculateStepDecoratorHeight(lp));
         }
     }
 
@@ -398,8 +398,8 @@ public class VerticalStepper extends ViewGroup {
     void measureStepBottomMarginHeights() {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
-            LayoutParams lp = getInternalLayoutParams(stepView.innerView);
-            stepView.bottomMarginHeight = getBottomMarginToNextStep(lp, i == innerViewsSize - 1);
+            LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
+            stepView.setBottomMarginHeight(getBottomMarginToNextStep(lp, i == innerViewsSize - 1));
         }
     }
 
@@ -410,9 +410,9 @@ public class VerticalStepper extends ViewGroup {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
 
-            currentHeight += stepView.decoratorHeight;
+            currentHeight += stepView.getDecoratorHeight();
 
-            View innerView = stepView.innerView;
+            View innerView = stepView.getInnerView();
             LayoutParams lp = getInternalLayoutParams(innerView);
 
             int usedWidthFromPadding = stepperHorizontalPadding + calculateInnerViewHorizontalUsedSpace(lp);
@@ -432,9 +432,9 @@ public class VerticalStepper extends ViewGroup {
             if (lp.isActive()) {
                 childrenHeight += continueButton.getMeasuredHeight();
             }
-            stepView.childrenVisibleHeight = childrenHeight;
+            stepView.setChildrenVisibleHeight(childrenHeight);
 
-            currentHeight += stepView.bottomMarginHeight;
+            currentHeight += stepView.getBottomMarginHeight();
         }
     }
 
@@ -465,7 +465,7 @@ public class VerticalStepper extends ViewGroup {
     int calculateMaxStepWidth() {
         int width = 0;
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
-            View innerView = stepViews.get(i).innerView;
+            View innerView = stepViews.get(i).getInnerView();
 
             LayoutParams lp = getInternalLayoutParams(innerView);
             int innerViewHorizontalPadding = calculateInnerViewHorizontalUsedSpace(lp);
@@ -484,16 +484,16 @@ public class VerticalStepper extends ViewGroup {
     int calculateHeight() {
         int height = calculateVerticalPadding();
         for (StepView stepView : stepViews) {
-            height += stepView.decoratorHeight;
-            height += stepView.childrenVisibleHeight;
-            height += stepView.bottomMarginHeight;
+            height += stepView.getDecoratorHeight();
+            height += stepView.getChildrenVisibleHeight();
+            height += stepView.getBottomMarginHeight();
         }
         return height;
     }
 
     private void measureTouchViews(int width) {
         for (StepView v : stepViews) {
-            measureTouchView(width, getTouchView(v.innerView));
+            measureTouchView(width, getTouchView(v.getInnerView()));
         }
     }
 
@@ -553,7 +553,7 @@ public class VerticalStepper extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int currentTop = top;
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
-            View v = stepViews.get(i).innerView;
+            View v = stepViews.get(i).getInnerView();
             boolean isFirstStep = i == 0;
             boolean isLastStep = i == innerViewsSize - 1;
 
@@ -656,7 +656,7 @@ public class VerticalStepper extends ViewGroup {
             canvas.save();
 
             int stepNumber = i + 1;
-            View innerView = stepViews.get(i).innerView;
+            View innerView = stepViews.get(i).getInnerView();
             LayoutParams lp = getInternalLayoutParams(innerView);
 
             canvas.save();
@@ -801,13 +801,13 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     static class StepView {
-        int decoratorHeight;
-        int bottomMarginHeight;
-        int childrenVisibleHeight;
-        View innerView;
+        private int decoratorHeight;
+        private int bottomMarginHeight;
+        private int childrenVisibleHeight;
+        private View innerView;
 
         StepView(View view) {
-            innerView = view;
+            setInnerView(view);
         }
 
         @Override
@@ -817,20 +817,52 @@ public class VerticalStepper extends ViewGroup {
 
             StepView stepView = (StepView) o;
 
-            if (decoratorHeight != stepView.decoratorHeight) return false;
-            if (bottomMarginHeight != stepView.bottomMarginHeight) return false;
-            if (childrenVisibleHeight != stepView.childrenVisibleHeight) return false;
-            return innerView.equals(stepView.innerView);
+            if (getDecoratorHeight() != stepView.getDecoratorHeight()) return false;
+            if (getBottomMarginHeight() != stepView.getBottomMarginHeight()) return false;
+            if (getChildrenVisibleHeight() != stepView.getChildrenVisibleHeight()) return false;
+            return getInnerView().equals(stepView.getInnerView());
 
         }
 
         @Override
         public int hashCode() {
-            int result = decoratorHeight;
-            result = 31 * result + bottomMarginHeight;
-            result = 31 * result + childrenVisibleHeight;
-            result = 31 * result + innerView.hashCode();
+            int result = getDecoratorHeight();
+            result = 31 * result + getBottomMarginHeight();
+            result = 31 * result + getChildrenVisibleHeight();
+            result = 31 * result + getInnerView().hashCode();
             return result;
+        }
+
+        int getDecoratorHeight() {
+            return decoratorHeight;
+        }
+
+        void setDecoratorHeight(int decoratorHeight) {
+            this.decoratorHeight = decoratorHeight;
+        }
+
+        int getBottomMarginHeight() {
+            return bottomMarginHeight;
+        }
+
+        void setBottomMarginHeight(int bottomMarginHeight) {
+            this.bottomMarginHeight = bottomMarginHeight;
+        }
+
+        int getChildrenVisibleHeight() {
+            return childrenVisibleHeight;
+        }
+
+        void setChildrenVisibleHeight(int childrenVisibleHeight) {
+            this.childrenVisibleHeight = childrenVisibleHeight;
+        }
+
+        View getInnerView() {
+            return innerView;
+        }
+
+        void setInnerView(View innerView) {
+            this.innerView = innerView;
         }
     }
 
