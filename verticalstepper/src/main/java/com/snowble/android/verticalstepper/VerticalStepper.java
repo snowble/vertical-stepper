@@ -377,8 +377,7 @@ public class VerticalStepper extends ViewGroup {
     void measureStepDecoratorHeights() {
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
-            LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
-            stepView.setDecoratorHeight(calculateStepDecoratorHeight(lp, stepView));
+            stepView.setDecoratorHeight(calculateStepDecoratorHeight(stepView));
         }
     }
 
@@ -458,7 +457,7 @@ public class VerticalStepper extends ViewGroup {
             LayoutParams lp = getInternalLayoutParams(innerView);
             int innerViewHorizontalPadding = calculateInnerViewHorizontalUsedSpace(lp);
 
-            width = Math.max(width, calculateStepDecoratorWidth(lp, stepView));
+            width = Math.max(width, calculateStepDecoratorWidth(stepView));
 
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
@@ -513,8 +512,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    int calculateStepDecoratorWidth(LayoutParams lp, StepView stepView) {
-        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth(lp, stepView);
+    int calculateStepDecoratorWidth(StepView stepView) {
+        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth(stepView);
     }
 
     @VisibleForTesting
@@ -523,17 +522,18 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    float calculateStepDecoratorTextWidth(LayoutParams lp, StepView stepView) {
-        lp.measureTitleHorizontalDimensions(getTitleTextPaint(stepView));
-        lp.measureSummaryHorizontalDimensions(summaryTextPaint);
-        return Math.max(lp.getTitleWidth(), lp.getSummaryWidth());
+    float calculateStepDecoratorTextWidth(StepView stepView) {
+        stepView.measureTitleHorizontalDimensions(getTitleTextPaint(stepView));
+        stepView.measureSummaryHorizontalDimensions(summaryTextPaint);
+        return Math.max(stepView.getTitleWidth(), stepView.getSummaryWidth());
     }
 
     @VisibleForTesting
-    int calculateStepDecoratorHeight(LayoutParams lp, StepView stepView) {
-        lp.measureTitleVerticalDimensions(getTitleTextPaint(stepView), iconDimension);
-        lp.measureSummaryVerticalDimensions(summaryTextPaint);
-        int textTotalHeight = (int) (lp.getTitleBottomRelativeToStepTop() + lp.getSummaryBottomRelativeToTitleBottom());
+    int calculateStepDecoratorHeight(StepView stepView) {
+        stepView.measureTitleVerticalDimensions(getTitleTextPaint(stepView), iconDimension);
+        stepView.measureSummaryVerticalDimensions(summaryTextPaint);
+        int textTotalHeight = (int) (stepView.getTitleBottomRelativeToStepTop()
+                + stepView.getSummaryBottomRelativeToTitleBottom());
         return Math.max(iconDimension, textTotalHeight);
     }
 
@@ -542,7 +542,6 @@ public class VerticalStepper extends ViewGroup {
         int currentTop = top;
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
             StepView stepView = stepViews.get(i);
-            View innerView = stepView.getInnerView();
             boolean isFirstStep = i == 0;
             boolean isLastStep = i == innerViewsSize - 1;
 
@@ -552,15 +551,14 @@ public class VerticalStepper extends ViewGroup {
 
             layoutTouchView(left, currentTop, right, bottom, stepView.getTouchView(), isLastStep);
 
-            LayoutParams lp = getInternalLayoutParams(innerView);
             if (stepView.isActive()) {
-                layoutInnerView(left, currentTop, right, bottom, innerView, isLastStep);
+                layoutInnerView(left, currentTop, right, bottom, stepView, isLastStep);
 
-                int buttonsTop = currentTop + calculateYDistanceToButtons(stepView, lp);
+                int buttonsTop = currentTop + calculateYDistanceToButtons(stepView);
 
                 layoutNavButtons(left, buttonsTop, right, bottom, stepView, isLastStep);
             }
-            currentTop += calculateYDistanceToNextStep(stepView, lp, isLastStep);
+            currentTop += calculateYDistanceToNextStep(stepView, isLastStep);
         }
     }
 
@@ -586,12 +584,13 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutInnerView(int left, int topAdjustedForPadding, int right, int bottom,
-                                 View innerView, boolean isLastStep) {
+                                 StepView stepView, boolean isLastStep) {
+        View innerView = stepView.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
         int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + iconDimension + iconMarginRight;
 
-        int innerTop = (int) (topAdjustedForPadding + lp.topMargin + lp.getTitleBottomRelativeToStepTop()
+        int innerTop = (int) (topAdjustedForPadding + lp.topMargin + stepView.getTitleBottomRelativeToStepTop()
                 + titleMarginBottomToInnerView);
 
         int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
@@ -645,17 +644,16 @@ public class VerticalStepper extends ViewGroup {
             int stepNumber = i + 1;
             StepView stepView = stepViews.get(i);
             View innerView = stepView.getInnerView();
-            LayoutParams lp = getInternalLayoutParams(innerView);
 
             canvas.save();
             drawIcon(canvas, stepView, stepNumber);
             canvas.restore();
 
             canvas.save();
-            drawText(canvas, lp, stepView);
+            drawText(canvas, stepView);
             canvas.restore();
 
-            int dyToNextStep = calculateYDistanceToNextStep(stepView, lp, i == innerViewsSize - 1);
+            int dyToNextStep = calculateYDistanceToNextStep(stepView, i == innerViewsSize - 1);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
@@ -671,8 +669,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private int calculateYDistanceToNextStep(StepView stepView, LayoutParams lp, boolean isLastStep) {
-        int dyToNextStep = calculateYDistanceToButtons(stepView, lp);
+    private int calculateYDistanceToNextStep(StepView stepView, boolean isLastStep) {
+        int dyToNextStep = calculateYDistanceToButtons(stepView);
         if (stepView.isActive()) {
             dyToNextStep += stepView.getContinueButton().getHeight();
         }
@@ -680,18 +678,18 @@ public class VerticalStepper extends ViewGroup {
         return dyToNextStep;
     }
 
-    private int calculateYDistanceToButtons(StepView stepView, LayoutParams lp) {
-        int dyToButtons = calculateYDistanceToTextBottom(stepView, lp);
+    private int calculateYDistanceToButtons(StepView stepView) {
+        int dyToButtons = calculateYDistanceToTextBottom(stepView);
         if (stepView.isActive()) {
             dyToButtons += stepView.getInnerView().getHeight() + titleMarginBottomToInnerView;
         }
         return dyToButtons;
     }
 
-    private int calculateYDistanceToTextBottom(StepView stepView, LayoutParams lp) {
-        int dyToTextBottom = (int) lp.getTitleBaselineRelativeToStepTop();
+    private int calculateYDistanceToTextBottom(StepView stepView) {
+        int dyToTextBottom = (int) stepView.getTitleBaselineRelativeToStepTop();
         if (stepView.isActive()) {
-            dyToTextBottom += lp.getSummaryBottomRelativeToTitleBottom();
+            dyToTextBottom += stepView.getSummaryBottomRelativeToTitleBottom();
         }
         return dyToTextBottom;
     }
@@ -717,15 +715,16 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
-    private void drawText(Canvas canvas, LayoutParams lp, StepView stepView) {
+    private void drawText(Canvas canvas, StepView stepView) {
         canvas.translate(calculateStepDecoratorIconWidth(), 0);
 
         TextPaint paint = getTitleTextPaint(stepView);
-        canvas.drawText(lp.getTitle(), 0, lp.getTitleBaselineRelativeToStepTop(), paint);
+        canvas.drawText(stepView.getTitle(), 0, stepView.getTitleBaselineRelativeToStepTop(), paint);
 
-        if (!TextUtils.isEmpty(lp.getSummary()) && !stepView.isActive()) {
-            canvas.translate(0, lp.getTitleBottomRelativeToStepTop());
-            canvas.drawText(lp.getSummary(), 0, lp.getSummaryBaselineRelativeToTitleBottom(), summaryTextPaint);
+        if (!TextUtils.isEmpty(stepView.getSummary()) && !stepView.isActive()) {
+            canvas.translate(0, stepView.getTitleBottomRelativeToStepTop());
+            canvas.drawText(stepView.getSummary(), 0,
+                    stepView.getSummaryBaselineRelativeToTitleBottom(), summaryTextPaint);
         }
         // TODO Handle optional case
     }
@@ -781,19 +780,44 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     static class StepView {
-        private InternalTouchView touchView;
-        private AppCompatButton continueButton;
-        private View innerView;
+
+        private static Rect tmpRectTitleTextBounds = new Rect();
+
+        @NonNull
+        private final InternalTouchView touchView;
+        @NonNull
+        private final AppCompatButton continueButton;
+        @NonNull
+        private final View innerView;
+        @NonNull
+        private String title;
+        @Nullable
+        private String summary;
         private boolean active;
 
         private int decoratorHeight;
         private int bottomMarginHeight;
         private int childrenVisibleHeight;
 
-        StepView(View innerView, InternalTouchView touchView, AppCompatButton continueButton) {
+        private float titleWidth;
+        private float titleBaselineRelativeToStepTop;
+        private float titleBottomRelativeToStepTop;
+
+        private float summaryWidth;
+        private float summaryBaselineRelativeToTitleBottom;
+        private float summaryBottomRelativeToTitleBottom;
+
+        StepView(@NonNull View innerView, @NonNull InternalTouchView touchView,
+                 @NonNull AppCompatButton continueButton) {
             this.innerView = innerView;
             this.touchView = touchView;
             this.continueButton = continueButton;
+            LayoutParams lp = (LayoutParams) innerView.getLayoutParams();
+            this.title = lp.getTitle();
+            if (TextUtils.isEmpty(title)) {
+                throw new IllegalArgumentException("step_title cannot be empty.");
+            }
+            this.summary = lp.getSummary();
             this.active = false;
         }
 
@@ -804,35 +828,61 @@ public class VerticalStepper extends ViewGroup {
 
             StepView stepView = (StepView) o;
 
+            if (active != stepView.active) return false;
             if (decoratorHeight != stepView.decoratorHeight) return false;
             if (bottomMarginHeight != stepView.bottomMarginHeight) return false;
             if (childrenVisibleHeight != stepView.childrenVisibleHeight) return false;
-            if (touchView != null ? !touchView.equals(stepView.touchView) : stepView.touchView != null) return false;
-            if (continueButton != null ? !continueButton.equals(stepView.continueButton)
-                    : stepView.continueButton != null)
+            if (Float.compare(stepView.titleWidth, titleWidth) != 0) return false;
+            if (Float.compare(stepView.titleBaselineRelativeToStepTop, titleBaselineRelativeToStepTop) != 0)
                 return false;
-            return innerView != null ? innerView.equals(stepView.innerView) : stepView.innerView == null;
+            if (Float.compare(stepView.titleBottomRelativeToStepTop, titleBottomRelativeToStepTop) != 0) return false;
+            if (Float.compare(stepView.summaryWidth, summaryWidth) != 0) return false;
+            if (Float.compare(stepView.summaryBaselineRelativeToTitleBottom, summaryBaselineRelativeToTitleBottom) != 0)
+                return false;
+            if (Float.compare(stepView.summaryBottomRelativeToTitleBottom, summaryBottomRelativeToTitleBottom) != 0)
+                return false;
+            if (!touchView.equals(stepView.touchView)) return false;
+            if (!continueButton.equals(stepView.continueButton)) return false;
+            if (!innerView.equals(stepView.innerView)) return false;
+            if (!title.equals(stepView.title)) return false;
+            return summary != null ? summary.equals(stepView.summary) : stepView.summary == null;
         }
 
         @Override
         public int hashCode() {
-            int result = touchView != null ? touchView.hashCode() : 0;
-            result = 31 * result + (continueButton != null ? continueButton.hashCode() : 0);
-            result = 31 * result + (innerView != null ? innerView.hashCode() : 0);
+            int result = touchView.hashCode();
+            result = 31 * result + continueButton.hashCode();
+            result = 31 * result + innerView.hashCode();
+            result = 31 * result + title.hashCode();
+            result = 31 * result + (summary != null ? summary.hashCode() : 0);
+            result = 31 * result + (active ? 1 : 0);
             result = 31 * result + decoratorHeight;
             result = 31 * result + bottomMarginHeight;
             result = 31 * result + childrenVisibleHeight;
+            result = 31 * result + (titleWidth != +0.0f ? Float.floatToIntBits(titleWidth) : 0);
+            result = 31 * result + (titleBaselineRelativeToStepTop != +0.0f ?
+                    Float.floatToIntBits(titleBaselineRelativeToStepTop) : 0);
+            result = 31 * result + (titleBottomRelativeToStepTop != +0.0f ?
+                    Float.floatToIntBits(titleBottomRelativeToStepTop) : 0);
+            result = 31 * result + (summaryWidth != +0.0f ? Float.floatToIntBits(summaryWidth) : 0);
+            result = 31 * result + (summaryBaselineRelativeToTitleBottom != +0.0f ?
+                    Float.floatToIntBits(summaryBaselineRelativeToTitleBottom) : 0);
+            result = 31 * result + (summaryBottomRelativeToTitleBottom != +0.0f ?
+                    Float.floatToIntBits(summaryBottomRelativeToTitleBottom) : 0);
             return result;
         }
 
+        @NonNull
         View getInnerView() {
             return innerView;
         }
 
+        @NonNull
         InternalTouchView getTouchView() {
             return touchView;
         }
 
+        @NonNull
         AppCompatButton getContinueButton() {
             return continueButton;
         }
@@ -868,48 +918,6 @@ public class VerticalStepper extends ViewGroup {
         void setChildrenVisibleHeight(int childrenVisibleHeight) {
             this.childrenVisibleHeight = childrenVisibleHeight;
         }
-    }
-
-    public static class LayoutParams extends MarginLayoutParams {
-
-        private static Rect tmpRectTitleTextBounds = new Rect();
-
-        @SuppressWarnings("NullableProblems")
-        @NonNull
-        private String title;
-        private float titleWidth;
-        private float titleBaselineRelativeToStepTop;
-        private float titleBottomRelativeToStepTop;
-
-        @Nullable
-        private String summary;
-        private float summaryWidth;
-        private float summaryBaselineRelativeToTitleBottom;
-        private float summaryBottomRelativeToTitleBottom;
-
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-
-            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
-            try {
-                //noinspection ConstantConditions
-                title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
-                summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
-            } finally {
-                a.recycle();
-            }
-            if (TextUtils.isEmpty(title)) {
-                throw new IllegalArgumentException("step_title cannot be empty.");
-            }
-        }
-
-        public LayoutParams(int width, int height) {
-            super(width, height);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
 
         @NonNull
         String getTitle() {
@@ -924,14 +932,6 @@ public class VerticalStepper extends ViewGroup {
             return titleWidth;
         }
 
-        float getTitleBaselineRelativeToStepTop() {
-            return titleBaselineRelativeToStepTop;
-        }
-
-        float getTitleBottomRelativeToStepTop() {
-            return titleBottomRelativeToStepTop;
-        }
-
         @Nullable
         String getSummary() {
             return summary;
@@ -939,6 +939,14 @@ public class VerticalStepper extends ViewGroup {
 
         float getSummaryWidth() {
             return summaryWidth;
+        }
+
+        float getTitleBaselineRelativeToStepTop() {
+            return titleBaselineRelativeToStepTop;
+        }
+
+        float getTitleBottomRelativeToStepTop() {
+            return titleBottomRelativeToStepTop;
         }
 
         float getSummaryBaselineRelativeToTitleBottom() {
@@ -983,6 +991,47 @@ public class VerticalStepper extends ViewGroup {
 
         private void measureSummaryBaseline(TextPaint summaryPaint) {
             summaryBaselineRelativeToTitleBottom = -summaryPaint.getFontMetrics().ascent;
+        }
+    }
+
+    public static class LayoutParams extends MarginLayoutParams {
+
+        private static final String EMPTY_TITLE = " ";
+        private String title;
+        private String summary;
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+
+            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
+            try {
+                //noinspection ConstantConditions
+                title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
+                summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
+            } finally {
+                a.recycle();
+            }
+            if (TextUtils.isEmpty(title)) {
+                throw new IllegalArgumentException("step_title cannot be empty.");
+            }
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+            title = EMPTY_TITLE;
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+            title = EMPTY_TITLE;
+        }
+
+        String getTitle() {
+            return title;
+        }
+
+        String getSummary() {
+            return summary;
         }
     }
 
