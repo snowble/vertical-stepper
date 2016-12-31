@@ -825,6 +825,26 @@ public class VerticalStepper extends ViewGroup {
             return result;
         }
 
+        View getInnerView() {
+            return innerView;
+        }
+
+        InternalTouchView getTouchView() {
+            return touchView;
+        }
+
+        AppCompatButton getContinueButton() {
+            return continueButton;
+        }
+
+        boolean isActive() {
+            return active;
+        }
+
+        void setActive(boolean active) {
+            this.active = active;
+        }
+
         int getDecoratorHeight() {
             return decoratorHeight;
         }
@@ -848,26 +868,6 @@ public class VerticalStepper extends ViewGroup {
         void setChildrenVisibleHeight(int childrenVisibleHeight) {
             this.childrenVisibleHeight = childrenVisibleHeight;
         }
-
-        View getInnerView() {
-            return innerView;
-        }
-
-        InternalTouchView getTouchView() {
-            return touchView;
-        }
-
-        AppCompatButton getContinueButton() {
-            return continueButton;
-        }
-
-        boolean isActive() {
-            return active;
-        }
-
-        void setActive(boolean active) {
-            this.active = active;
-        }
     }
 
     public static class LayoutParams extends MarginLayoutParams {
@@ -876,15 +876,13 @@ public class VerticalStepper extends ViewGroup {
 
         @SuppressWarnings("NullableProblems")
         @NonNull
-        private
-        String title;
+        private String title;
         private float titleWidth;
         private float titleBaselineRelativeToStepTop;
         private float titleBottomRelativeToStepTop;
 
         @Nullable
-        private
-        String summary;
+        private String summary;
         private float summaryWidth;
         private float summaryBaselineRelativeToTitleBottom;
         private float summaryBottomRelativeToTitleBottom;
