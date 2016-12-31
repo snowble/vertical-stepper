@@ -674,7 +674,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private int calculateYDistanceToNextStep(StepView stepView, LayoutParams lp, boolean isLastStep) {
-        int dyToNextStep = calculateYDistanceToButtons(stepView.innerView, lp);
+        int dyToNextStep = calculateYDistanceToButtons(stepView.getInnerView(), lp);
         if (lp.isActive()) {
             dyToNextStep += stepView.getContinueButton().getHeight();
         }
@@ -812,7 +812,6 @@ public class VerticalStepper extends ViewGroup {
                     : stepView.continueButton != null)
                 return false;
             return innerView != null ? innerView.equals(stepView.innerView) : stepView.innerView == null;
-
         }
 
         @Override
@@ -854,26 +853,13 @@ public class VerticalStepper extends ViewGroup {
             return innerView;
         }
 
-        void setInnerView(View innerView) {
-            this.innerView = innerView;
-        }
-
         InternalTouchView getTouchView() {
             return touchView;
-        }
-
-        void setTouchView(InternalTouchView touchView) {
-            this.touchView = touchView;
         }
 
         AppCompatButton getContinueButton() {
             return continueButton;
         }
-
-        void setContinueButton(AppCompatButton continueButton) {
-            this.continueButton = continueButton;
-        }
-
     }
 
     public static class LayoutParams extends MarginLayoutParams {
@@ -903,15 +889,15 @@ public class VerticalStepper extends ViewGroup {
             TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
             try {
                 //noinspection ConstantConditions
-                setTitle(a.getString(R.styleable.VerticalStepper_Layout_step_title));
-                setSummary(a.getString(R.styleable.VerticalStepper_Layout_step_summary));
+                title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
+                summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
             } finally {
                 a.recycle();
             }
-            if (TextUtils.isEmpty(getTitle())) {
+            if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("step_title cannot be empty.");
             }
-            setActive(false);
+            active = false;
         }
 
         public LayoutParams(int width, int height) {
@@ -935,24 +921,12 @@ public class VerticalStepper extends ViewGroup {
             return titleWidth;
         }
 
-        void setTitleWidth(float titleWidth) {
-            this.titleWidth = titleWidth;
-        }
-
         float getTitleBaselineRelativeToStepTop() {
             return titleBaselineRelativeToStepTop;
         }
 
-        void setTitleBaselineRelativeToStepTop(float titleBaselineRelativeToStepTop) {
-            this.titleBaselineRelativeToStepTop = titleBaselineRelativeToStepTop;
-        }
-
         float getTitleBottomRelativeToStepTop() {
             return titleBottomRelativeToStepTop;
-        }
-
-        void setTitleBottomRelativeToStepTop(float titleBottomRelativeToStepTop) {
-            this.titleBottomRelativeToStepTop = titleBottomRelativeToStepTop;
         }
 
         @Nullable
@@ -960,32 +934,16 @@ public class VerticalStepper extends ViewGroup {
             return summary;
         }
 
-        void setSummary(@Nullable String summary) {
-            this.summary = summary;
-        }
-
         float getSummaryWidth() {
             return summaryWidth;
-        }
-
-        void setSummaryWidth(float summaryWidth) {
-            this.summaryWidth = summaryWidth;
         }
 
         float getSummaryBaselineRelativeToTitleBottom() {
             return summaryBaselineRelativeToTitleBottom;
         }
 
-        void setSummaryBaselineRelativeToTitleBottom(float summaryBaselineRelativeToTitleBottom) {
-            this.summaryBaselineRelativeToTitleBottom = summaryBaselineRelativeToTitleBottom;
-        }
-
         float getSummaryBottomRelativeToTitleBottom() {
             return summaryBottomRelativeToTitleBottom;
-        }
-
-        void setSummaryBottomRelativeToTitleBottom(float summaryBottomRelativeToTitleBottom) {
-            this.summaryBottomRelativeToTitleBottom = summaryBottomRelativeToTitleBottom;
         }
 
         boolean isActive() {
