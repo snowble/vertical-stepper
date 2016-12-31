@@ -643,7 +643,6 @@ public class VerticalStepper extends ViewGroup {
 
             int stepNumber = i + 1;
             StepView stepView = stepViews.get(i);
-            View innerView = stepView.getInnerView();
 
             canvas.save();
             drawIcon(canvas, stepView, stepNumber);
