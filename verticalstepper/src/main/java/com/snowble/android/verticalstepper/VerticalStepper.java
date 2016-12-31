@@ -286,49 +286,38 @@ public class VerticalStepper extends ViewGroup {
     void initStepViews() {
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            initStepView(getChildAt(i));
+            initStepView(new StepView(getChildAt(i), new InternalTouchView(context),
+                    new AppCompatButton(continueButtonContextWrapper, null, 0)));
         }
 
         for (StepView v : stepViews) {
-            initTouchView(v.getInnerView());
-            initNavButtons(v.getInnerView());
+            initTouchView(v);
+            initNavButtons(v);
         }
     }
 
     @VisibleForTesting
-    void initStepView(final View innerView) {
-        innerView.setVisibility(View.GONE);
-        stepViews.add(new StepView(innerView));
-
-        createAndAttachTouchView(innerView);
-        createAndAttachNavButtons(innerView);
-    }
-
-    private void createAndAttachTouchView(View innerView) {
-        getInternalLayoutParams(innerView).setTouchView(new InternalTouchView(context));
-    }
-
-    private void createAndAttachNavButtons(View innerView) {
-        getInternalLayoutParams(innerView).setContinueButton(
-                new AppCompatButton(continueButtonContextWrapper, null, 0));
+    void initStepView(StepView stepView) {
+        stepViews.add(stepView);
+        stepView.getInnerView().setVisibility(View.GONE);
     }
 
     @VisibleForTesting
-    void initTouchView(final View innerView) {
-        InternalTouchView touchView = getTouchView(innerView);
+    void initTouchView(final StepView stepView) {
+        InternalTouchView touchView = stepView.getTouchView();
         touchView.setBackgroundResource(touchViewBackground);
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleStepExpandedState(innerView);
+                toggleStepExpandedState(stepView);
             }
         });
         addView(touchView);
     }
 
     @VisibleForTesting
-    void initNavButtons(View innerView) {
-        AppCompatButton continueButton = getContinueButton(innerView);
+    void initNavButtons(StepView stepView) {
+        AppCompatButton continueButton = stepView.getContinueButton();
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
         continueButton.setOnClickListener(new OnClickListener() {
@@ -341,11 +330,11 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    void toggleStepExpandedState(View innerView) {
-        LayoutParams lp = getInternalLayoutParams(innerView);
+    void toggleStepExpandedState(StepView stepView) {
+        LayoutParams lp = getInternalLayoutParams(stepView.getInnerView());
         toggleActiveState(lp);
-        toggleViewVisibility(innerView);
-        toggleViewVisibility(lp.getContinueButton());
+        toggleViewVisibility(stepView.getInnerView());
+        toggleViewVisibility(stepView.getContinueButton());
     }
 
     private void toggleActiveState(LayoutParams lp) {
@@ -426,7 +415,7 @@ public class VerticalStepper extends ViewGroup {
             }
             currentHeight += childrenHeight;
 
-            AppCompatButton continueButton = getContinueButton(innerView);
+            AppCompatButton continueButton = stepView.getContinueButton();
             measureNavButton(widthMeasureSpec, heightMeasureSpec, continueButton, usedWidthFromPadding, currentHeight);
 
             if (lp.isActive()) {
@@ -465,7 +454,8 @@ public class VerticalStepper extends ViewGroup {
     int calculateMaxStepWidth() {
         int width = 0;
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
-            View innerView = stepViews.get(i).getInnerView();
+            StepView stepView = stepViews.get(i);
+            View innerView = stepView.getInnerView();
 
             LayoutParams lp = getInternalLayoutParams(innerView);
             int innerViewHorizontalPadding = calculateInnerViewHorizontalUsedSpace(lp);
@@ -474,7 +464,7 @@ public class VerticalStepper extends ViewGroup {
 
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
-            AppCompatButton continueButton = getContinueButton(innerView);
+            AppCompatButton continueButton = stepView.getContinueButton();
             width = Math.max(width, continueButton.getMeasuredWidth() + innerViewHorizontalPadding);
         }
         return width;
@@ -493,7 +483,7 @@ public class VerticalStepper extends ViewGroup {
 
     private void measureTouchViews(int width) {
         for (StepView v : stepViews) {
-            measureTouchView(width, getTouchView(v.getInnerView()));
+            measureTouchView(width, v.getTouchView());
         }
     }
 
@@ -553,7 +543,8 @@ public class VerticalStepper extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int currentTop = top;
         for (int i = 0, innerViewsSize = stepViews.size(); i < innerViewsSize; i++) {
-            View v = stepViews.get(i).getInnerView();
+            StepView stepView = stepViews.get(i);
+            View innerView = stepView.getInnerView();
             boolean isFirstStep = i == 0;
             boolean isLastStep = i == innerViewsSize - 1;
 
@@ -561,24 +552,22 @@ public class VerticalStepper extends ViewGroup {
                 currentTop += getPaddingTop() + outerVerticalPadding;
             }
 
-            layoutTouchView(left, currentTop, right, bottom, v, isLastStep);
+            layoutTouchView(left, currentTop, right, bottom, stepView.getTouchView(), isLastStep);
 
-            LayoutParams lp = getInternalLayoutParams(v);
+            LayoutParams lp = getInternalLayoutParams(innerView);
             if (lp.isActive()) {
-                layoutInnerView(left, currentTop, right, bottom, v, isLastStep);
+                layoutInnerView(left, currentTop, right, bottom, innerView, isLastStep);
 
-                int buttonsTop = currentTop + calculateYDistanceToButtons(v, lp);
+                int buttonsTop = currentTop + calculateYDistanceToButtons(innerView, lp);
 
-                layoutNavButtons(left, buttonsTop, right, bottom, v, isLastStep);
+                layoutNavButtons(left, buttonsTop, right, bottom, stepView, isLastStep);
             }
-            currentTop += calculateYDistanceToNextStep(v, lp, isLastStep);
+            currentTop += calculateYDistanceToNextStep(stepView, lp, isLastStep);
         }
     }
 
     private void layoutTouchView(int left, int topAdjustedForPadding, int right, int bottom,
-                                 View innerView, boolean isLastStep) {
-        InternalTouchView touchView = getTouchView(innerView);
-
+                                 InternalTouchView touchView, boolean isLastStep) {
         int touchLeft = left + getPaddingLeft();
 
         // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
@@ -622,10 +611,10 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutNavButtons(int left, int currentTop, int right, int bottom,
-                                  View innerView, boolean isLastStep) {
+                                  StepView stepView, boolean isLastStep) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
-        LayoutParams innerViewLp = getInternalLayoutParams(innerView);
-        AppCompatButton button = getContinueButton(innerView);
+        LayoutParams innerViewLp = getInternalLayoutParams(stepView.getInnerView());
+        AppCompatButton button = stepView.getContinueButton();
 
         int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
                 + iconDimension + iconMarginRight;
@@ -656,7 +645,8 @@ public class VerticalStepper extends ViewGroup {
             canvas.save();
 
             int stepNumber = i + 1;
-            View innerView = stepViews.get(i).getInnerView();
+            StepView stepView = stepViews.get(i);
+            View innerView = stepView.getInnerView();
             LayoutParams lp = getInternalLayoutParams(innerView);
 
             canvas.save();
@@ -667,7 +657,7 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, lp);
             canvas.restore();
 
-            int dyToNextStep = calculateYDistanceToNextStep(innerView, lp, i == innerViewsSize - 1);
+            int dyToNextStep = calculateYDistanceToNextStep(stepView, lp, i == innerViewsSize - 1);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 canvas.save();
@@ -683,10 +673,10 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private int calculateYDistanceToNextStep(View innerView, LayoutParams lp, boolean isLastStep) {
-        int dyToNextStep = calculateYDistanceToButtons(innerView, lp);
+    private int calculateYDistanceToNextStep(StepView stepView, LayoutParams lp, boolean isLastStep) {
+        int dyToNextStep = calculateYDistanceToButtons(stepView.innerView, lp);
         if (lp.isActive()) {
-            dyToNextStep += lp.getContinueButton().getHeight();
+            dyToNextStep += stepView.getContinueButton().getHeight();
         }
         dyToNextStep += getBottomMarginToNextStep(lp, isLastStep);
         return dyToNextStep;
@@ -767,14 +757,6 @@ public class VerticalStepper extends ViewGroup {
         return lp.isActive() ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
     }
 
-    private static InternalTouchView getTouchView(View innerView) {
-        return getInternalLayoutParams(innerView).getTouchView();
-    }
-
-    private static AppCompatButton getContinueButton(View innerView) {
-        return getInternalLayoutParams(innerView).getContinueButton();
-    }
-
     private static LayoutParams getInternalLayoutParams(View innerView) {
         return (LayoutParams) innerView.getLayoutParams();
     }
@@ -801,13 +783,18 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     static class StepView {
+        private InternalTouchView touchView;
+        private AppCompatButton continueButton;
+        private View innerView;
+
         private int decoratorHeight;
         private int bottomMarginHeight;
         private int childrenVisibleHeight;
-        private View innerView;
 
-        StepView(View view) {
-            setInnerView(view);
+        StepView(View innerView, InternalTouchView touchView, AppCompatButton continueButton) {
+            this.innerView = innerView;
+            this.touchView = touchView;
+            this.continueButton = continueButton;
         }
 
         @Override
@@ -817,19 +804,25 @@ public class VerticalStepper extends ViewGroup {
 
             StepView stepView = (StepView) o;
 
-            if (getDecoratorHeight() != stepView.getDecoratorHeight()) return false;
-            if (getBottomMarginHeight() != stepView.getBottomMarginHeight()) return false;
-            if (getChildrenVisibleHeight() != stepView.getChildrenVisibleHeight()) return false;
-            return getInnerView().equals(stepView.getInnerView());
+            if (decoratorHeight != stepView.decoratorHeight) return false;
+            if (bottomMarginHeight != stepView.bottomMarginHeight) return false;
+            if (childrenVisibleHeight != stepView.childrenVisibleHeight) return false;
+            if (touchView != null ? !touchView.equals(stepView.touchView) : stepView.touchView != null) return false;
+            if (continueButton != null ? !continueButton.equals(stepView.continueButton)
+                    : stepView.continueButton != null)
+                return false;
+            return innerView != null ? innerView.equals(stepView.innerView) : stepView.innerView == null;
 
         }
 
         @Override
         public int hashCode() {
-            int result = getDecoratorHeight();
-            result = 31 * result + getBottomMarginHeight();
-            result = 31 * result + getChildrenVisibleHeight();
-            result = 31 * result + getInnerView().hashCode();
+            int result = touchView != null ? touchView.hashCode() : 0;
+            result = 31 * result + (continueButton != null ? continueButton.hashCode() : 0);
+            result = 31 * result + (innerView != null ? innerView.hashCode() : 0);
+            result = 31 * result + decoratorHeight;
+            result = 31 * result + bottomMarginHeight;
+            result = 31 * result + childrenVisibleHeight;
             return result;
         }
 
@@ -864,14 +857,28 @@ public class VerticalStepper extends ViewGroup {
         void setInnerView(View innerView) {
             this.innerView = innerView;
         }
+
+        InternalTouchView getTouchView() {
+            return touchView;
+        }
+
+        void setTouchView(InternalTouchView touchView) {
+            this.touchView = touchView;
+        }
+
+        AppCompatButton getContinueButton() {
+            return continueButton;
+        }
+
+        void setContinueButton(AppCompatButton continueButton) {
+            this.continueButton = continueButton;
+        }
+
     }
 
     public static class LayoutParams extends MarginLayoutParams {
 
         private static Rect tmpRectTitleTextBounds = new Rect();
-
-        private InternalTouchView touchView;
-        private AppCompatButton continueButton;
 
         @SuppressWarnings("NullableProblems")
         @NonNull
@@ -913,22 +920,6 @@ public class VerticalStepper extends ViewGroup {
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
-        }
-
-        InternalTouchView getTouchView() {
-            return touchView;
-        }
-
-        void setTouchView(InternalTouchView touchView) {
-            this.touchView = touchView;
-        }
-
-        AppCompatButton getContinueButton() {
-            return continueButton;
-        }
-
-        void setContinueButton(AppCompatButton continueButton) {
-            this.continueButton = continueButton;
         }
 
         @NonNull
