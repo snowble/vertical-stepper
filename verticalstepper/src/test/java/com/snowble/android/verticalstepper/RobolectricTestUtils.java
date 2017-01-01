@@ -6,9 +6,9 @@ import org.robolectric.Robolectric;
 
 public class RobolectricTestUtils {
 
-    public static  VerticalStepper.LayoutParams createTestLayoutParams(Activity activity,
-                                                                       int leftMargin, int topMargin,
-                                                                       int rightMargin, int bottomMargin) {
+    public static VerticalStepper.LayoutParams createTestLayoutParams(Activity activity,
+                                                                      int leftMargin, int topMargin,
+                                                                      int rightMargin, int bottomMargin) {
         VerticalStepper.LayoutParams lp = createTestLayoutParams(activity);
         lp.leftMargin = leftMargin;
         lp.topMargin = topMargin;
@@ -20,14 +20,12 @@ public class RobolectricTestUtils {
 
     public static VerticalStepper.LayoutParams createTestLayoutParams(Activity activity) {
         Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
-        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
+        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "match_parent");
         attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
         attributeSetBuilder.addAttribute(R.attr.step_title, "title");
 
         VerticalStepper.LayoutParams lp =
                 new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-        lp.width = VerticalStepper.LayoutParams.MATCH_PARENT;
-        lp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
 
         return lp;
     }
