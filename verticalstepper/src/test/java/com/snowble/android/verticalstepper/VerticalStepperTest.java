@@ -211,7 +211,7 @@ public class VerticalStepperTest {
 
     private void testStepToggle(boolean initialActivateState, int initialVisibility,
                                 boolean finalExpectedActiveState, int finalExpectedVisibility) {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockedStepView1.isActive()).thenReturn(initialActivateState);
 
         when(mockContinueButton1.getVisibility()).thenReturn(initialVisibility);
@@ -335,7 +335,7 @@ public class VerticalStepperTest {
     @Test
     public void measureChildViews_OneInactiveStepNoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
         initOneStep();
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
         int maxWidth = 1080;
@@ -350,8 +350,9 @@ public class VerticalStepperTest {
         initOneStep();
         int horizontalMargin = 10;
         int verticalMargin = 20;
-        VerticalStepper.LayoutParams lp = createTestLayoutParams(horizontalMargin / 2, verticalMargin / 2,
-                horizontalMargin / 2, verticalMargin / 2);
+        VerticalStepper.LayoutParams lp =
+                RobolectricTestUtils.createTestLayoutParams(activity,
+                        horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
         int maxWidth = 1080;
@@ -365,7 +366,7 @@ public class VerticalStepperTest {
     public void measureChildViews_OneActiveStep_ShouldMeasureNavButtonsAccountingForInnerView() {
         initOneStep();
         when(mockedStepView1.isActive()).thenReturn(true);
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
         int innerHeight = 200;
         when(mockInnerView1.getMeasuredHeight()).thenReturn(innerHeight);
@@ -385,7 +386,7 @@ public class VerticalStepperTest {
         int bottomMargin = 30;
         when(mockedStepView1.getDecoratorHeight()).thenReturn(decoratorHeight);
         when(mockedStepView2.getBottomMarginHeight()).thenReturn(bottomMargin);
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
         int maxWidth = 1080;
@@ -406,9 +407,9 @@ public class VerticalStepperTest {
         when(mockedStepView1.getBottomMarginHeight()).thenReturn(bottomMargin);
         when(mockedStepView2.getBottomMarginHeight()).thenReturn(0);
 
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-        VerticalStepper.LayoutParams lp2 = createTestLayoutParams();
+        VerticalStepper.LayoutParams lp2 = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView2.getLayoutParams()).thenReturn(lp2);
 
         int maxWidth = 1080;
@@ -606,7 +607,7 @@ public class VerticalStepperTest {
 
     @Test
     public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams(20, 0, 10, 0);
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity, 20, 0, 10, 0);
 
         int horizontalPadding = stepper.calculateInnerViewHorizontalUsedSpace(lp);
 
@@ -616,7 +617,7 @@ public class VerticalStepperTest {
 
     @Test
     public void calculateInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams(0, 10, 0, 20);
+        VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity, 0, 10, 0, 20);
 
         int verticalPadding = stepper.calculateInnerViewVerticalUsedSpace(lp);
 
@@ -744,28 +745,4 @@ public class VerticalStepperTest {
         stepper.measureChildViews(wms, hms);
     }
 
-    private VerticalStepper.LayoutParams createTestLayoutParams(int leftMargin, int topMargin,
-                                                                int rightMargin, int bottomMargin) {
-        VerticalStepper.LayoutParams lp = createTestLayoutParams();
-        lp.leftMargin = leftMargin;
-        lp.topMargin = topMargin;
-        lp.rightMargin = rightMargin;
-        lp.bottomMargin = bottomMargin;
-
-        return lp;
-    }
-
-    private VerticalStepper.LayoutParams createTestLayoutParams() {
-        Robolectric.AttributeSetBuilder attributeSetBuilder = Robolectric.buildAttributeSet();
-        attributeSetBuilder.addAttribute(android.R.attr.layout_width, "wrap_content");
-        attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
-        attributeSetBuilder.addAttribute(R.attr.step_title, "title");
-
-        VerticalStepper.LayoutParams lp =
-                new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-        lp.width = VerticalStepper.LayoutParams.MATCH_PARENT;
-        lp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
-
-        return lp;
-    }
 }
