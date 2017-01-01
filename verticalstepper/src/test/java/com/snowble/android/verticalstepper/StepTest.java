@@ -20,8 +20,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-public class StepViewTest {
-    private VerticalStepper.StepView stepView;
+public class StepTest {
+    private VerticalStepper.Step step;
 
     private static final TextPaint TITLE_ACTIVE_PAINT = new TextPaint();
     private static final TextPaint TITLE_INACTIVE_PAINT = new TextPaint();
@@ -32,81 +32,81 @@ public class StepViewTest {
 
     @Before
     public void before() {
-        VerticalStepper.StepView.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
-        VerticalStepper.StepView.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
-        VerticalStepper.StepView.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
-        VerticalStepper.StepView.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
-        VerticalStepper.StepView.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
-        VerticalStepper.StepView.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
+        VerticalStepper.Step.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
+        VerticalStepper.Step.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
+        VerticalStepper.Step.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
+        VerticalStepper.Step.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
+        VerticalStepper.Step.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
+        VerticalStepper.Step.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
 
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().get();
         View innerView = mock(View.class);
         when(innerView.getLayoutParams()).thenReturn(RobolectricTestUtils.createTestLayoutParams(activity));
 
-        stepView = new VerticalStepper.StepView(innerView,
+        step = new VerticalStepper.Step(innerView,
                 new VerticalStepper.InternalTouchView(activity), new AppCompatButton(activity));
     }
 
     @Test
     public void getIconColor_InactiveStep_ShouldReturnInactiveStepPaint() {
-        stepView.setActive(false);
+        step.setActive(false);
 
-        Paint paint = stepView.getIconColor();
+        Paint paint = step.getIconColor();
 
         assertThat(paint).isSameAs(ICON_INACTIVE_PAINT);
     }
 
     @Test
     public void getIconColor_ActiveStep_ShouldReturnInactiveStepPaint() {
-        stepView.setActive(true);
+        step.setActive(true);
 
-        Paint paint = stepView.getIconColor();
+        Paint paint = step.getIconColor();
 
         assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
     }
 
     @Test
     public void getTitleTextPaint_InactiveStep_ShouldReturnInactiveStepPaint() {
-        stepView.setActive(false);
+        step.setActive(false);
 
-        TextPaint paint = stepView.getTitleTextPaint();
+        TextPaint paint = step.getTitleTextPaint();
 
         assertThat(paint).isSameAs(TITLE_INACTIVE_PAINT);
     }
 
     @Test
     public void getTitleTextPaint_ActiveStep_ShouldReturnActiveStepPaint() {
-        stepView.setActive(true);
+        step.setActive(true);
 
-        TextPaint paint = stepView.getTitleTextPaint();
+        TextPaint paint = step.getTitleTextPaint();
 
         assertThat(paint).isSameAs(TITLE_ACTIVE_PAINT);
     }
 
     @Test
     public void getBottomMarginToNextStep_LastStep_ShouldReturnZeroSizedMargin() {
-        stepView.setActive(false);
+        step.setActive(false);
 
-        int margin = stepView.getBottomMarginToNextStep(true);
+        int margin = step.getBottomMarginToNextStep(true);
 
-        assertThat(margin).isEqualTo(VerticalStepper.StepView.ZERO_SIZE_MARGIN);
+        assertThat(margin).isEqualTo(VerticalStepper.Step.ZERO_SIZE_MARGIN);
     }
 
     @Test
     public void getBottomMarginToNextStep_NotLastStepInactive_ShouldReturnInactiveMargin() {
-        stepView.setActive(false);
+        step.setActive(false);
 
-        int margin = stepView.getBottomMarginToNextStep(false);
+        int margin = step.getBottomMarginToNextStep(false);
 
         assertThat(margin).isEqualTo(INACTIVE_BOTTOM_MARGIN);
     }
 
     @Test
     public void getBottomMarginToNextStep_NotLastStepActive_ShouldReturnActiveMargin() {
-        stepView.setActive(true);
+        step.setActive(true);
 
-        int margin = stepView.getBottomMarginToNextStep(false);
+        int margin = step.getBottomMarginToNextStep(false);
 
         assertThat(margin).isEqualTo(ACTIVE_BOTTOM_MARGIN);
     }
