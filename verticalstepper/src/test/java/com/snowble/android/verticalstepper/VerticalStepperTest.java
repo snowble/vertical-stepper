@@ -37,8 +37,8 @@ public class VerticalStepperTest {
     private AppCompatButton mockContinueButton2;
     private VerticalStepper.LayoutParams mockLayoutParams1;
     private VerticalStepper.LayoutParams mockLayoutParams2;
-    private VerticalStepper.StepView mockedStepView1;
-    private VerticalStepper.StepView mockedStepView2;
+    private VerticalStepper.Step mockedStep1;
+    private VerticalStepper.Step mockedStep2;
 
     private ArgumentMatcher<Integer> isGreaterThanZero;
 
@@ -53,20 +53,20 @@ public class VerticalStepperTest {
         when(mockInnerView1.getLayoutParams()).thenReturn(mockLayoutParams1);
         mockContinueButton1 = mock(AppCompatButton.class);
         mockTouchView1 = mock(VerticalStepper.InternalTouchView.class);
-        mockedStepView1 = mock(VerticalStepper.StepView.class);
-        when(mockedStepView1.getInnerView()).thenReturn(mockInnerView1);
-        when(mockedStepView1.getTouchView()).thenReturn(mockTouchView1);
-        when(mockedStepView1.getContinueButton()).thenReturn(mockContinueButton1);
+        mockedStep1 = mock(VerticalStepper.Step.class);
+        when(mockedStep1.getInnerView()).thenReturn(mockInnerView1);
+        when(mockedStep1.getTouchView()).thenReturn(mockTouchView1);
+        when(mockedStep1.getContinueButton()).thenReturn(mockContinueButton1);
 
         mockInnerView2 = mock(View.class);
         mockLayoutParams2 = mock(VerticalStepper.LayoutParams.class);
         when(mockInnerView2.getLayoutParams()).thenReturn(mockLayoutParams2);
         mockContinueButton2 = mock(AppCompatButton.class);
         mockTouchView2 = mock(VerticalStepper.InternalTouchView.class);
-        mockedStepView2 = mock(VerticalStepper.StepView.class);
-        when(mockedStepView2.getInnerView()).thenReturn(mockInnerView2);
-        when(mockedStepView2.getTouchView()).thenReturn(mockTouchView2);
-        when(mockedStepView2.getContinueButton()).thenReturn(mockContinueButton2);
+        mockedStep2 = mock(VerticalStepper.Step.class);
+        when(mockedStep2.getInnerView()).thenReturn(mockInnerView2);
+        when(mockedStep2.getTouchView()).thenReturn(mockTouchView2);
+        when(mockedStep2.getContinueButton()).thenReturn(mockContinueButton2);
 
         isGreaterThanZero = new ArgumentMatcher<Integer>() {
             @Override
@@ -120,14 +120,14 @@ public class VerticalStepperTest {
     public void initChildViews_NoSteps_ShouldHaveEmptyInnerViews() {
         stepper.initStepViews();
 
-        assertThat(stepper.stepViews).isEmpty();
+        assertThat(stepper.steps).isEmpty();
     }
 
     @Test
     public void initChildViews_OneStep_ShouldHaveInnerViewsWithSingleElement() {
         initOneStep();
 
-        assertThat(stepper.stepViews)
+        assertThat(stepper.steps)
                 .hasSize(1)
                 .doesNotContainNull();
     }
@@ -136,7 +136,7 @@ public class VerticalStepperTest {
     public void initChildViews_TwoSteps_ShouldHaveInnerViewsWithTwoElements() {
         initTwoSteps();
 
-        assertThat(stepper.stepViews)
+        assertThat(stepper.steps)
                 .hasSize(2)
                 .doesNotContainNull();
     }
@@ -152,48 +152,48 @@ public class VerticalStepperTest {
     public void initInnerView_ShouldInitializeStepViews() {
         initOneStep();
 
-        assertThat(stepper.stepViews)
+        assertThat(stepper.steps)
                 .hasSize(1)
                 .doesNotContainNull();
 
-        VerticalStepper.StepView stepView = stepper.stepViews.get(0);
-        assertThat(stepView.getTouchView())
+        VerticalStepper.Step step = stepper.steps.get(0);
+        assertThat(step.getTouchView())
                 .isNotNull();
-        assertThat(stepView.getContinueButton())
+        assertThat(step.getContinueButton())
                 .isNotNull();
     }
 
     @Test
     public void initTouchView_ShouldSetClickListener() {
-        stepper.initTouchView(mockedStepView1);
+        stepper.initTouchView(mockedStep1);
 
         verify(mockTouchView1).setOnClickListener((View.OnClickListener) notNull());
     }
 
     @Test
     public void initTouchView_ShouldAttachToStepper() {
-        stepper.initTouchView(mockedStepView1);
+        stepper.initTouchView(mockedStep1);
 
         assertThat(stepper.getChildCount()).isEqualTo(1);
     }
 
     @Test
     public void initNavButtons_ShouldSetVisibilityToGone() {
-        stepper.initNavButtons(mockedStepView1);
+        stepper.initNavButtons(mockedStep1);
 
         verify(mockContinueButton1).setVisibility(View.GONE);
     }
 
     @Test
     public void initNavButtons_ShouldSetClickListener() {
-        stepper.initNavButtons(mockedStepView1);
+        stepper.initNavButtons(mockedStep1);
 
         verify(mockContinueButton1).setOnClickListener((View.OnClickListener) notNull());
     }
 
     @Test
     public void initNavButtons_ShouldAttachToStepper() {
-        stepper.initNavButtons(mockedStepView1);
+        stepper.initNavButtons(mockedStep1);
 
         assertThat(stepper.getChildCount()).isEqualTo(1);
     }
@@ -211,16 +211,16 @@ public class VerticalStepperTest {
     private void testStepToggle(boolean initialActivateState, int initialVisibility,
                                 boolean finalExpectedActiveState, int finalExpectedVisibility) {
         VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
-        when(mockedStepView1.isActive()).thenReturn(initialActivateState);
+        when(mockedStep1.isActive()).thenReturn(initialActivateState);
 
         when(mockContinueButton1.getVisibility()).thenReturn(initialVisibility);
 
         when(mockInnerView1.getVisibility()).thenReturn(initialVisibility);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
-        stepper.toggleStepExpandedState(mockedStepView1);
+        stepper.toggleStepExpandedState(mockedStep1);
 
-        verify(mockedStepView1).setActive(finalExpectedActiveState);
+        verify(mockedStep1).setActive(finalExpectedActiveState);
         verify(mockInnerView1).setVisibility(finalExpectedVisibility);
         verify(mockContinueButton1).setVisibility(finalExpectedVisibility);
     }
@@ -280,8 +280,8 @@ public class VerticalStepperTest {
 
         stepper.measureStepDecoratorHeights();
 
-        verify(mockedStepView1).setDecoratorHeight(intThat(isGreaterThanZero));
-        verify(mockedStepView2).setDecoratorHeight(intThat(isGreaterThanZero));
+        verify(mockedStep1).setDecoratorHeight(intThat(isGreaterThanZero));
+        verify(mockedStep2).setDecoratorHeight(intThat(isGreaterThanZero));
     }
 
     @Test
@@ -290,7 +290,7 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        verify(mockedStepView1).setBottomMarginHeight(anyInt());
+        verify(mockedStep1).setBottomMarginHeight(anyInt());
     }
 
     @Test
@@ -299,8 +299,8 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        verify(mockedStepView1).setBottomMarginHeight(anyInt());
-        verify(mockedStepView2).setBottomMarginHeight(anyInt());
+        verify(mockedStep1).setBottomMarginHeight(anyInt());
+        verify(mockedStep2).setBottomMarginHeight(anyInt());
     }
 
     @Test
@@ -323,12 +323,12 @@ public class VerticalStepperTest {
         final int buttonHeight = 50;
         when(mockInnerView1.getMeasuredHeight()).thenReturn(innerViewHeight);
         when(mockContinueButton1.getMeasuredHeight()).thenReturn(buttonHeight);
-        when(mockedStepView1.isActive()).thenReturn(true);
+        when(mockedStep1.isActive()).thenReturn(true);
 
         int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         stepper.measureChildViews(ms, ms);
 
-        verify(mockedStepView1).setChildrenVisibleHeight(innerViewHeight + buttonHeight);
+        verify(mockedStep1).setChildrenVisibleHeight(innerViewHeight + buttonHeight);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class VerticalStepperTest {
     @Test
     public void measureChildViews_OneActiveStep_ShouldMeasureNavButtonsAccountingForInnerView() {
         initOneStep();
-        when(mockedStepView1.isActive()).thenReturn(true);
+        when(mockedStep1.isActive()).thenReturn(true);
         VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
         int innerHeight = 200;
@@ -383,8 +383,8 @@ public class VerticalStepperTest {
         initOneStep();
         int decoratorHeight = 100;
         int bottomMargin = 30;
-        when(mockedStepView1.getDecoratorHeight()).thenReturn(decoratorHeight);
-        when(mockedStepView2.getBottomMarginHeight()).thenReturn(bottomMargin);
+        when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
+        when(mockedStep2.getBottomMarginHeight()).thenReturn(bottomMargin);
         VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
@@ -401,10 +401,10 @@ public class VerticalStepperTest {
         initTwoSteps();
         int decoratorHeight = 100;
         int bottomMargin = 30;
-        when(mockedStepView1.getDecoratorHeight()).thenReturn(decoratorHeight);
-        when(mockedStepView2.getDecoratorHeight()).thenReturn(decoratorHeight);
-        when(mockedStepView1.getBottomMarginHeight()).thenReturn(bottomMargin);
-        when(mockedStepView2.getBottomMarginHeight()).thenReturn(0);
+        when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
+        when(mockedStep2.getDecoratorHeight()).thenReturn(decoratorHeight);
+        when(mockedStep1.getBottomMarginHeight()).thenReturn(bottomMargin);
+        when(mockedStep2.getBottomMarginHeight()).thenReturn(0);
 
         VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
         when(mockInnerView1.getLayoutParams()).thenReturn(lp);
@@ -492,7 +492,7 @@ public class VerticalStepperTest {
     @Test
     public void calculateWidth_OneStep_ShouldReturnHorizontalPaddingAndStepWidth() {
         initOneStep();
-        int innerWidth = stepper.calculateStepDecoratorWidth(mockedStepView1) * 2;
+        int innerWidth = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
         when(mockInnerView1.getMeasuredWidth()).thenReturn(innerWidth);
         when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
 
@@ -512,13 +512,13 @@ public class VerticalStepperTest {
         int maxWidth = stepper.calculateMaxStepWidth();
 
         assertThat(maxWidth)
-                .isEqualTo(stepper.calculateStepDecoratorWidth(mockedStepView1));
+                .isEqualTo(stepper.calculateStepDecoratorWidth(mockedStep1));
     }
 
     @Test
     public void calculateMaxStepWidth_InnerViewHasMaxWidth_ShouldReturnInnerViewWidth() {
         initOneStep();
-        int width = stepper.calculateStepDecoratorWidth(mockedStepView1) * 2;
+        int width = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
         when(mockInnerView1.getMeasuredWidth()).thenReturn(width);
         when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
 
@@ -531,7 +531,7 @@ public class VerticalStepperTest {
     @Test
     public void calculateMaxStepWidth_NavButtonsHaveMaxWidth_ShouldReturnNavButtonsWidth() {
         initOneStep();
-        int width = stepper.calculateStepDecoratorWidth(mockedStepView1) * 2;
+        int width = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
         when(mockContinueButton1.getMeasuredWidth()).thenReturn(width);
         when(mockInnerView1.getMeasuredWidth()).thenReturn(0);
 
@@ -544,11 +544,11 @@ public class VerticalStepperTest {
     @Test
     public void calculateMaxStepWidth_TwoSteps_ShouldReturnLargerStepWidth() {
         initTwoSteps();
-        int width1 = stepper.calculateStepDecoratorWidth(mockedStepView1) * 2;
+        int width1 = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
         when(mockInnerView1.getMeasuredWidth()).thenReturn(width1);
         when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
 
-        int width2 = stepper.calculateStepDecoratorWidth(mockedStepView2) * 3;
+        int width2 = stepper.calculateStepDecoratorWidth(mockedStep2) * 3;
         when(mockInnerView2.getMeasuredWidth()).thenReturn(width2);
         when(mockContinueButton2.getMeasuredWidth()).thenReturn(0);
 
@@ -630,7 +630,7 @@ public class VerticalStepperTest {
 
         int iconWidth = stepper.iconDimension + stepper.iconMarginRight;
 
-        assertThat(stepper.calculateStepDecoratorWidth(mockedStepView1))
+        assertThat(stepper.calculateStepDecoratorWidth(mockedStep1))
                 .isEqualTo(iconWidth + (int) textWidth);
     }
 
@@ -646,7 +646,7 @@ public class VerticalStepperTest {
     public void calculateStepDecoratorTextWidth_WiderTitle_ShouldReturnTitle() {
         mockLayoutParamsWidths(20f, 10f);
 
-        float width = stepper.calculateStepDecoratorTextWidth(mockedStepView1);
+        float width = stepper.calculateStepDecoratorTextWidth(mockedStep1);
 
         assertThat(width).isEqualTo(20f);
     }
@@ -655,7 +655,7 @@ public class VerticalStepperTest {
     public void calculateStepDecoratorTextWidth_WiderSummary_ShouldReturnSummary() {
         mockLayoutParamsWidths(20f, 25f);
 
-        float width = stepper.calculateStepDecoratorTextWidth(mockedStepView1);
+        float width = stepper.calculateStepDecoratorTextWidth(mockedStep1);
 
         assertThat(width).isEqualTo(25f);
     }
@@ -665,7 +665,7 @@ public class VerticalStepperTest {
         float lessThanHalfIconHeight = (stepper.iconDimension - 2) / 2;
         mockLayoutParamsHeights(lessThanHalfIconHeight, lessThanHalfIconHeight);
 
-        int height = stepper.calculateStepDecoratorHeight(mockedStepView1);
+        int height = stepper.calculateStepDecoratorHeight(mockedStep1);
 
         assertThat(height).isEqualTo(stepper.iconDimension);
     }
@@ -675,28 +675,28 @@ public class VerticalStepperTest {
         float twiceIconHeight = stepper.iconDimension * 2;
         mockLayoutParamsHeights(twiceIconHeight, twiceIconHeight);
 
-        int height = stepper.calculateStepDecoratorHeight(mockedStepView1);
+        int height = stepper.calculateStepDecoratorHeight(mockedStep1);
 
         assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
     }
 
     private void initOneStep() {
-        stepper.initStepView(mockedStepView1);
+        stepper.initStepView(mockedStep1);
     }
 
     private void initTwoSteps() {
-        stepper.initStepView(mockedStepView1);
-        stepper.initStepView(mockedStepView2);
+        stepper.initStepView(mockedStep1);
+        stepper.initStepView(mockedStep2);
     }
 
     private void mockLayoutParamsWidths(float titleWidth, float summaryWidth) {
-        when(mockedStepView1.getTitleWidth()).thenReturn(titleWidth);
-        when(mockedStepView1.getSummaryWidth()).thenReturn(summaryWidth);
+        when(mockedStep1.getTitleWidth()).thenReturn(titleWidth);
+        when(mockedStep1.getSummaryWidth()).thenReturn(summaryWidth);
     }
 
     private void mockLayoutParamsHeights(float titleBottom, float summaryBottom) {
-        when(mockedStepView1.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
-        when(mockedStepView1.getSummaryBottomRelativeToTitleBottom()).thenReturn(summaryBottom);
+        when(mockedStep1.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
+        when(mockedStep1.getSummaryBottomRelativeToTitleBottom()).thenReturn(summaryBottom);
     }
 
     private void measureChildViews(int maxWidth, int maxHeight) {
