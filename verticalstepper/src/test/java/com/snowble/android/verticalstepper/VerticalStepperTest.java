@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
-import android.text.TextPaint;
 import android.view.View;
 
 import org.junit.Before;
@@ -291,7 +290,7 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        verify(mockedStepView1).setBottomMarginHeight(eq(0));
+        verify(mockedStepView1).setBottomMarginHeight(anyInt());
     }
 
     @Test
@@ -300,8 +299,8 @@ public class VerticalStepperTest {
 
         stepper.measureStepBottomMarginHeights();
 
-        verify(mockedStepView1).setBottomMarginHeight(intThat(isGreaterThanZero));
-        verify(mockedStepView2).setBottomMarginHeight(eq(0));
+        verify(mockedStepView1).setBottomMarginHeight(anyInt());
+        verify(mockedStepView2).setBottomMarginHeight(anyInt());
     }
 
     @Test
@@ -679,45 +678,6 @@ public class VerticalStepperTest {
         int height = stepper.calculateStepDecoratorHeight(mockedStepView1);
 
         assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
-    }
-
-    @Test
-    public void getTitleTextPaint_InactiveStep_ShouldReturnInactiveStepPaint() {
-        when(mockedStepView1.isActive()).thenReturn(false);
-        TextPaint paint = stepper.getTitleTextPaint(mockedStepView1);
-
-        assertThat(paint).isEqualTo(stepper.titleInactiveTextPaint);
-    }
-
-    @Test
-    public void getTitleTextPaint_ActiveStep_ShouldReturnActiveStepPaint() {
-        when(mockedStepView1.isActive()).thenReturn(true);
-        TextPaint paint = stepper.getTitleTextPaint(mockedStepView1);
-
-        assertThat(paint).isEqualTo(stepper.titleActiveTextPaint);
-    }
-
-    @Test
-    public void getBottomMarginToNextStep_LastStep_ShouldReturnZeroSizedMargin() {
-        int margin = stepper.getBottomMarginToNextStep(mockedStepView1, true);
-
-        assertThat(margin).isEqualTo(VerticalStepper.ZERO_SIZE_MARGIN);
-    }
-
-    @Test
-    public void getBottomMarginToNextStep_NotLastStepInactive_ShouldReturnInactiveMargin() {
-        when(mockedStepView1.isActive()).thenReturn(false);
-        int margin = stepper.getBottomMarginToNextStep(mockedStepView1, false);
-
-        assertThat(margin).isEqualTo(stepper.inactiveBottomMarginToNextStep);
-    }
-
-    @Test
-    public void getBottomMarginToNextStep_NotLastStepActive_ShouldReturnActiveMargin() {
-        when(mockedStepView1.isActive()).thenReturn(true);
-        int margin = stepper.getBottomMarginToNextStep(mockedStepView1, false);
-
-        assertThat(margin).isEqualTo(stepper.activeBottomMarginToNextStep);
     }
 
     private void initOneStep() {
