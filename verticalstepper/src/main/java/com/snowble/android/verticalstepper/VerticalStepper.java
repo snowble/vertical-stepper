@@ -1038,10 +1038,6 @@ public class VerticalStepper extends ViewGroup {
         Paint getIconColor() {
             return active ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
         }
-
-        private static LayoutParams getInternalLayoutParams(View innerView) {
-            return (LayoutParams) innerView.getLayoutParams();
-        }
     }
 
     public static class LayoutParams extends MarginLayoutParams {
