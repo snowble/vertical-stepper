@@ -28,7 +28,7 @@ public class VerticalStepperTest {
 
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-    public abstract static class StepperContext {
+    public abstract static class GivenAStepper {
         protected Activity activity;
         protected VerticalStepper stepper;
 
@@ -49,7 +49,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class ZeroStepsTests extends StepperContext {
+    public static class GivenZeroSteps extends GivenAStepper {
         @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
         @Test
         public void initPropertiesFromAttrs_NoAttrsSet_ShouldUseDefaults() {
@@ -200,7 +200,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public abstract static class SingleStepContext extends StepperContext {
+    public abstract static class GivenOneStep extends GivenAStepper {
         protected View mockInnerView1;
         protected VerticalStepper.InternalTouchView mockTouchView1;
         protected AppCompatButton mockContinueButton1;
@@ -293,7 +293,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class SingleStepTests extends SingleStepContext {
+    public static class GivenExactlyOneStep extends GivenOneStep {
         @Test
         public void initChildViews_ShouldHaveInnerViewsWithSingleElement() {
             assertThat(stepper.steps)
@@ -588,7 +588,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static abstract class TwoStepsContext extends SingleStepContext {
+    public static abstract class GivenTwoSteps extends GivenOneStep {
         protected View mockInnerView2;
         protected VerticalStepper.InternalTouchView mockTouchView2;
         protected AppCompatButton mockContinueButton2;
@@ -628,7 +628,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class TwoStepTests extends TwoStepsContext {
+    public static class GivenExactlyTwoSteps extends GivenTwoSteps {
         @Test
         public void initChildViews_ShouldHaveInnerViewsWithTwoElements() {
             assertThat(stepper.steps)
