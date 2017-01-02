@@ -91,14 +91,14 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void initChildViews_NoSteps_ShouldHaveEmptyInnerViews() {
+        public void initChildViews_ShouldHaveEmptyInnerViews() {
             stepper.initStepViews();
 
             assertThat(stepper.steps).isEmpty();
         }
 
         @Test
-        public void calculateWidth_NoSteps_ShouldReturnHorizontalPadding() {
+        public void calculateWidth_ShouldReturnHorizontalPadding() {
             int width = stepper.calculateWidth();
 
             assertThat(width)
@@ -106,7 +106,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void doMeasurement_NoStepsUnspecifiedSpecs_ShouldMeasurePadding() {
+        public void doMeasurement_UnspecifiedSpecs_ShouldMeasurePadding() {
             int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
 
             stepper.doMeasurement(ms, ms);
@@ -116,7 +116,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void doMeasurement_NoStepsAtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
+        public void doMeasurement_AtMostSpecsRequiresClipping_ShouldMeasureToAtMostValues() {
             int width = stepper.calculateHorizontalPadding() / 2;
             int height = stepper.calculateVerticalPadding() / 2;
             int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
@@ -129,7 +129,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void doMeasurement_NoStepsExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
+        public void doMeasurement_ExactlySpecsRequiresClipping_ShouldMeasureToExactValues() {
             int width = stepper.calculateHorizontalPadding() / 2;
             int height = stepper.calculateVerticalPadding() / 2;
             int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
@@ -142,7 +142,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void doMeasurement_NoStepsExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
+        public void doMeasurement_ExactlySpecsRequiresExpanding_ShouldMeasureToExactValues() {
             int width = stepper.calculateHorizontalPadding() * 2;
             int height = stepper.calculateVerticalPadding() * 2;
             int wms = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
@@ -155,7 +155,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void calculateHeight_NoSteps_ShouldReturnVerticalPadding() {
+        public void calculateHeight_ShouldReturnVerticalPadding() {
             int width = stepper.calculateHeight();
 
             assertThat(width)
@@ -295,7 +295,7 @@ public class VerticalStepperTest {
 
     public static class SingleStepTests extends SingleStepContext {
         @Test
-        public void initChildViews_OneStep_ShouldHaveInnerViewsWithSingleElement() {
+        public void initChildViews_ShouldHaveInnerViewsWithSingleElement() {
             assertThat(stepper.steps)
                     .hasSize(1)
                     .doesNotContainNull();
@@ -384,14 +384,14 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureBottomMarginHeights_OneStep_ShouldHaveMarginHeightsWithSingleElement() {
+        public void measureBottomMarginHeights_ShouldHaveMarginHeightsWithSingleElement() {
             stepper.measureStepBottomMarginHeights();
 
             verify(mockedStep1).setBottomMarginHeight(anyInt());
         }
 
         @Test
-        public void measureChildViews_OneActiveStep_ShouldHaveChildrenVisibleHeightsWithActualHeight() {
+        public void measureChildViews_Active_ShouldHaveChildrenVisibleHeightsWithActualHeight() {
             final int innerViewHeight = 100;
             final int buttonHeight = 50;
             when(mockInnerView1.getMeasuredHeight()).thenReturn(innerViewHeight);
@@ -405,7 +405,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_OneInactiveStepNoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+        public void measureChildViews_InactiveNoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
             VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
@@ -417,7 +417,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_OneInactiveStepHasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+        public void measureChildViews_InactiveHasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
             int horizontalMargin = 10;
             int verticalMargin = 20;
             VerticalStepper.LayoutParams lp =
@@ -433,7 +433,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_OneActiveStep_ShouldMeasureNavButtonsAccountingForInnerView() {
+        public void measureChildViews_Active_ShouldMeasureNavButtonsAccountingForInnerView() {
             when(mockedStep1.isActive()).thenReturn(true);
             VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
@@ -449,7 +449,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_OneInactiveStep_ShouldMeasureChildrenAccountingForDecorator() {
+        public void measureChildViews_Inactive_ShouldMeasureChildrenAccountingForDecorator() {
             int decoratorHeight = 100;
             when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
             VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
@@ -483,7 +483,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void calculateWidth_OneStep_ShouldReturnHorizontalPaddingAndStepWidth() {
+        public void calculateWidth_ShouldReturnHorizontalPaddingAndStepWidth() {
             int innerWidth = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
             when(mockInnerView1.getMeasuredWidth()).thenReturn(innerWidth);
             when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
@@ -630,14 +630,14 @@ public class VerticalStepperTest {
 
     public static class TwoStepTests extends TwoStepsContext {
         @Test
-        public void initChildViews_TwoSteps_ShouldHaveInnerViewsWithTwoElements() {
+        public void initChildViews_ShouldHaveInnerViewsWithTwoElements() {
             assertThat(stepper.steps)
                     .hasSize(2)
                     .doesNotContainNull();
         }
 
         @Test
-        public void measureStepDecoratorHeights_TwoSteps_ShouldHaveDecoratorHeightsWithTwoElements() {
+        public void measureStepDecoratorHeights_ShouldHaveDecoratorHeightsWithTwoElements() {
             stepper.measureStepDecoratorHeights();
 
             verify(mockedStep1).setDecoratorHeight(intThat(isGreaterThanZero));
@@ -645,7 +645,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureBottomMarginHeights_TwoSteps_ShouldHaveMarginHeightsWithTwoElements() {
+        public void measureBottomMarginHeights_ShouldHaveMarginHeightsWithTwoElements() {
             stepper.measureStepBottomMarginHeights();
 
             verify(mockedStep1).setBottomMarginHeight(anyInt());
@@ -653,7 +653,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_NoActiveSteps_ShouldMeasureViews() {
+        public void measureChildViews_ShouldMeasureViews() {
             int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
             stepper.measureChildViews(ms, ms);
 
@@ -664,7 +664,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureChildViews_TwoInactiveSteps_ShouldMeasureChildrenAccountingForBottomMargin() {
+        public void measureChildViews_ShouldMeasureChildrenAccountingForBottomMargin() {
             int decoratorHeight = 100;
             int bottomMargin = 30;
             when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
@@ -690,7 +690,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void calculateMaxStepWidth_TwoSteps_ShouldReturnLargerStepWidth() {
+        public void calculateMaxStepWidth_ShouldReturnLargerStepWidth() {
             int width1 = stepper.calculateStepDecoratorWidth(mockedStep1) * 2;
             when(mockInnerView1.getMeasuredWidth()).thenReturn(width1);
             when(mockContinueButton1.getMeasuredWidth()).thenReturn(0);
