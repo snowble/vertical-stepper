@@ -35,20 +35,21 @@ public class StepTest {
 
         @Before
         public void givenAStep() {
-            VerticalStepper.Step.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
-            VerticalStepper.Step.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
-            VerticalStepper.Step.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
-            VerticalStepper.Step.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
-            VerticalStepper.Step.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
-            VerticalStepper.Step.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
+            VerticalStepper.Step.CommonStepValues values = new VerticalStepper.Step.CommonStepValues();
+            values.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
+            values.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
+            values.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
+            values.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
+            values.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
+            values.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
 
             ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
             Activity activity = activityController.create().get();
             View innerView = mock(View.class);
             when(innerView.getLayoutParams()).thenReturn(RobolectricTestUtils.createTestLayoutParams(activity));
 
-            step = new VerticalStepper.Step(innerView,
-                    new VerticalStepper.InternalTouchView(activity), new AppCompatButton(activity));
+            step = new VerticalStepper.Step(innerView, new VerticalStepper.InternalTouchView(activity),
+                    new AppCompatButton(activity),  values);
         }
     }
 

@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class VerticalStepper extends ViewGroup {
-
     private Context context;
     private Resources resources;
+    private Step.CommonStepValues commonStepValues;
 
     @VisibleForTesting
     List<Step> steps;
@@ -106,6 +106,7 @@ public class VerticalStepper extends ViewGroup {
 
         context = getContext();
         resources = getResources();
+        commonStepValues = new Step.CommonStepValues();
 
         initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
@@ -148,9 +149,9 @@ public class VerticalStepper extends ViewGroup {
     private void initPadding() {
         outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
         outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
-        Step.setInactiveBottomMarginToNextStep(
+        commonStepValues.setInactiveBottomMarginToNextStep(
                 resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step));
-        Step.setActiveBottomMarginToNextStep(
+        commonStepValues.setActiveBottomMarginToNextStep(
                 resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step));
     }
 
@@ -172,8 +173,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconBackground() {
-        Step.setIconActiveBackgroundPaint(createIconBackground(iconActiveColor));
-        Step.setIconInactiveBackgroundPaint(createIconBackground(iconInactiveColor));
+        commonStepValues.setIconActiveBackgroundPaint(createIconBackground(iconActiveColor));
+        commonStepValues.setIconInactiveBackgroundPaint(createIconBackground(iconInactiveColor));
     }
 
     private Paint createIconBackground(int color) {
@@ -204,9 +205,10 @@ public class VerticalStepper extends ViewGroup {
     private void initTitleTextPaint() {
         TextPaint paint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
         paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        Step.setTitleActiveTextPaint(paint);
+        commonStepValues.setTitleActiveTextPaint(paint);
 
-        Step.setTitleInactiveTextPaint(createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size));
+        commonStepValues.setTitleInactiveTextPaint(
+                createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size));
     }
 
     private void initSummaryProperties() {
@@ -273,10 +275,11 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void initStepViews() {
+        commonStepValues.validate();
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             initStepView(new Step(getChildAt(i), new InternalTouchView(context),
-                    new AppCompatButton(continueButtonContextWrapper, null, 0)));
+                    new AppCompatButton(continueButtonContextWrapper, null, 0), commonStepValues));
         }
 
         for (Step v : steps) {
@@ -754,40 +757,7 @@ public class VerticalStepper extends ViewGroup {
         @VisibleForTesting
         static final int ZERO_SIZE_MARGIN = 0;
 
-        private static final int INVALID_INT = -1;
-
         private static final Rect TMP_RECT_TITLE_TEXT_BOUNDS = new Rect();
-
-        private static TextPaint titleActiveTextPaint = null;
-        private static TextPaint titleInactiveTextPaint = null;
-        private static Paint iconActiveBackgroundPaint = null;
-        private static Paint iconInactiveBackgroundPaint = null;
-        private static int activeBottomMarginToNextStep = INVALID_INT;
-        private static int inactiveBottomMarginToNextStep = INVALID_INT;
-
-        static void setTitleActiveTextPaint(TextPaint paint) {
-            titleActiveTextPaint = paint;
-        }
-
-        static void setTitleInactiveTextPaint(TextPaint paint) {
-            titleInactiveTextPaint = paint;
-        }
-
-        static void setIconActiveBackgroundPaint(Paint paint) {
-            iconActiveBackgroundPaint = paint;
-        }
-
-        static void setIconInactiveBackgroundPaint(Paint paint) {
-            iconInactiveBackgroundPaint = paint;
-        }
-
-        static void setActiveBottomMarginToNextStep(int margin) {
-            activeBottomMarginToNextStep = margin;
-        }
-
-        static void setInactiveBottomMarginToNextStep(int margin) {
-            inactiveBottomMarginToNextStep = margin;
-        }
 
         @NonNull
         private final InternalTouchView touchView;
@@ -800,6 +770,9 @@ public class VerticalStepper extends ViewGroup {
         @Nullable
         private String summary;
         private boolean active;
+
+        @NonNull
+        private final CommonStepValues commonValues;
 
         private int decoratorHeight;
         private int bottomMarginHeight;
@@ -814,8 +787,7 @@ public class VerticalStepper extends ViewGroup {
         private float summaryBottomRelativeToTitleBottom;
 
         Step(@NonNull View innerView, @NonNull InternalTouchView touchView,
-             @NonNull AppCompatButton continueButton) {
-            validateStaticFields();
+             @NonNull AppCompatButton continueButton, @NonNull CommonStepValues commonValues) {
             this.innerView = innerView;
             this.touchView = touchView;
             this.continueButton = continueButton;
@@ -826,27 +798,7 @@ public class VerticalStepper extends ViewGroup {
             }
             this.summary = lp.getSummary();
             this.active = false;
-        }
-
-        private void validateStaticFields() {
-            if (titleActiveTextPaint == null) {
-                throw new IllegalStateException("titleActiveTextPaint must be set.");
-            }
-            if (titleInactiveTextPaint == null) {
-                throw new IllegalStateException("titleInactiveTextPaint must be set.");
-            }
-            if (iconActiveBackgroundPaint == null) {
-                throw new IllegalStateException("iconActiveBackgroundPaint must be set.");
-            }
-            if (iconInactiveBackgroundPaint == null) {
-                throw new IllegalStateException("iconInactiveBackgroundPaint must be set.");
-            }
-            if (activeBottomMarginToNextStep == INVALID_INT) {
-                throw new IllegalStateException("activeBottomMarginToNextStep must be set.");
-            }
-            if (inactiveBottomMarginToNextStep == INVALID_INT) {
-                throw new IllegalStateException("inactiveBottomMarginToNextStep must be set.");
-            }
+            this.commonValues = commonValues;
         }
 
         @Override
@@ -861,8 +813,7 @@ public class VerticalStepper extends ViewGroup {
             if (bottomMarginHeight != step.bottomMarginHeight) return false;
             if (childrenVisibleHeight != step.childrenVisibleHeight) return false;
             if (Float.compare(step.titleWidth, titleWidth) != 0) return false;
-            if (Float.compare(step.titleBaselineRelativeToStepTop, titleBaselineRelativeToStepTop) != 0)
-                return false;
+            if (Float.compare(step.titleBaselineRelativeToStepTop, titleBaselineRelativeToStepTop) != 0) return false;
             if (Float.compare(step.titleBottomRelativeToStepTop, titleBottomRelativeToStepTop) != 0) return false;
             if (Float.compare(step.summaryWidth, summaryWidth) != 0) return false;
             if (Float.compare(step.summaryBaselineRelativeToTitleBottom, summaryBaselineRelativeToTitleBottom) != 0)
@@ -873,7 +824,9 @@ public class VerticalStepper extends ViewGroup {
             if (!continueButton.equals(step.continueButton)) return false;
             if (!innerView.equals(step.innerView)) return false;
             if (!title.equals(step.title)) return false;
-            return summary != null ? summary.equals(step.summary) : step.summary == null;
+            if (summary != null ? !summary.equals(step.summary) : step.summary != null) return false;
+            return commonValues.equals(step.commonValues);
+
         }
 
         @Override
@@ -884,19 +837,16 @@ public class VerticalStepper extends ViewGroup {
             result = 31 * result + title.hashCode();
             result = 31 * result + (summary != null ? summary.hashCode() : 0);
             result = 31 * result + (active ? 1 : 0);
+            result = 31 * result + commonValues.hashCode();
             result = 31 * result + decoratorHeight;
             result = 31 * result + bottomMarginHeight;
             result = 31 * result + childrenVisibleHeight;
             result = 31 * result + (titleWidth != +0.0f ? Float.floatToIntBits(titleWidth) : 0);
-            result = 31 * result + (titleBaselineRelativeToStepTop != +0.0f ?
-                    Float.floatToIntBits(titleBaselineRelativeToStepTop) : 0);
-            result = 31 * result + (titleBottomRelativeToStepTop != +0.0f ?
-                    Float.floatToIntBits(titleBottomRelativeToStepTop) : 0);
+            result = 31 * result + (titleBaselineRelativeToStepTop != +0.0f ? Float.floatToIntBits(titleBaselineRelativeToStepTop) : 0);
+            result = 31 * result + (titleBottomRelativeToStepTop != +0.0f ? Float.floatToIntBits(titleBottomRelativeToStepTop) : 0);
             result = 31 * result + (summaryWidth != +0.0f ? Float.floatToIntBits(summaryWidth) : 0);
-            result = 31 * result + (summaryBaselineRelativeToTitleBottom != +0.0f ?
-                    Float.floatToIntBits(summaryBaselineRelativeToTitleBottom) : 0);
-            result = 31 * result + (summaryBottomRelativeToTitleBottom != +0.0f ?
-                    Float.floatToIntBits(summaryBottomRelativeToTitleBottom) : 0);
+            result = 31 * result + (summaryBaselineRelativeToTitleBottom != +0.0f ? Float.floatToIntBits(summaryBaselineRelativeToTitleBottom) : 0);
+            result = 31 * result + (summaryBottomRelativeToTitleBottom != +0.0f ? Float.floatToIntBits(summaryBottomRelativeToTitleBottom) : 0);
             return result;
         }
 
@@ -1023,7 +973,7 @@ public class VerticalStepper extends ViewGroup {
 
         @VisibleForTesting
         TextPaint getTitleTextPaint() {
-            return active ? titleActiveTextPaint : titleInactiveTextPaint;
+            return active ? commonValues.getTitleActiveTextPaint() : commonValues.getTitleInactiveTextPaint();
         }
 
         @VisibleForTesting
@@ -1031,12 +981,123 @@ public class VerticalStepper extends ViewGroup {
             if (isLastStep) {
                 return ZERO_SIZE_MARGIN;
             } else {
-                return active ? activeBottomMarginToNextStep : inactiveBottomMarginToNextStep;
+                return active ? commonValues.getActiveBottomMarginToNextStep()
+                        : commonValues.getInactiveBottomMarginToNextStep();
             }
         }
 
         Paint getIconColor() {
-            return active ? iconActiveBackgroundPaint : iconInactiveBackgroundPaint;
+            return active ? commonValues.getIconActiveBackgroundPaint() : commonValues.getIconInactiveBackgroundPaint();
+        }
+
+        static class CommonStepValues {
+            private static final int INVALID_INT = -1;
+
+            private TextPaint titleActiveTextPaint = null;
+            private TextPaint titleInactiveTextPaint = null;
+            private Paint iconActiveBackgroundPaint = null;
+            private Paint iconInactiveBackgroundPaint = null;
+            private int activeBottomMarginToNextStep = INVALID_INT;
+            private int inactiveBottomMarginToNextStep = INVALID_INT;
+
+            public TextPaint getTitleActiveTextPaint() {
+                return titleActiveTextPaint;
+            }
+
+            public void setTitleActiveTextPaint(TextPaint titleActiveTextPaint) {
+                this.titleActiveTextPaint = titleActiveTextPaint;
+            }
+
+            public TextPaint getTitleInactiveTextPaint() {
+                return titleInactiveTextPaint;
+            }
+
+            public void setTitleInactiveTextPaint(TextPaint titleInactiveTextPaint) {
+                this.titleInactiveTextPaint = titleInactiveTextPaint;
+            }
+
+            public Paint getIconActiveBackgroundPaint() {
+                return iconActiveBackgroundPaint;
+            }
+
+            public void setIconActiveBackgroundPaint(Paint iconActiveBackgroundPaint) {
+                this.iconActiveBackgroundPaint = iconActiveBackgroundPaint;
+            }
+
+            public Paint getIconInactiveBackgroundPaint() {
+                return iconInactiveBackgroundPaint;
+            }
+
+            public void setIconInactiveBackgroundPaint(Paint iconInactiveBackgroundPaint) {
+                this.iconInactiveBackgroundPaint = iconInactiveBackgroundPaint;
+            }
+
+            public int getActiveBottomMarginToNextStep() {
+                return activeBottomMarginToNextStep;
+            }
+
+            public void setActiveBottomMarginToNextStep(int activeBottomMarginToNextStep) {
+                this.activeBottomMarginToNextStep = activeBottomMarginToNextStep;
+            }
+
+            public int getInactiveBottomMarginToNextStep() {
+                return inactiveBottomMarginToNextStep;
+            }
+
+            public void setInactiveBottomMarginToNextStep(int inactiveBottomMarginToNextStep) {
+                this.inactiveBottomMarginToNextStep = inactiveBottomMarginToNextStep;
+            }
+
+            private void validate() {
+                if (titleActiveTextPaint == null) {
+                    throw new IllegalStateException("titleActiveTextPaint must be set.");
+                }
+                if (titleInactiveTextPaint == null) {
+                    throw new IllegalStateException("titleInactiveTextPaint must be set.");
+                }
+                if (iconActiveBackgroundPaint == null) {
+                    throw new IllegalStateException("iconActiveBackgroundPaint must be set.");
+                }
+                if (iconInactiveBackgroundPaint == null) {
+                    throw new IllegalStateException("iconInactiveBackgroundPaint must be set.");
+                }
+                if (activeBottomMarginToNextStep == INVALID_INT) {
+                    throw new IllegalStateException("activeBottomMarginToNextStep must be set.");
+                }
+                if (inactiveBottomMarginToNextStep == INVALID_INT) {
+                    throw new IllegalStateException("inactiveBottomMarginToNextStep must be set.");
+                }
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                CommonStepValues that = (CommonStepValues) o;
+
+                if (activeBottomMarginToNextStep != that.activeBottomMarginToNextStep) return false;
+                if (inactiveBottomMarginToNextStep != that.inactiveBottomMarginToNextStep) return false;
+                if (titleActiveTextPaint != null ? !titleActiveTextPaint.equals(that.titleActiveTextPaint) : that.titleActiveTextPaint != null)
+                    return false;
+                if (titleInactiveTextPaint != null ? !titleInactiveTextPaint.equals(that.titleInactiveTextPaint) : that.titleInactiveTextPaint != null)
+                    return false;
+                if (iconActiveBackgroundPaint != null ? !iconActiveBackgroundPaint.equals(that.iconActiveBackgroundPaint) : that.iconActiveBackgroundPaint != null)
+                    return false;
+                return iconInactiveBackgroundPaint != null ? iconInactiveBackgroundPaint.equals(that.iconInactiveBackgroundPaint) : that.iconInactiveBackgroundPaint == null;
+
+            }
+
+            @Override
+            public int hashCode() {
+                int result = titleActiveTextPaint != null ? titleActiveTextPaint.hashCode() : 0;
+                result = 31 * result + (titleInactiveTextPaint != null ? titleInactiveTextPaint.hashCode() : 0);
+                result = 31 * result + (iconActiveBackgroundPaint != null ? iconActiveBackgroundPaint.hashCode() : 0);
+                result = 31 * result + (iconInactiveBackgroundPaint != null ? iconInactiveBackgroundPaint.hashCode() : 0);
+                result = 31 * result + activeBottomMarginToNextStep;
+                result = 31 * result + inactiveBottomMarginToNextStep;
+                return result;
+            }
         }
     }
 
