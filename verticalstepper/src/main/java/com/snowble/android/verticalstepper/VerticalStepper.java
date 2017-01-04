@@ -32,7 +32,7 @@ public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
     @VisibleForTesting
-    Step.CommonValues commonStepValues;
+    Step.Common commonStepValues;
 
     @VisibleForTesting
     List<Step> steps;
@@ -83,7 +83,7 @@ public class VerticalStepper extends ViewGroup {
 
         context = getContext();
         resources = getResources();
-        commonStepValues = new Step.CommonValues();
+        commonStepValues = new Step.Common();
 
         initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
@@ -719,7 +719,7 @@ public class VerticalStepper extends ViewGroup {
         private boolean active;
 
         @NonNull
-        private final CommonValues commonValues;
+        private final Common common;
 
         private int decoratorHeight;
         private int bottomMarginHeight;
@@ -734,14 +734,14 @@ public class VerticalStepper extends ViewGroup {
         private float summaryBottomRelativeToTitleBottom;
 
         Step(@NonNull View innerView, @NonNull InternalTouchView touchView,
-             @NonNull AppCompatButton continueButton, @NonNull CommonValues commonValues) {
+             @NonNull AppCompatButton continueButton, @NonNull Common common) {
             this.innerView = innerView;
             this.touchView = touchView;
             this.continueButton = continueButton;
             initTextValues((LayoutParams) innerView.getLayoutParams());
             validateTitle();
             this.active = false;
-            this.commonValues = commonValues;
+            this.common = common;
         }
 
         @VisibleForTesting
@@ -781,7 +781,7 @@ public class VerticalStepper extends ViewGroup {
             if (!innerView.equals(step.innerView)) return false;
             if (!title.equals(step.title)) return false;
             if (summary != null ? !summary.equals(step.summary) : step.summary != null) return false;
-            return commonValues.equals(step.commonValues);
+            return common.equals(step.common);
 
         }
 
@@ -793,7 +793,7 @@ public class VerticalStepper extends ViewGroup {
             result = 31 * result + title.hashCode();
             result = 31 * result + (summary != null ? summary.hashCode() : 0);
             result = 31 * result + (active ? 1 : 0);
-            result = 31 * result + commonValues.hashCode();
+            result = 31 * result + common.hashCode();
             result = 31 * result + decoratorHeight;
             result = 31 * result + bottomMarginHeight;
             result = 31 * result + childrenVisibleHeight;
@@ -902,7 +902,7 @@ public class VerticalStepper extends ViewGroup {
         void measureSummaryHorizontalDimensions() {
             float width = 0f;
             if (!TextUtils.isEmpty(summary)) {
-                width = commonValues.getSummaryTextPaint().measureText(summary);
+                width = common.getSummaryTextPaint().measureText(summary);
             }
             summaryWidth = width;
         }
@@ -920,31 +920,31 @@ public class VerticalStepper extends ViewGroup {
         }
 
         void measureSummaryVerticalDimensions() {
-            TextPaint summaryPaint = commonValues.getSummaryTextPaint();
+            TextPaint summaryPaint = common.getSummaryTextPaint();
             measureSummaryBaseline();
             summaryBottomRelativeToTitleBottom =
                     summaryBaselineRelativeToTitleBottom + summaryPaint.getFontMetrics().bottom;
         }
 
         private void measureSummaryBaseline() {
-            summaryBaselineRelativeToTitleBottom = -commonValues.getSummaryTextPaint().getFontMetrics().ascent;
+            summaryBaselineRelativeToTitleBottom = -common.getSummaryTextPaint().getFontMetrics().ascent;
         }
 
         TextPaint getTitleTextPaint() {
-            return active ? commonValues.getTitleActiveTextPaint() : commonValues.getTitleInactiveTextPaint();
+            return active ? common.getTitleActiveTextPaint() : common.getTitleInactiveTextPaint();
         }
 
         int getBottomMarginToNextStep(boolean isLastStep) {
             if (isLastStep) {
                 return ZERO_SIZE_MARGIN;
             } else {
-                return active ? commonValues.getActiveBottomMarginToNextStep()
-                        : commonValues.getInactiveBottomMarginToNextStep();
+                return active ? common.getActiveBottomMarginToNextStep()
+                        : common.getInactiveBottomMarginToNextStep();
             }
         }
 
         Paint getIconColor() {
-            return active ? commonValues.getIconActiveBackgroundPaint() : commonValues.getIconInactiveBackgroundPaint();
+            return active ? common.getIconActiveBackgroundPaint() : common.getIconInactiveBackgroundPaint();
         }
 
         int calculateInnerViewHorizontalUsedSpace() {
@@ -962,7 +962,7 @@ public class VerticalStepper extends ViewGroup {
         }
 
         int calculateStepDecoratorIconWidth() {
-            return commonValues.getIconDimension() + commonValues.getIconMarginRight();
+            return common.getIconDimension() + common.getIconMarginRight();
         }
 
         float calculateStepDecoratorTextWidth() {
@@ -972,7 +972,7 @@ public class VerticalStepper extends ViewGroup {
         }
 
         int calculateStepDecoratorHeight() {
-            int iconDimension = commonValues.getIconDimension();
+            int iconDimension = common.getIconDimension();
             measureTitleVerticalDimensions(iconDimension);
             measureSummaryVerticalDimensions();
             int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
@@ -980,7 +980,7 @@ public class VerticalStepper extends ViewGroup {
             return Math.max(iconDimension, textTotalHeight);
         }
 
-        static class CommonValues {
+        static class Common {
             private static final int INVALID_INT = -1;
 
             private TextPaint titleActiveTextPaint = null;
@@ -1152,7 +1152,7 @@ public class VerticalStepper extends ViewGroup {
                 this.connectorPaint = connectorPaint;
             }
 
-            private void validate() {
+            void validate() {
                 validateTitleValues();
                 validateSummaryValues();
                 validateIconValues();
@@ -1242,7 +1242,7 @@ public class VerticalStepper extends ViewGroup {
                 if (this == o) return true;
                 if (o == null || getClass() != o.getClass()) return false;
 
-                CommonValues that = (CommonValues) o;
+                Common that = (Common) o;
 
                 if (activeBottomMarginToNextStep != that.activeBottomMarginToNextStep) return false;
                 if (inactiveBottomMarginToNextStep != that.inactiveBottomMarginToNextStep) return false;
@@ -1253,7 +1253,6 @@ public class VerticalStepper extends ViewGroup {
                 if (iconActiveBackgroundPaint != null ? !iconActiveBackgroundPaint.equals(that.iconActiveBackgroundPaint) : that.iconActiveBackgroundPaint != null)
                     return false;
                 return iconInactiveBackgroundPaint != null ? iconInactiveBackgroundPaint.equals(that.iconInactiveBackgroundPaint) : that.iconInactiveBackgroundPaint == null;
-
             }
 
             @Override
