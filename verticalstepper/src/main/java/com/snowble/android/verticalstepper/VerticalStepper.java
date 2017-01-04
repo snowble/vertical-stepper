@@ -365,11 +365,9 @@ public class VerticalStepper extends ViewGroup {
         int currentHeight = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
+            View innerView = step.getInnerView();
 
             currentHeight += step.getDecoratorHeight();
-
-            View innerView = step.getInnerView();
-            LayoutParams lp = getInternalLayoutParams(innerView);
 
             int usedWidthFromPadding = stepperHorizontalPadding + step.calculateInnerViewHorizontalUsedSpace();
             int innerViewVerticalPadding = step.calculateInnerViewVerticalUsedSpace();
