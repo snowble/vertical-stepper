@@ -346,16 +346,14 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void measureStepDecoratorHeights() {
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
-            Step step = steps.get(i);
-            step.setDecoratorHeight(step.calculateStepDecoratorHeight());
+            steps.get(i).measureStepDecoratorHeight();
         }
     }
 
     @VisibleForTesting
     void measureStepBottomMarginHeights() {
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
-            Step step = steps.get(i);
-            step.setBottomMarginHeight(step.getBottomMarginToNextStep(i == innerViewsSize - 1));
+            steps.get(i).measureBottomMarginToNextStep(i == innerViewsSize - 1);
         }
     }
 
@@ -934,6 +932,10 @@ public class VerticalStepper extends ViewGroup {
             return active ? common.getTitleActiveTextPaint() : common.getTitleInactiveTextPaint();
         }
 
+        void measureBottomMarginToNextStep(boolean isLastStep) {
+            setBottomMarginHeight(getBottomMarginToNextStep(isLastStep));
+        }
+
         int getBottomMarginToNextStep(boolean isLastStep) {
             if (isLastStep) {
                 return ZERO_SIZE_MARGIN;
@@ -969,6 +971,15 @@ public class VerticalStepper extends ViewGroup {
             measureTitleHorizontalDimensions();
             measureSummaryHorizontalDimensions();
             return Math.max(getTitleWidth(), getSummaryWidth());
+        }
+
+        void measureStepDecoratorHeight() {
+            int iconDimension = common.getIconDimension();
+            measureTitleVerticalDimensions(iconDimension);
+            measureSummaryVerticalDimensions();
+            int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
+                    + getSummaryBottomRelativeToTitleBottom());
+            setDecoratorHeight(Math.max(iconDimension, textTotalHeight));
         }
 
         int calculateStepDecoratorHeight() {
