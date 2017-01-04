@@ -34,19 +34,19 @@ public class StepTest {
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
     public static abstract class GivenCommonValues {
-        protected VerticalStepper.Step.CommonValues values;
+        protected VerticalStepper.Step.Common common;
 
         @Before
         public void givenCommonValues() {
-            values = new VerticalStepper.Step.CommonValues();
-            values.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
-            values.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
-            values.setIconDimension(ICON_DIMENSION);
-            values.setIconMarginRight(ICON_MARGIN_RIGHT);
-            values.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
-            values.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
-            values.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
-            values.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
+            common = new VerticalStepper.Step.Common();
+            common.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
+            common.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
+            common.setIconDimension(ICON_DIMENSION);
+            common.setIconMarginRight(ICON_MARGIN_RIGHT);
+            common.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
+            common.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
+            common.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
+            common.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
         }
     }
 
@@ -57,10 +57,9 @@ public class StepTest {
             private final float summaryWidth;
             private final float summaryHeight;
 
-            TestStep(CommonValues values,
-                     float titleWidth, float titleHeight, float summaryWidth, float summaryHeight) {
+            TestStep(Common common, float titleWidth, float titleHeight, float summaryWidth, float summaryHeight) {
                 super(mock(View.class),
-                        mock(VerticalStepper.InternalTouchView.class), mock(AppCompatButton.class), values);
+                        mock(VerticalStepper.InternalTouchView.class), mock(AppCompatButton.class), common);
                 this.titleWidth = titleWidth;
                 this.titleHeight = titleHeight;
                 this.summaryWidth = summaryWidth;
@@ -120,9 +119,9 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorWidth_ShouldReturnSumOfIconSumAndMaxTextWidth() {
-            int iconWidth = values.getIconDimension() + values.getIconMarginRight();
+            int iconWidth = common.getIconDimension() + common.getIconMarginRight();
             final float textWidth = 10f;
-            VerticalStepper.Step step = new TestStep(values, textWidth, 0, textWidth, 0);
+            VerticalStepper.Step step = new TestStep(common, textWidth, 0, textWidth, 0);
 
             int stepDecoratorWidth = step.calculateStepDecoratorWidth();
 
@@ -132,18 +131,18 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthAndMarginSum() {
-            VerticalStepper.Step step = new TestStep(values, 0, 0, 0, 0);
+            VerticalStepper.Step step = new TestStep(common, 0, 0, 0, 0);
             int iconWidth = step.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
-                    .isEqualTo(values.getIconDimension() + values.getIconMarginRight());
+                    .isEqualTo(common.getIconDimension() + common.getIconMarginRight());
         }
 
         @Test
         public void calculateStepDecoratorTextWidth_WiderTitle_ShouldReturnTitle() {
             final float titleWidth = 20f;
             final float summaryWidth = 10f;
-            VerticalStepper.Step step = new TestStep(values, titleWidth, 0, summaryWidth, 0);
+            VerticalStepper.Step step = new TestStep(common, titleWidth, 0, summaryWidth, 0);
 
             float width = step.calculateStepDecoratorTextWidth();
 
@@ -154,7 +153,7 @@ public class StepTest {
         public void calculateStepDecoratorTextWidth_WiderSummary_ShouldReturnSummary() {
             final float titleWidth = 20f;
             final float summaryWidth = 25f;
-            VerticalStepper.Step step = new TestStep(values, titleWidth, 0, summaryWidth, 0);
+            VerticalStepper.Step step = new TestStep(common, titleWidth, 0, summaryWidth, 0);
 
             float width = step.calculateStepDecoratorTextWidth();
 
@@ -163,9 +162,9 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
-            int iconDimension = values.getIconDimension();
+            int iconDimension = common.getIconDimension();
             float lessThanHalfIconHeight = (iconDimension - 2) / 2;
-            VerticalStepper.Step step = new TestStep(values, 0, lessThanHalfIconHeight, 0, lessThanHalfIconHeight);
+            VerticalStepper.Step step = new TestStep(common, 0, lessThanHalfIconHeight, 0, lessThanHalfIconHeight);
 
             int height = step.calculateStepDecoratorHeight();
 
@@ -174,8 +173,8 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
-            float twiceIconHeight = values.getIconDimension() * 2;
-            VerticalStepper.Step step = new TestStep(values, 0, twiceIconHeight, 0, twiceIconHeight);
+            float twiceIconHeight = common.getIconDimension() * 2;
+            VerticalStepper.Step step = new TestStep(common, 0, twiceIconHeight, 0, twiceIconHeight);
 
             int height = step.calculateStepDecoratorHeight();
 
@@ -196,7 +195,7 @@ public class StepTest {
             when(innerView.getLayoutParams()).thenReturn(layoutParams);
 
             step = new VerticalStepper.Step(innerView, new VerticalStepper.InternalTouchView(activity),
-                    new AppCompatButton(activity), values);
+                    new AppCompatButton(activity), common);
         }
     }
 
