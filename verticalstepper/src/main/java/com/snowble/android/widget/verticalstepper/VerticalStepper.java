@@ -262,7 +262,8 @@ public class VerticalStepper extends ViewGroup {
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             initStepView(new Step(getChildAt(i), new InternalTouchView(context),
-                    new AppCompatButton(commonStepValues.getContinueButtonContextWrapper(), null, 0), commonStepValues));
+                    new AppCompatButton(commonStepValues.getContinueButtonContextWrapper(), null, 0), commonStepValues)
+            );
         }
 
         for (Step v : steps) {
@@ -601,6 +602,7 @@ public class VerticalStepper extends ViewGroup {
 
             canvas.restore();
         }
+        canvas.translate(outerHorizontalPadding + getPaddingRight(), outerVerticalPadding + getPaddingBottom());
         canvas.restore();
     }
 
