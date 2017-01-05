@@ -494,7 +494,9 @@ public class VerticalStepper extends ViewGroup {
 
                 layoutNavButtons(left, buttonsTop, right, bottom, step, isLastStep);
             }
-            currentTop += step.calculateYDistanceToNextStep(isLastStep);
+            if (!isLastStep) {
+                currentTop += step.calculateYDistanceToNextStep();
+            }
         }
     }
 
@@ -574,7 +576,9 @@ public class VerticalStepper extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         canvas.save();
         canvas.translate(outerHorizontalPadding + getPaddingLeft(), outerVerticalPadding + getPaddingTop());
+        int dyToNextStep = 0;
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
+            canvas.translate(0, dyToNextStep);
             canvas.save();
 
             int stepNumber = i + 1;
@@ -588,18 +592,16 @@ public class VerticalStepper extends ViewGroup {
             drawText(canvas, step);
             canvas.restore();
 
-            int dyToNextStep = step.calculateYDistanceToNextStep(i == innerViewsSize - 1);
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
+                dyToNextStep = step.calculateYDistanceToNextStep();
+
                 canvas.save();
                 drawConnector(canvas, dyToNextStep);
                 canvas.restore();
             }
 
             canvas.restore();
-            if (hasMoreSteps) {
-                canvas.translate(0, dyToNextStep);
-            }
         }
         canvas.restore();
     }
@@ -963,21 +965,21 @@ public class VerticalStepper extends ViewGroup {
             setDecoratorHeight(Math.max(iconDimension, textTotalHeight));
         }
 
-        int calculateYDistanceToNextStep(boolean isLastStep) {
-            int dyToNextStep = calculateYDistanceToButtons();
-            if (active) {
+        int calculateYDistanceToNextStep() {
+            int dyToNextStep;
+            if (!active) {
+                dyToNextStep = calculateYDistanceToTextBottom();
+            } else {
+                dyToNextStep = calculateYDistanceToButtons();
                 dyToNextStep += continueButton.getHeight();
             }
-            dyToNextStep += getBottomMarginToNextStep(isLastStep);
+            dyToNextStep += getBottomMarginToNextStep(false);
             return dyToNextStep;
         }
 
-        // TODO Rename this. It's misleading
         int calculateYDistanceToButtons() {
             int dyToButtons = calculateYDistanceToTextBottom();
-            if (active) {
-                dyToButtons += innerView.getHeight() + common.getTitleMarginBottomToInnerView();
-            }
+            dyToButtons += innerView.getHeight() + common.getTitleMarginBottomToInnerView();
             return dyToButtons;
         }
 
