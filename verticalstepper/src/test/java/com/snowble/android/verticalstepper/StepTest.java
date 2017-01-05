@@ -166,7 +166,8 @@ public class StepTest {
             float lessThanHalfIconHeight = (iconDimension - 2) / 2;
             VerticalStepper.Step step = new TestStep(common, 0, lessThanHalfIconHeight, 0, lessThanHalfIconHeight);
 
-            int height = step.calculateStepDecoratorHeight();
+            step.measureStepDecoratorHeight();
+            int height = step.getDecoratorHeight();
 
             assertThat(height).isEqualTo(iconDimension);
         }
@@ -176,7 +177,8 @@ public class StepTest {
             float twiceIconHeight = common.getIconDimension() * 2;
             VerticalStepper.Step step = new TestStep(common, 0, twiceIconHeight, 0, twiceIconHeight);
 
-            int height = step.calculateStepDecoratorHeight();
+            step.measureStepDecoratorHeight();
+            int height = step.getDecoratorHeight();
 
             assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
         }
