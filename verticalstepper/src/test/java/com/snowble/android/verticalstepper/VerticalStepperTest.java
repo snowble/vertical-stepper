@@ -190,7 +190,7 @@ public class VerticalStepperTest {
         protected VerticalStepper.InternalTouchView mockTouchView1;
         protected AppCompatButton mockContinueButton1;
         protected VerticalStepper.LayoutParams mockLayoutParams1;
-        protected VerticalStepper.Step mockedStep1;
+        protected Step mockedStep1;
 
         @Before
         public void beforeSingleStepContext() {
@@ -199,7 +199,7 @@ public class VerticalStepperTest {
             when(mockInnerView1.getLayoutParams()).thenReturn(mockLayoutParams1);
             mockContinueButton1 = mock(AppCompatButton.class);
             mockTouchView1 = mock(VerticalStepper.InternalTouchView.class);
-            mockedStep1 = mock(VerticalStepper.Step.class);
+            mockedStep1 = mock(Step.class);
             when(mockedStep1.getInnerView()).thenReturn(mockInnerView1);
             when(mockedStep1.getTouchView()).thenReturn(mockTouchView1);
             when(mockedStep1.getContinueButton()).thenReturn(mockContinueButton1);
@@ -218,7 +218,7 @@ public class VerticalStepperTest {
                     decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
         }
 
-        protected void mockStepWidths(VerticalStepper.Step step, View innerView, AppCompatButton continueButton,
+        protected void mockStepWidths(Step step, View innerView, AppCompatButton continueButton,
                                       int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
             when(step.calculateStepDecoratorWidth()).thenReturn(decoratorWidth);
             when(step.calculateInnerViewHorizontalUsedSpace()).thenReturn(innerUsedSpace);
@@ -243,7 +243,7 @@ public class VerticalStepperTest {
             return captor.getAllValues();
         }
 
-        protected void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, VerticalStepper.Step step,
+        protected void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, Step step,
                                                       int maxWidth, int maxHeight,
                                                       int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
             int innerWms = measureSpecs.get(0);
@@ -265,7 +265,7 @@ public class VerticalStepperTest {
                     .isEqualTo(maxHeight - verticalUsedSpace);
         }
 
-        protected void assertExpectedWidthMeasureSpec(VerticalStepper.Step step,
+        protected void assertExpectedWidthMeasureSpec(Step step,
                                                       int maxWidth, int widthMeasureSpec) {
             int horizontalUsedSpace =
                     step.calculateInnerViewHorizontalUsedSpace() + stepper.calculateHorizontalPadding();
@@ -301,7 +301,7 @@ public class VerticalStepperTest {
                     .hasSize(1)
                     .doesNotContainNull();
 
-            VerticalStepper.Step step = stepper.steps.get(0);
+            Step step = stepper.steps.get(0);
             assertThat(step.getTouchView())
                     .isNotNull();
             assertThat(step.getContinueButton())
@@ -536,7 +536,7 @@ public class VerticalStepperTest {
         protected VerticalStepper.InternalTouchView mockTouchView2;
         protected AppCompatButton mockContinueButton2;
         protected VerticalStepper.LayoutParams mockLayoutParams2;
-        protected VerticalStepper.Step mockedStep2;
+        protected Step mockedStep2;
 
         @Before
         public void beforeTwoStepsContext() {
@@ -545,7 +545,7 @@ public class VerticalStepperTest {
             when(mockInnerView2.getLayoutParams()).thenReturn(mockLayoutParams2);
             mockContinueButton2 = mock(AppCompatButton.class);
             mockTouchView2 = mock(VerticalStepper.InternalTouchView.class);
-            mockedStep2 = mock(VerticalStepper.Step.class);
+            mockedStep2 = mock(Step.class);
             when(mockedStep2.getInnerView()).thenReturn(mockInnerView2);
             when(mockedStep2.getTouchView()).thenReturn(mockTouchView2);
             when(mockedStep2.getContinueButton()).thenReturn(mockContinueButton2);
