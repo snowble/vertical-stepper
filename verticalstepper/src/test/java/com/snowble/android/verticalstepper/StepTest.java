@@ -50,20 +50,21 @@ public class StepTest {
         }
     }
 
-    public static class GivenATestStep extends GivenCommonValues {
-        private static class TestStep extends VerticalStepper.Step {
-            private final float titleWidth;
-            private final float titleHeight;
-            private final float summaryWidth;
-            private final float summaryHeight;
+    public static abstract class GivenATestStep extends GivenCommonValues {
+        protected View innerView;
+        protected VerticalStepper.InternalTouchView touchView;
+        protected AppCompatButton continueButton;
 
-            TestStep(Common common, float titleWidth, float titleHeight, float summaryWidth, float summaryHeight) {
-                super(mock(View.class),
-                        mock(VerticalStepper.InternalTouchView.class), mock(AppCompatButton.class), common);
-                this.titleWidth = titleWidth;
-                this.titleHeight = titleHeight;
-                this.summaryWidth = summaryWidth;
-                this.summaryHeight = summaryHeight;
+        protected TestStep step;
+
+        protected class TestStep extends VerticalStepper.Step {
+            private float titleWidth;
+            private float titleHeight;
+            private float summaryWidth;
+            private float summaryHeight;
+
+            TestStep() {
+                super(innerView, touchView, continueButton, common);
             }
 
             @Override
@@ -96,9 +97,19 @@ public class StepTest {
                 // Do nothing. The dimensions will be explicitly set
             }
 
+            public TestStep setTestStepTitleWidth(float width) {
+                titleWidth = width;
+                return this;
+            }
+
             @Override
             public float getTitleWidth() {
                 return titleWidth;
+            }
+
+            public TestStep setTestStepTitleHeight(float height) {
+                titleHeight = height;
+                return this;
             }
 
             @Override
@@ -106,9 +117,19 @@ public class StepTest {
                 return titleHeight;
             }
 
+            public TestStep setTestStepSummaryWidth(float width) {
+                summaryWidth = width;
+                return this;
+            }
+
             @Override
             public float getSummaryWidth() {
                 return summaryWidth;
+            }
+
+            public TestStep setTestStepSummaryHeight(float height) {
+                summaryHeight = height;
+                return this;
             }
 
             @Override
@@ -117,11 +138,22 @@ public class StepTest {
             }
         }
 
+        @Before
+        public void givenATestStep() {
+            innerView = mock(View.class);
+            touchView = mock(VerticalStepper.InternalTouchView.class);
+            continueButton = mock(AppCompatButton.class);
+            step = new TestStep();
+        }
+    }
+
+    public static class GivenEmptyTestStep extends GivenATestStep {
         @Test
-        public void calculateStepDecoratorWidth_ShouldReturnSumOfIconSumAndMaxTextWidth() {
+        public void calculateStepDecoratorWidth_ShouldReturnIconSumPlusMaxTextWidth() {
             int iconWidth = common.getIconDimension() + common.getIconMarginRight();
             final float textWidth = 10f;
-            VerticalStepper.Step step = new TestStep(common, textWidth, 0, textWidth, 0);
+            step.setTestStepTitleWidth(textWidth)
+                    .setTestStepSummaryWidth(textWidth);
 
             int stepDecoratorWidth = step.calculateStepDecoratorWidth();
 
@@ -130,19 +162,19 @@ public class StepTest {
         }
 
         @Test
-        public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthAndMarginSum() {
-            VerticalStepper.Step step = new TestStep(common, 0, 0, 0, 0);
+        public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthPlusMarginSum() {
             int iconWidth = step.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
-                    .isEqualTo(common.getIconDimension() + common.getIconMarginRight());
+                    .isEqualTo(ICON_DIMENSION + ICON_MARGIN_RIGHT);
         }
 
         @Test
         public void calculateStepDecoratorTextWidth_WiderTitle_ShouldReturnTitle() {
             final float titleWidth = 20f;
             final float summaryWidth = 10f;
-            VerticalStepper.Step step = new TestStep(common, titleWidth, 0, summaryWidth, 0);
+            step.setTestStepTitleWidth(titleWidth)
+                    .setTestStepSummaryWidth(summaryWidth);
 
             float width = step.calculateStepDecoratorTextWidth();
 
@@ -153,7 +185,8 @@ public class StepTest {
         public void calculateStepDecoratorTextWidth_WiderSummary_ShouldReturnSummary() {
             final float titleWidth = 20f;
             final float summaryWidth = 25f;
-            VerticalStepper.Step step = new TestStep(common, titleWidth, 0, summaryWidth, 0);
+            step.setTestStepTitleWidth(titleWidth)
+                    .setTestStepSummaryWidth(summaryWidth);
 
             float width = step.calculateStepDecoratorTextWidth();
 
@@ -164,7 +197,8 @@ public class StepTest {
         public void measureStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
             int iconDimension = common.getIconDimension();
             float lessThanHalfIconHeight = (iconDimension - 2) / 2;
-            VerticalStepper.Step step = new TestStep(common, 0, lessThanHalfIconHeight, 0, lessThanHalfIconHeight);
+            step.setTestStepTitleHeight(lessThanHalfIconHeight)
+                    .setTestStepSummaryHeight(lessThanHalfIconHeight);
 
             step.measureStepDecoratorHeight();
             int height = step.getDecoratorHeight();
@@ -175,12 +209,117 @@ public class StepTest {
         @Test
         public void measureStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
             float twiceIconHeight = common.getIconDimension() * 2;
-            VerticalStepper.Step step = new TestStep(common, 0, twiceIconHeight, 0, twiceIconHeight);
+            step.setTestStepTitleHeight(twiceIconHeight)
+                    .setTestStepSummaryHeight(twiceIconHeight);
 
             step.measureStepDecoratorHeight();
             int height = step.getDecoratorHeight();
 
             assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
+        }
+    }
+
+    public static abstract class GivenTestStepWithStandardHeights extends GivenATestStep {
+        protected static final float STANDARD_TITLE_HEIGHT = 10f;
+        protected static final float STANDARD_SUMMARY_HEIGHT = 10f;
+        protected static final int STANDARD_INNER_HEIGHT = 100;
+        protected static final int STANDARD_CONTINUE_HEIGHT = 20;
+
+        @Before
+        public void givenTestStepWithStandardTextHeights() {
+            step.setTestStepTitleHeight(STANDARD_TITLE_HEIGHT)
+                    .setTestStepSummaryHeight(STANDARD_SUMMARY_HEIGHT);
+
+            when(innerView.getHeight()).thenReturn(STANDARD_INNER_HEIGHT);
+            when(continueButton.getHeight()).thenReturn(STANDARD_CONTINUE_HEIGHT);
+        }
+    }
+
+    public static class GivenInactiveTestStepWithStandardHeights extends GivenTestStepWithStandardHeights {
+        @Before
+        public void givenInactiveTestStepWithStandardHeights() {
+            step.setActive(false);
+        }
+
+        @Test
+        public void calculateYDistanceToTextBottom_ShouldReturnTotalTextHeight(){
+            int yDistance = step.calculateYDistanceToTextBottom();
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
+        }
+
+        @Test
+        public void calculateYDistanceToButtons_ShouldReturnTotalTextHeight() {
+            int yDistance = step.calculateYDistanceToButtons();
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
+        }
+
+        @Test
+        public void calculateYDistanceToNextStep_NotLastStep_ShouldReturnTotalTextHeightPlusBottomMargin() {
+            int yDistance = step.calculateYDistanceToNextStep(false);
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT + INACTIVE_BOTTOM_MARGIN));
+        }
+
+        @Test
+        public void calculateYDistanceToNextStep_LastStep_ShouldReturnTotalTextHeight() {
+            int yDistance = step.calculateYDistanceToNextStep(true);
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
+        }
+    }
+
+    public static class GivenActiveTestStepWithStandardHeights extends GivenTestStepWithStandardHeights {
+        @Before
+        public void givenActiveTestStepWithStandardHeights() {
+            step.setActive(true);
+        }
+
+        @Test
+        public void calculateYDistanceToTextBottom_ShouldReturnTitleHeight(){
+            int yDistance = step.calculateYDistanceToTextBottom();
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT));
+        }
+
+        @Test
+        public void calculateYDistanceToButtons_ShouldReturnTitleHeightPlusTitleMarginPlusInnerHeight() {
+            int titleMargin = 20;
+            common.setTitleMarginBottomToInnerView(titleMargin);
+
+            int yDistance = step.calculateYDistanceToButtons();
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT));
+        }
+
+        @Test
+        public void
+        calculateYDistanceToNextStep_NotLastStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeightPlusBottomMargin() {
+            int titleMargin = 20;
+            common.setTitleMarginBottomToInnerView(titleMargin);
+            int yDistance = step.calculateYDistanceToNextStep(false);
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT
+                            + STANDARD_CONTINUE_HEIGHT + ACTIVE_BOTTOM_MARGIN));
+        }
+
+        @Test
+        public void calculateYDistanceToNextStep_LastStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeight() {
+            int titleMargin = 20;
+            common.setTitleMarginBottomToInnerView(titleMargin);
+            int yDistance = step.calculateYDistanceToNextStep(true);
+
+            assertThat(yDistance)
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT
+                            + STANDARD_CONTINUE_HEIGHT));
         }
     }
 
@@ -231,7 +370,7 @@ public class StepTest {
         }
 
         @Test
-        public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingAndIconLeftAdjustment() {
+        public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
             int leftMargin = 20;
             int rightMargin = 10;
             layoutParams.leftMargin = leftMargin;
