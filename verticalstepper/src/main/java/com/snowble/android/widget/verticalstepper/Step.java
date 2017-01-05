@@ -13,9 +13,6 @@ import android.view.View;
 
 class Step {
 
-    @VisibleForTesting
-    static final int ZERO_SIZE_MARGIN = 0;
-
     private static final Rect TMP_RECT_TITLE_TEXT_BOUNDS = new Rect();
 
     @NonNull
@@ -244,17 +241,12 @@ class Step {
         return active ? common.getTitleActiveTextPaint() : common.getTitleInactiveTextPaint();
     }
 
-    void measureBottomMarginToNextStep(boolean isLastStep) {
-        setBottomMarginHeight(getBottomMarginToNextStep(isLastStep));
+    void measureBottomMarginToNextStep() {
+        bottomMarginHeight = getBottomMarginToNextStep();
     }
 
-    int getBottomMarginToNextStep(boolean isLastStep) {
-        if (isLastStep) {
-            return ZERO_SIZE_MARGIN;
-        } else {
-            return active ? common.getActiveBottomMarginToNextStep()
-                    : common.getInactiveBottomMarginToNextStep();
-        }
+    int getBottomMarginToNextStep() {
+        return active ? common.getActiveBottomMarginToNextStep() : common.getInactiveBottomMarginToNextStep();
     }
 
     Paint getIconColor() {
@@ -302,7 +294,7 @@ class Step {
             dyToNextStep = calculateYDistanceToButtons();
             dyToNextStep += continueButton.getHeight();
         }
-        dyToNextStep += getBottomMarginToNextStep(false);
+        dyToNextStep += getBottomMarginToNextStep();
         return dyToNextStep;
     }
 

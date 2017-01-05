@@ -314,15 +314,6 @@ public class StepTest {
         }
     }
 
-    public static class GivenStepIsTheLastOne extends GivenAStep {
-        @Test
-        public void getBottomMarginToNextStep_ShouldReturnZeroSizedMargin() {
-            int margin = step.getBottomMarginToNextStep(true);
-
-            assertThat(margin).isEqualTo(Step.ZERO_SIZE_MARGIN);
-        }
-    }
-
     public static class GivenStepIsInactive extends GivenAStep {
         @Before
         public void givenStepIsInactive() {
@@ -415,12 +406,10 @@ public class StepTest {
 
             assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
         }
-    }
 
-    public static class GivenStepIsInactiveAndInTheMiddle extends GivenStepIsInactive {
         @Test
         public void getBottomMarginToNextStep_ShouldReturnInactiveMargin() {
-            int margin = step.getBottomMarginToNextStep(false);
+            int margin = step.getBottomMarginToNextStep();
 
             assertThat(margin).isEqualTo(INACTIVE_BOTTOM_MARGIN);
         }
@@ -445,12 +434,10 @@ public class StepTest {
 
             assertThat(paint).isSameAs(TITLE_ACTIVE_PAINT);
         }
-    }
 
-    public static class GivenStepIsActiveAndInTheMiddle extends GivenStepIsActive {
         @Test
         public void getBottomMarginToNextStep_ShouldReturnActiveMargin() {
-            int margin = step.getBottomMarginToNextStep(false);
+            int margin = step.getBottomMarginToNextStep();
 
             assertThat(margin).isEqualTo(ACTIVE_BOTTOM_MARGIN);
         }

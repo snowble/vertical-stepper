@@ -371,10 +371,10 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureBottomMarginHeights_ShouldHaveMarginHeightsWithSingleElement() {
+        public void measureBottomMarginHeights_ShouldNotMeasureBottomMarginToNextStep() {
             stepper.measureStepBottomMarginHeights();
 
-            verify(mockedStep1).measureBottomMarginToNextStep(true);
+            verify(mockedStep1, never()).measureBottomMarginToNextStep();
         }
 
         @Test
@@ -592,11 +592,10 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureBottomMarginHeights_ShouldHaveMarginHeightsWithTwoElements() {
+        public void measureBottomMarginHeights_ShouldMeasureBottomMarginToNextStepOnce() {
             stepper.measureStepBottomMarginHeights();
 
-            verify(mockedStep1).measureBottomMarginToNextStep(false);
-            verify(mockedStep2).measureBottomMarginToNextStep(true);
+            verify(mockedStep1).measureBottomMarginToNextStep();
         }
 
         @Test
