@@ -161,7 +161,7 @@ public class StepTest {
         }
 
         @Test
-        public void calculateStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
+        public void measureStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
             int iconDimension = common.getIconDimension();
             float lessThanHalfIconHeight = (iconDimension - 2) / 2;
             VerticalStepper.Step step = new TestStep(common, 0, lessThanHalfIconHeight, 0, lessThanHalfIconHeight);
@@ -173,7 +173,7 @@ public class StepTest {
         }
 
         @Test
-        public void calculateStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
+        public void measureStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
             float twiceIconHeight = common.getIconDimension() * 2;
             VerticalStepper.Step step = new TestStep(common, 0, twiceIconHeight, 0, twiceIconHeight);
 
