@@ -616,7 +616,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private int calculateYDistanceToTextBottom(Step step) {
-        int dyToTextBottom = (int) step.getTitleBaselineRelativeToStepTop();
+        int dyToTextBottom = (int) step.getTitleBottomRelativeToStepTop();
         if (!step.isActive()) {
             dyToTextBottom += step.getSummaryBottomRelativeToTitleBottom();
         }
