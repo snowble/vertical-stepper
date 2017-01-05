@@ -1,4 +1,4 @@
-package com.snowble.android.verticalstepper.sample;
+package com.snowble.android.widget.verticalstepper.sample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

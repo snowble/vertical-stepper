@@ -5,12 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <com.snowble.android.verticalstepper.VerticalStepper
+    <com.snowble.android.widget.verticalstepper.VerticalStepper
         android:id="@+id/activity_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:iconColorActive="@color/colorAccent"
-        tools:context="com.snowble.android.verticalstepper.sample.MainActivity">
+        tools:context="com.snowble.android.widget.verticalstepper.sample.MainActivity">
 
         <LinearLayout
             app:step_title="Select an app"
@@ -66,5 +66,5 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
-    </com.snowble.android.verticalstepper.VerticalStepper>
+    </com.snowble.android.widget.verticalstepper.VerticalStepper>
 </ScrollView>

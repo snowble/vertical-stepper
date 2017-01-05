@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.snowble.android.verticalstepper.sample">
+          package="com.snowble.android.widget.verticalstepper.sample">
 
     <application
         android:name=".SampleApp"/>
