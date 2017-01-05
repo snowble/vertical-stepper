@@ -425,10 +425,9 @@ public class VerticalStepper extends ViewGroup {
             Step step = steps.get(i);
             View innerView = step.getInnerView();
 
-            LayoutParams lp = getInternalLayoutParams(innerView);
-            int innerViewHorizontalPadding = step.calculateInnerViewHorizontalUsedSpace();
-
             width = Math.max(width, step.calculateStepDecoratorWidth());
+
+            int innerViewHorizontalPadding = step.calculateInnerViewHorizontalUsedSpace();
 
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
