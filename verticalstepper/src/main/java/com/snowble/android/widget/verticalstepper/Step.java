@@ -221,22 +221,19 @@ class Step {
     }
 
     void measureTitleVerticalDimensions(int heightToCenterIn) {
-        TextPaint titlePaint = getTitleTextPaint();
         measureTitleBaseline(heightToCenterIn);
-        titleBottomRelativeToStepTop = titleBaselineRelativeToStepTop + titlePaint.getFontMetrics().bottom;
+        titleBottomRelativeToStepTop = titleBaselineRelativeToStepTop + getTitleTextPaint().getFontMetrics().bottom;
     }
 
     private void measureTitleBaseline(int heightToCenterIn) {
-        TextPaint titlePaint = getTitleTextPaint();
-        titlePaint.getTextBounds(title, 0, 1, TMP_RECT_TITLE_TEXT_BOUNDS);
+        getTitleTextPaint().getTextBounds(title, 0, 1, TMP_RECT_TITLE_TEXT_BOUNDS);
         titleBaselineRelativeToStepTop = (heightToCenterIn / 2) + (TMP_RECT_TITLE_TEXT_BOUNDS.height() / 2);
     }
 
     void measureSummaryVerticalDimensions() {
-        TextPaint summaryPaint = common.getSummaryTextPaint();
         measureSummaryBaseline();
         summaryBottomRelativeToTitleBottom =
-                summaryBaselineRelativeToTitleBottom + summaryPaint.getFontMetrics().bottom;
+                summaryBaselineRelativeToTitleBottom + common.getSummaryTextPaint().getFontMetrics().bottom;
     }
 
     private void measureSummaryBaseline() {
