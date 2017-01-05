@@ -358,8 +358,8 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void measureStepBottomMarginHeights() {
-        for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
-            steps.get(i).measureBottomMarginToNextStep(i == innerViewsSize - 1);
+        for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize - 1; i++) {
+            steps.get(i).measureBottomMarginToNextStep();
         }
     }
 
