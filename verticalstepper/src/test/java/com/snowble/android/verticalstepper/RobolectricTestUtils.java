@@ -24,9 +24,6 @@ public class RobolectricTestUtils {
         attributeSetBuilder.addAttribute(android.R.attr.layout_height, "wrap_content");
         attributeSetBuilder.addAttribute(R.attr.step_title, "title");
 
-        VerticalStepper.LayoutParams lp =
-                new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
-
-        return lp;
+        return new VerticalStepper.LayoutParams(activity, attributeSetBuilder.build());
     }
 }
