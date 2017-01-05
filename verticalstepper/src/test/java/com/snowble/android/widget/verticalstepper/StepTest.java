@@ -2,6 +2,7 @@ package com.snowble.android.widget.verticalstepper;
 
 import android.app.Activity;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatButton;
@@ -326,6 +327,56 @@ public class StepTest {
         @Before
         public void givenStepIsInactive() {
             step.setActive(false);
+        }
+
+        @Test
+        public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
+            TextPaint paint = mock(TextPaint.class);
+            common.setTitleInactiveTextPaint(paint);
+
+            step.measureTitleHorizontalDimensions();
+
+            verify(paint).measureText(eq(step.getTitle()));
+        }
+
+        @Test
+        public void measureSummaryHorizontalDimensions_MeasuresUsingSummaryPaint() {
+            TextPaint paint = mock(TextPaint.class);
+            common.setSummaryTextPaint(paint);
+
+            step.measureSummaryHorizontalDimensions();
+
+            verify(paint).measureText(eq(step.getSummary()));
+        }
+
+        @Test
+        public void measureTitleVerticalDimensions_MeasuresUsingTitlePaint() {
+            TextPaint paint = mock(TextPaint.class);
+            Paint.FontMetrics metrics = mock(Paint.FontMetrics.class);
+            when(paint.getFontMetrics()).thenReturn(metrics);
+
+            common.setTitleInactiveTextPaint(paint);
+
+            step.measureTitleVerticalDimensions(0);
+
+            // verify that the baseline is being measured using the text bounds
+            verify(paint).getTextBounds(eq(step.getTitle()), eq(0), eq(1), any(Rect.class));
+            // verify that the bottom is being measured using the font metrics
+            verify(paint).getFontMetrics();
+        }
+
+        @Test
+        public void measureSummaryVerticalDimensions_MeasuresUsingSummaryPaint() {
+            TextPaint paint = mock(TextPaint.class);
+            Paint.FontMetrics metrics = mock(Paint.FontMetrics.class);
+            when(paint.getFontMetrics()).thenReturn(metrics);
+
+            common.setSummaryTextPaint(paint);
+
+            step.measureSummaryVerticalDimensions();
+
+            // verify that the baseline and bottom are measured using the font metrics
+            verify(paint, times(2)).getFontMetrics();
         }
 
         @Test
