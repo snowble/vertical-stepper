@@ -6,7 +6,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        applicationId "com.snowble.android.verticalstepper.sample"
+        applicationId "com.snowble.android.widget.verticalstepper.sample"
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

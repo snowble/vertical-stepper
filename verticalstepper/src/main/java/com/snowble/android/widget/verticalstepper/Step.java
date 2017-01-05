@@ -1,4 +1,4 @@
-package com.snowble.android.verticalstepper;
+package com.snowble.android.widget.verticalstepper;
 
 import android.graphics.Paint;
 import android.graphics.Rect;
