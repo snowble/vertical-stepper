@@ -988,15 +988,6 @@ public class VerticalStepper extends ViewGroup {
             setDecoratorHeight(Math.max(iconDimension, textTotalHeight));
         }
 
-        int calculateStepDecoratorHeight() {
-            int iconDimension = common.getIconDimension();
-            measureTitleVerticalDimensions(iconDimension);
-            measureSummaryVerticalDimensions();
-            int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
-                    + getSummaryBottomRelativeToTitleBottom());
-            return Math.max(iconDimension, textTotalHeight);
-        }
-
         static class Common {
             private static final int INVALID_INT = -1;
 
