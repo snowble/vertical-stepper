@@ -584,7 +584,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureStepDecoratorHeights_ShouldHaveDecoratorHeightsWithTwoElements() {
+        public void measureStepDecoratorHeights_ShouldMeasureStepDecoratorHeightTwice() {
             stepper.measureStepDecoratorHeights();
 
             verify(mockedStep1).measureStepDecoratorHeight();
