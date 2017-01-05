@@ -39,14 +39,14 @@ public class StepTest {
         @Before
         public void givenCommonValues() {
             common = new VerticalStepper.Step.Common();
-            common.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT);
-            common.setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT);
-            common.setIconDimension(ICON_DIMENSION);
-            common.setIconMarginRight(ICON_MARGIN_RIGHT);
-            common.setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT);
-            common.setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT);
-            common.setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN);
-            common.setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
+            common.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT)
+                    .setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT)
+                    .setIconDimension(ICON_DIMENSION)
+                    .setIconMarginRight(ICON_MARGIN_RIGHT)
+                    .setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT)
+                    .setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT)
+                    .setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN)
+                    .setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
         }
     }
 

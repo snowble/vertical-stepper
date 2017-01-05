@@ -115,25 +115,29 @@ public class VerticalStepper extends ViewGroup {
         int iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
                 ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
 
-        commonStepValues.setIconActiveBackgroundPaint(createIconBackground(iconActiveColor));
-        commonStepValues.setIconInactiveBackgroundPaint(createIconBackground(iconInactiveColor));
+        commonStepValues
+                .setIconActiveBackgroundPaint(createIconBackground(iconActiveColor))
+                .setIconInactiveBackgroundPaint(createIconBackground(iconInactiveColor));
     }
 
     @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
     private void initNavButtonPropertiesFromAttrs(TypedArray a) {
         int continueButtonStyle = a.getResourceId(
                 R.styleable.VerticalStepper_continueButtonStyle, R.style.Widget_AppCompat_Button_Colored);
-        commonStepValues.setContinueButtonStyle(continueButtonStyle);
-        commonStepValues.setContinueButtonContextWrapper(new ContextThemeWrapper(context, continueButtonStyle));
+        commonStepValues
+                .setContinueButtonStyle(continueButtonStyle)
+                .setContinueButtonContextWrapper(new ContextThemeWrapper(context, continueButtonStyle));
     }
 
     private void initPadding() {
         outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
         outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
-        commonStepValues.setInactiveBottomMarginToNextStep(
-                resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step));
-        commonStepValues.setActiveBottomMarginToNextStep(
-                resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step));
+
+        commonStepValues
+                .setInactiveBottomMarginToNextStep(
+                        resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step))
+                .setActiveBottomMarginToNextStep(
+                        resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step));
     }
 
     private void initIconProperties() {
@@ -148,8 +152,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconMargins() {
-        commonStepValues.setIconMarginRight(resources.getDimensionPixelSize(R.dimen.icon_margin_right));
-        commonStepValues.setIconMarginVertical(resources.getDimensionPixelSize(R.dimen.icon_margin_vertical));
+        commonStepValues
+                .setIconMarginRight(resources.getDimensionPixelSize(R.dimen.icon_margin_right))
+                .setIconMarginVertical(resources.getDimensionPixelSize(R.dimen.icon_margin_vertical));
     }
 
     private Paint createIconBackground(int color) {
@@ -182,10 +187,10 @@ public class VerticalStepper extends ViewGroup {
     private void initTitleTextPaint() {
         TextPaint paint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
         paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        commonStepValues.setTitleActiveTextPaint(paint);
 
-        commonStepValues.setTitleInactiveTextPaint(
-                createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size));
+        commonStepValues
+                .setTitleActiveTextPaint(paint)
+                .setTitleInactiveTextPaint(createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size));
     }
 
     private void initSummaryProperties() {
@@ -206,8 +211,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initTouchViewProperties() {
-        commonStepValues.setTouchViewHeight(resources.getDimensionPixelSize(R.dimen.touch_height));
-        commonStepValues.setTouchViewBackground(getResolvedAttributeData(R.attr.selectableItemBackground, 0));
+        commonStepValues
+                .setTouchViewHeight(resources.getDimensionPixelSize(R.dimen.touch_height))
+                .setTouchViewBackground(getResolvedAttributeData(R.attr.selectableItemBackground, 0));
     }
 
     @VisibleForTesting
@@ -1023,144 +1029,162 @@ public class VerticalStepper extends ViewGroup {
                 return titleActiveTextPaint;
             }
 
-            public void setTitleActiveTextPaint(TextPaint titleActiveTextPaint) {
+            public Common setTitleActiveTextPaint(TextPaint titleActiveTextPaint) {
                 this.titleActiveTextPaint = titleActiveTextPaint;
+                return this;
             }
 
             public TextPaint getTitleInactiveTextPaint() {
                 return titleInactiveTextPaint;
             }
 
-            public void setTitleInactiveTextPaint(TextPaint titleInactiveTextPaint) {
+            public Common setTitleInactiveTextPaint(TextPaint titleInactiveTextPaint) {
                 this.titleInactiveTextPaint = titleInactiveTextPaint;
+                return this;
             }
 
             public int getTitleMarginBottomToInnerView() {
                 return titleMarginBottomToInnerView;
             }
 
-            public void setTitleMarginBottomToInnerView(int titleMarginBottomToInnerView) {
+            public Common setTitleMarginBottomToInnerView(int titleMarginBottomToInnerView) {
                 this.titleMarginBottomToInnerView = titleMarginBottomToInnerView;
+                return this;
             }
 
             public TextPaint getSummaryTextPaint() {
                 return summaryTextPaint;
             }
 
-            public void setSummaryTextPaint(TextPaint summaryTextPaint) {
+            public Common setSummaryTextPaint(TextPaint summaryTextPaint) {
                 this.summaryTextPaint = summaryTextPaint;
+                return this;
             }
 
             public Paint getIconActiveBackgroundPaint() {
                 return iconActiveBackgroundPaint;
             }
 
-            public void setIconActiveBackgroundPaint(Paint iconActiveBackgroundPaint) {
+            public Common setIconActiveBackgroundPaint(Paint iconActiveBackgroundPaint) {
                 this.iconActiveBackgroundPaint = iconActiveBackgroundPaint;
+                return this;
             }
 
             public Paint getIconInactiveBackgroundPaint() {
                 return iconInactiveBackgroundPaint;
             }
 
-            public void setIconInactiveBackgroundPaint(Paint iconInactiveBackgroundPaint) {
+            public Common setIconInactiveBackgroundPaint(Paint iconInactiveBackgroundPaint) {
                 this.iconInactiveBackgroundPaint = iconInactiveBackgroundPaint;
+                return this;
             }
 
             public TextPaint getIconTextPaint() {
                 return iconTextPaint;
             }
 
-            public void setIconTextPaint(TextPaint iconTextPaint) {
+            public Common setIconTextPaint(TextPaint iconTextPaint) {
                 this.iconTextPaint = iconTextPaint;
+                return this;
             }
 
             public int getIconDimension() {
                 return iconDimension;
             }
 
-            public void setIconDimension(int iconDimension) {
+            public Common setIconDimension(int iconDimension) {
                 this.iconDimension = iconDimension;
+                return this;
             }
 
             public int getIconMarginRight() {
                 return iconMarginRight;
             }
 
-            public void setIconMarginRight(int iconMarginRight) {
+            public Common setIconMarginRight(int iconMarginRight) {
                 this.iconMarginRight = iconMarginRight;
+                return this;
             }
 
             public int getIconMarginVertical() {
                 return iconMarginVertical;
             }
 
-            public void setIconMarginVertical(int iconMarginVertical) {
+            public Common setIconMarginVertical(int iconMarginVertical) {
                 this.iconMarginVertical = iconMarginVertical;
+                return this;
             }
 
             public int getActiveBottomMarginToNextStep() {
                 return activeBottomMarginToNextStep;
             }
 
-            public void setActiveBottomMarginToNextStep(int activeBottomMarginToNextStep) {
+            public Common setActiveBottomMarginToNextStep(int activeBottomMarginToNextStep) {
                 this.activeBottomMarginToNextStep = activeBottomMarginToNextStep;
+                return this;
             }
 
             public int getInactiveBottomMarginToNextStep() {
                 return inactiveBottomMarginToNextStep;
             }
 
-            public void setInactiveBottomMarginToNextStep(int inactiveBottomMarginToNextStep) {
+            public Common setInactiveBottomMarginToNextStep(int inactiveBottomMarginToNextStep) {
                 this.inactiveBottomMarginToNextStep = inactiveBottomMarginToNextStep;
+                return this;
             }
 
             public int getTouchViewHeight() {
                 return touchViewHeight;
             }
 
-            public void setTouchViewHeight(int touchViewHeight) {
+            public Common setTouchViewHeight(int touchViewHeight) {
                 this.touchViewHeight = touchViewHeight;
+                return this;
             }
 
             public int getTouchViewBackground() {
                 return touchViewBackground;
             }
 
-            public void setTouchViewBackground(int touchViewBackground) {
+            public Common setTouchViewBackground(int touchViewBackground) {
                 this.touchViewBackground = touchViewBackground;
+                return this;
             }
 
             public int getContinueButtonStyle() {
                 return continueButtonStyle;
             }
 
-            public void setContinueButtonStyle(int continueButtonStyle) {
+            public Common setContinueButtonStyle(int continueButtonStyle) {
                 this.continueButtonStyle = continueButtonStyle;
+                return this;
             }
 
             public ContextThemeWrapper getContinueButtonContextWrapper() {
                 return continueButtonContextWrapper;
             }
 
-            public void setContinueButtonContextWrapper(ContextThemeWrapper continueButtonContextWrapper) {
+            public Common setContinueButtonContextWrapper(ContextThemeWrapper continueButtonContextWrapper) {
                 this.continueButtonContextWrapper = continueButtonContextWrapper;
+                return this;
             }
 
             public int getConnectorWidth() {
                 return connectorWidth;
             }
 
-            public void setConnectorWidth(int connectorWidth) {
+            public Common setConnectorWidth(int connectorWidth) {
                 this.connectorWidth = connectorWidth;
+                return this;
             }
 
             public Paint getConnectorPaint() {
                 return connectorPaint;
             }
 
-            public void setConnectorPaint(Paint connectorPaint) {
+            public Common setConnectorPaint(Paint connectorPaint) {
                 this.connectorPaint = connectorPaint;
+                return this;
             }
 
             void validate() {
