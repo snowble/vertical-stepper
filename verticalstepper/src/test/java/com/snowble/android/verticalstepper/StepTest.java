@@ -250,27 +250,11 @@ public class StepTest {
         }
 
         @Test
-        public void calculateYDistanceToButtons_ShouldReturnTotalTextHeight() {
-            int yDistance = step.calculateYDistanceToButtons();
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
-        }
-
-        @Test
-        public void calculateYDistanceToNextStep_NotLastStep_ShouldReturnTotalTextHeightPlusBottomMargin() {
-            int yDistance = step.calculateYDistanceToNextStep(false);
+        public void calculateYDistanceToNextStep_ShouldReturnTotalTextHeightPlusBottomMargin() {
+            int yDistance = step.calculateYDistanceToNextStep();
 
             assertThat(yDistance)
                     .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT + INACTIVE_BOTTOM_MARGIN));
-        }
-
-        @Test
-        public void calculateYDistanceToNextStep_LastStep_ShouldReturnTotalTextHeight() {
-            int yDistance = step.calculateYDistanceToNextStep(true);
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
         }
     }
 
@@ -301,25 +285,14 @@ public class StepTest {
 
         @Test
         public void
-        calculateYDistanceToNextStep_NotLastStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeightPlusBottomMargin() {
+        calculateYDistanceToNextStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeightPlusBottomMargin() {
             int titleMargin = 20;
             common.setTitleMarginBottomToInnerView(titleMargin);
-            int yDistance = step.calculateYDistanceToNextStep(false);
+            int yDistance = step.calculateYDistanceToNextStep();
 
             assertThat(yDistance)
                     .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT
                             + STANDARD_CONTINUE_HEIGHT + ACTIVE_BOTTOM_MARGIN));
-        }
-
-        @Test
-        public void calculateYDistanceToNextStep_LastStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeight() {
-            int titleMargin = 20;
-            common.setTitleMarginBottomToInnerView(titleMargin);
-            int yDistance = step.calculateYDistanceToNextStep(true);
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT
-                            + STANDARD_CONTINUE_HEIGHT));
         }
     }
 
