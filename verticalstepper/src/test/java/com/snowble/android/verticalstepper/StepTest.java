@@ -34,11 +34,11 @@ public class StepTest {
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
     public static abstract class GivenCommonValues {
-        protected VerticalStepper.Step.Common common;
+        protected Step.Common common;
 
         @Before
         public void givenCommonValues() {
-            common = new VerticalStepper.Step.Common();
+            common = new Step.Common();
             common.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT)
                     .setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT)
                     .setIconDimension(ICON_DIMENSION)
@@ -57,7 +57,7 @@ public class StepTest {
 
         protected TestStep step;
 
-        protected class TestStep extends VerticalStepper.Step {
+        protected class TestStep extends Step {
             private float titleWidth;
             private float titleHeight;
             private float summaryWidth;
@@ -297,7 +297,7 @@ public class StepTest {
     }
 
     public static abstract class GivenAStep extends GivenCommonValues {
-        protected VerticalStepper.Step step;
+        protected Step step;
         protected VerticalStepper.LayoutParams layoutParams;
 
         @Before
@@ -308,7 +308,7 @@ public class StepTest {
             layoutParams = RobolectricTestUtils.createTestLayoutParams(activity);
             when(innerView.getLayoutParams()).thenReturn(layoutParams);
 
-            step = new VerticalStepper.Step(innerView, new VerticalStepper.InternalTouchView(activity),
+            step = new Step(innerView, new VerticalStepper.InternalTouchView(activity),
                     new AppCompatButton(activity), common);
         }
     }
@@ -318,7 +318,7 @@ public class StepTest {
         public void getBottomMarginToNextStep_ShouldReturnZeroSizedMargin() {
             int margin = step.getBottomMarginToNextStep(true);
 
-            assertThat(margin).isEqualTo(VerticalStepper.Step.ZERO_SIZE_MARGIN);
+            assertThat(margin).isEqualTo(Step.ZERO_SIZE_MARGIN);
         }
     }
 
