@@ -459,8 +459,9 @@ public class VerticalStepperTest {
             ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
             ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
             int width = 20;
+            int height = 80;
 
-            stepper.measureTouchView(width, mockTouchView1);
+            stepper.measureTouchView(width, height, mockTouchView1);
 
             verify(mockTouchView1).measure(wmsCaptor.capture(), hmsCaptor.capture());
 
@@ -470,7 +471,7 @@ public class VerticalStepperTest {
 
             int actualHms = hmsCaptor.getValue();
             assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
-            assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(stepper.commonStepValues.getTouchViewHeight());
+            assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(height);
         }
 
         @Test
