@@ -34,7 +34,27 @@ public class StepTest {
 
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-    public static abstract class GivenCommonValues {
+    public static abstract class GivenChildViews {
+        protected Activity activity;
+        protected View innerView;
+        protected VerticalStepper.LayoutParams layoutParams;
+        protected VerticalStepper.InternalTouchView touchView;
+        protected AppCompatButton continueButton;
+
+        @Before
+        public void givenChildViews() {
+            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
+            activity = activityController.create().get();
+
+            innerView = mock(View.class);
+            layoutParams = RobolectricTestUtils.createTestLayoutParams(activity);
+            when(innerView.getLayoutParams()).thenReturn(layoutParams);
+            touchView = mock(VerticalStepper.InternalTouchView.class);
+            continueButton = mock(AppCompatButton.class);
+        }
+    }
+
+    public static abstract class GivenCommonValues extends GivenChildViews {
         protected Step.Common common;
 
         @Before
@@ -52,10 +72,6 @@ public class StepTest {
     }
 
     public static abstract class GivenATestStep extends GivenCommonValues {
-        protected View innerView;
-        protected VerticalStepper.InternalTouchView touchView;
-        protected AppCompatButton continueButton;
-
         protected TestStep step;
 
         protected class TestStep extends Step {
@@ -141,9 +157,6 @@ public class StepTest {
 
         @Before
         public void givenATestStep() {
-            innerView = mock(View.class);
-            touchView = mock(VerticalStepper.InternalTouchView.class);
-            continueButton = mock(AppCompatButton.class);
             step = new TestStep();
         }
     }
@@ -272,18 +285,10 @@ public class StepTest {
 
     public static abstract class GivenAStep extends GivenCommonValues {
         protected Step step;
-        protected VerticalStepper.LayoutParams layoutParams;
 
         @Before
         public void givenAStep() {
-            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
-            Activity activity = activityController.create().get();
-            View innerView = mock(View.class);
-            layoutParams = RobolectricTestUtils.createTestLayoutParams(activity);
-            when(innerView.getLayoutParams()).thenReturn(layoutParams);
-
-            step = new Step(innerView, new VerticalStepper.InternalTouchView(activity),
-                    new AppCompatButton(activity), common);
+            step = new Step(innerView, touchView, continueButton, common);
         }
     }
 
