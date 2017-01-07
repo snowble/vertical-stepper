@@ -254,7 +254,8 @@ class Step {
     }
 
     static class Common {
-        private final Context context;
+        private final Resources resources;
+        private final Resources.Theme theme;
 
         private final int iconDimension;
         private final int iconMarginRight;
@@ -283,8 +284,8 @@ class Step {
         private final Rect tempRectTitleTextBounds;
 
         Common(Context context, int iconActiveColor, int iconInactiveColor) {
-            this.context = context;
-            Resources resources = context.getResources();
+            resources = context.getResources();
+            theme = context.getTheme();
 
             iconDimension = resources.getDimensionPixelSize(R.dimen.icon_diameter);
             iconMarginRight = resources.getDimensionPixelSize(R.dimen.icon_margin_right);
@@ -327,13 +328,13 @@ class Step {
             TextPaint textPaint = new TextPaint();
             textPaint.setColor(getColor(colorRes));
             textPaint.setAntiAlias(true);
-            int titleTextSize = context.getResources().getDimensionPixelSize(fontDimenRes);
+            int titleTextSize = resources.getDimensionPixelSize(fontDimenRes);
             textPaint.setTextSize(titleTextSize);
             return textPaint;
         }
 
         private int getColor(int colorRes) {
-            return ResourcesCompat.getColor(context.getResources(), colorRes, context.getTheme());
+            return ResourcesCompat.getColor(resources, colorRes, theme);
         }
 
         int getIconDimension() {
