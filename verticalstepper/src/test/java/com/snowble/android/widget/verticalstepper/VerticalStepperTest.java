@@ -35,7 +35,7 @@ public class VerticalStepperTest {
         protected ArgumentMatcher<Integer> isGreaterThanZero;
 
         @Before
-        public void beforeStepperContext() {
+        public void givenAStepper() {
             ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
             activity = activityController.create().get();
             stepper = new VerticalStepper(activity);
@@ -180,7 +180,7 @@ public class VerticalStepperTest {
         protected Step mockedStep1;
 
         @Before
-        public void beforeSingleStepContext() {
+        public void givenOneStep() {
             mockInnerView1 = mock(View.class);
             mockLayoutParams1 = mock(VerticalStepper.LayoutParams.class);
             when(mockInnerView1.getLayoutParams()).thenReturn(mockLayoutParams1);
@@ -527,7 +527,7 @@ public class VerticalStepperTest {
         protected Step mockedStep2;
 
         @Before
-        public void beforeTwoStepsContext() {
+        public void givenTwoSteps() {
             mockInnerView2 = mock(View.class);
             mockLayoutParams2 = mock(VerticalStepper.LayoutParams.class);
             when(mockInnerView2.getLayoutParams()).thenReturn(mockLayoutParams2);
