@@ -23,14 +23,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class StepTest {
-    private static final TextPaint TITLE_ACTIVE_PAINT = new TextPaint();
-    private static final TextPaint TITLE_INACTIVE_PAINT = new TextPaint();
-    private static final Paint ICON_ACTIVE_PAINT = new TextPaint();
-    private static final Paint ICON_INACTIVE_PAINT = new TextPaint();
-    private static final int ICON_DIMENSION = 24;
-    private static final int ICON_MARGIN_RIGHT = 12;
-    private static final int ACTIVE_BOTTOM_MARGIN = 48;
-    private static final int INACTIVE_BOTTOM_MARGIN = 40;
+    private static final int ICON_ACTIVE_COLOR = R.color.bg_active_icon;
+    private static final int ICON_INACTIVE_COLOR = R.color.bg_inactive_icon;
 
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
@@ -52,6 +46,10 @@ public class StepTest {
             touchView = mock(VerticalStepper.InternalTouchView.class);
             continueButton = mock(AppCompatButton.class);
         }
+
+        protected Step createStep(Step.Common common) {
+            return new Step(innerView, touchView, continueButton, common);
+        }
     }
 
     public static abstract class GivenCommonValues extends GivenChildViews {
@@ -59,15 +57,7 @@ public class StepTest {
 
         @Before
         public void givenCommonValues() {
-            common = new Step.Common();
-            common.setTitleActiveTextPaint(TITLE_ACTIVE_PAINT)
-                    .setTitleInactiveTextPaint(TITLE_INACTIVE_PAINT)
-                    .setIconDimension(ICON_DIMENSION)
-                    .setIconMarginRight(ICON_MARGIN_RIGHT)
-                    .setIconActiveBackgroundPaint(ICON_ACTIVE_PAINT)
-                    .setIconInactiveBackgroundPaint(ICON_INACTIVE_PAINT)
-                    .setActiveBottomMarginToNextStep(ACTIVE_BOTTOM_MARGIN)
-                    .setInactiveBottomMarginToNextStep(INACTIVE_BOTTOM_MARGIN);
+            common = new Step.Common(activity, ICON_ACTIVE_COLOR, ICON_INACTIVE_COLOR);
         }
     }
 
@@ -180,7 +170,7 @@ public class StepTest {
             int iconWidth = step.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
-                    .isEqualTo(ICON_DIMENSION + ICON_MARGIN_RIGHT);
+                    .isEqualTo(common.getIconDimension() + common.getIconMarginRight());
         }
 
         @Test
@@ -260,7 +250,8 @@ public class StepTest {
             int yDistance = step.calculateYDistanceToNextStep();
 
             assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT + INACTIVE_BOTTOM_MARGIN));
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT
+                            + common.getInactiveBottomMarginToNextStep()));
         }
     }
 
@@ -273,13 +264,12 @@ public class StepTest {
         @Test
         public void
         calculateYDistanceToNextStep_ShouldReturnTitleHeightPlusTitleMarginPlusTotalInnerHeightPlusBottomMargin() {
-            int titleMargin = 20;
-            common.setTitleMarginBottomToInnerView(titleMargin);
             int yDistance = step.calculateYDistanceToNextStep();
 
             assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT
-                            + STANDARD_CONTINUE_HEIGHT + ACTIVE_BOTTOM_MARGIN));
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + common.getTitleMarginBottomToInnerView()
+                            + STANDARD_INNER_HEIGHT + STANDARD_CONTINUE_HEIGHT
+                            + common.getActiveBottomMarginToNextStep()));
         }
     }
 
@@ -288,7 +278,7 @@ public class StepTest {
 
         @Before
         public void givenAStep() {
-            step = new Step(innerView, touchView, continueButton, common);
+            step = createStep(common);
         }
     }
 
@@ -299,67 +289,17 @@ public class StepTest {
         }
 
         @Test
-        public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
-            TextPaint paint = mock(TextPaint.class);
-            common.setTitleInactiveTextPaint(paint);
-
-            step.measureTitleHorizontalDimensions();
-
-            verify(paint).measureText(eq(step.getTitle()));
-        }
-
-        @Test
-        public void measureSummaryHorizontalDimensions_MeasuresUsingSummaryPaint() {
-            TextPaint paint = mock(TextPaint.class);
-            common.setSummaryTextPaint(paint);
-
-            step.measureSummaryHorizontalDimensions();
-
-            verify(paint).measureText(eq(step.getSummary()));
-        }
-
-        @Test
-        public void measureTitleVerticalDimensions_MeasuresUsingTitlePaint() {
-            TextPaint paint = mock(TextPaint.class);
-            Paint.FontMetrics metrics = mock(Paint.FontMetrics.class);
-            when(paint.getFontMetrics()).thenReturn(metrics);
-
-            common.setTitleInactiveTextPaint(paint);
-
-            step.measureTitleVerticalDimensions(0);
-
-            // verify that the baseline is being measured using the text bounds
-            verify(paint).getTextBounds(eq(step.getTitle()), eq(0), eq(1), any(Rect.class));
-            // verify that the bottom is being measured using the font metrics
-            verify(paint).getFontMetrics();
-        }
-
-        @Test
-        public void measureSummaryVerticalDimensions_MeasuresUsingSummaryPaint() {
-            TextPaint paint = mock(TextPaint.class);
-            Paint.FontMetrics metrics = mock(Paint.FontMetrics.class);
-            when(paint.getFontMetrics()).thenReturn(metrics);
-
-            common.setSummaryTextPaint(paint);
-
-            step.measureSummaryVerticalDimensions();
-
-            // verify that the baseline and bottom are measured using the font metrics
-            verify(paint, times(2)).getFontMetrics();
-        }
-
-        @Test
         public void getIconColor_ShouldReturnInactiveStepPaint() {
             Paint paint = step.getIconColor();
 
-            assertThat(paint).isSameAs(ICON_INACTIVE_PAINT);
+            assertThat(paint).isSameAs(common.getIconInactiveBackgroundPaint());
         }
 
         @Test
         public void getTitleTextPaint_ShouldReturnInactiveStepPaint() {
             TextPaint paint = step.getTitleTextPaint();
 
-            assertThat(paint).isSameAs(TITLE_INACTIVE_PAINT);
+            assertThat(paint).isSameAs(common.getTitleInactiveTextPaint());
         }
 
         @Test
@@ -389,7 +329,7 @@ public class StepTest {
         public void getBottomMarginToNextStep_ShouldReturnInactiveMargin() {
             int margin = step.getBottomMarginToNextStep();
 
-            assertThat(margin).isEqualTo(INACTIVE_BOTTOM_MARGIN);
+            assertThat(margin).isEqualTo(common.getInactiveBottomMarginToNextStep());
         }
     }
 
@@ -400,24 +340,81 @@ public class StepTest {
         }
 
         @Test
-        public void getIconColor_ShouldReturnInactiveStepPaint() {
+        public void getIconColor_ShouldReturnActiveStepPaint() {
             Paint paint = step.getIconColor();
 
-            assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
+            assertThat(paint).isSameAs(common.getIconActiveBackgroundPaint());
         }
 
         @Test
         public void getTitleTextPaint_ShouldReturnActiveStepPaint() {
             TextPaint paint = step.getTitleTextPaint();
 
-            assertThat(paint).isSameAs(TITLE_ACTIVE_PAINT);
+            assertThat(paint).isSameAs(common.getTitleActiveTextPaint());
         }
 
         @Test
         public void getBottomMarginToNextStep_ShouldReturnActiveMargin() {
             int margin = step.getBottomMarginToNextStep();
 
-            assertThat(margin).isEqualTo(ACTIVE_BOTTOM_MARGIN);
+            assertThat(margin).isEqualTo(common.getActiveBottomMarginToNextStep());
+        }
+    }
+
+    public static class GivenMockedCommon extends GivenChildViews {
+        private TextPaint titlePaint;
+        private TextPaint summaryPaint;
+        private Rect titleRect;
+
+        private Step step;
+
+        @Before
+        public void givenMockedCommon() {
+            Step.Common common = mock(Step.Common.class);
+
+            titlePaint = mock(TextPaint.class);
+            titleRect = mock(Rect.class);
+            when(titlePaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
+            when(common.getTitleInactiveTextPaint()).thenReturn(titlePaint);
+            when(common.getTempRectTitleTextBounds()).thenReturn(titleRect);
+
+            summaryPaint = mock(TextPaint.class);
+            when(summaryPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
+            when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
+
+            step = createStep(common);
+        }
+
+        @Test
+        public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
+            step.measureTitleHorizontalDimensions();
+
+            verify(titlePaint).measureText(eq(step.getTitle()));
+        }
+
+        @Test
+        public void measureSummaryHorizontalDimensions_MeasuresUsingSummaryPaint() {
+            step.measureSummaryHorizontalDimensions();
+
+            verify(summaryPaint).measureText(eq(step.getSummary()));
+        }
+
+        @Test
+        public void measureTitleVerticalDimensions_MeasuresUsingTitlePaint() {
+            step.measureTitleVerticalDimensions(0);
+
+            // verify that the baseline is being measured using the text bounds
+            verify(titlePaint).getTextBounds(eq(step.getTitle()), eq(0), eq(1), eq(titleRect));
+            // verify that the bottom is being measured using the font metrics
+            verify(titlePaint).getFontMetrics();
+        }
+
+        @Test
+        public void measureSummaryVerticalDimensions_MeasuresUsingSummaryPaint() {
+            step.measureSummaryVerticalDimensions();
+
+            // verify that the baseline and bottom are measured using the font metrics
+            verify(summaryPaint, times(2)).getFontMetrics();
         }
     }
 }

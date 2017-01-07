@@ -8,8 +8,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -39,9 +37,12 @@ public class VerticalStepper extends ViewGroup {
     int outerHorizontalPadding;
     @VisibleForTesting
     int outerVerticalPadding;
-
-    private RectF tmpRectIconBackground;
-    private Rect tmpRectIconTextBounds;
+    @VisibleForTesting
+    int iconInactiveColor;
+    @VisibleForTesting
+    int iconActiveColor;
+    @VisibleForTesting
+    int continueButtonStyle;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -81,16 +82,11 @@ public class VerticalStepper extends ViewGroup {
 
         context = getContext();
         resources = getResources();
-        commonStepValues = new Step.Common();
 
         initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
-        initIconProperties();
-        initTitleProperties();
-        initSummaryProperties();
-        initTouchViewProperties();
-        initConnectorProperties();
 
+        commonStepValues = new Step.Common(context, iconActiveColor, iconInactiveColor);
         steps = new ArrayList<>();
     }
 
@@ -109,133 +105,21 @@ public class VerticalStepper extends ViewGroup {
     private void initIconPropertiesFromAttrs(TypedArray a) {
         int defaultActiveColor =
                 ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.colorPrimary, R.color.bg_active_icon);
-        int iconActiveColor = a.getColor(R.styleable.VerticalStepper_iconColorActive,
+        iconActiveColor = a.getColor(R.styleable.VerticalStepper_iconColorActive,
                 ResourcesCompat.getColor(resources, defaultActiveColor, context.getTheme()));
-        int iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
+        iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
                 ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
-
-        commonStepValues
-                .setIconActiveBackgroundPaint(createIconBackground(iconActiveColor))
-                .setIconInactiveBackgroundPaint(createIconBackground(iconInactiveColor));
     }
 
     @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
     private void initNavButtonPropertiesFromAttrs(TypedArray a) {
-        int continueButtonStyle = a.getResourceId(
+        continueButtonStyle = a.getResourceId(
                 R.styleable.VerticalStepper_continueButtonStyle, R.style.Widget_AppCompat_Button_Colored);
-        commonStepValues
-                .setContinueButtonStyle(continueButtonStyle)
-                .setContinueButtonContextWrapper(new ContextThemeWrapper(context, continueButtonStyle));
     }
 
     private void initPadding() {
         outerHorizontalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_horizontal);
         outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
-
-        commonStepValues
-                .setInactiveBottomMarginToNextStep(
-                        resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step))
-                .setActiveBottomMarginToNextStep(
-                        resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step));
-    }
-
-    private void initIconProperties() {
-        initIconDimension();
-        initIconMargins();
-        initIconTextPaint();
-        initIconTmpObjects();
-    }
-
-    private void initIconDimension() {
-        commonStepValues.setIconDimension(resources.getDimensionPixelSize(R.dimen.icon_diameter));
-    }
-
-    private void initIconMargins() {
-        commonStepValues
-                .setIconMarginRight(resources.getDimensionPixelSize(R.dimen.icon_margin_right))
-                .setIconMarginVertical(resources.getDimensionPixelSize(R.dimen.icon_margin_vertical));
-    }
-
-    private Paint createIconBackground(int color) {
-        Paint paint = new Paint();
-        paint.setColor(color);
-        paint.setAntiAlias(true);
-        return paint;
-    }
-
-    private void initIconTextPaint() {
-        commonStepValues.setIconTextPaint(createTextPaint(R.color.white, R.dimen.icon_font_size));
-    }
-
-    private void initIconTmpObjects() {
-        int iconDimension = commonStepValues.getIconDimension();
-        tmpRectIconBackground = new RectF(0, 0, iconDimension, iconDimension);
-        tmpRectIconTextBounds = new Rect();
-    }
-
-    private void initTitleProperties() {
-        initTitleDimensions();
-        initTitleTextPaint();
-    }
-
-    private void initTitleDimensions() {
-        commonStepValues.setTitleMarginBottomToInnerView(
-                resources.getDimensionPixelSize(R.dimen.title_margin_bottom_to_inner_view));
-    }
-
-    private void initTitleTextPaint() {
-        TextPaint paint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
-        paint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-
-        commonStepValues
-                .setTitleActiveTextPaint(paint)
-                .setTitleInactiveTextPaint(createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size));
-    }
-
-    private void initSummaryProperties() {
-        initSummaryTextPaint();
-    }
-
-    private void initSummaryTextPaint() {
-        commonStepValues.setSummaryTextPaint(createTextPaint(R.color.summary_color, R.dimen.summary_font_size));
-    }
-
-    private TextPaint createTextPaint(int colorRes, int fontDimenRes) {
-        TextPaint textPaint = new TextPaint();
-        setPaintColor(textPaint, colorRes);
-        textPaint.setAntiAlias(true);
-        int titleTextSize = resources.getDimensionPixelSize(fontDimenRes);
-        textPaint.setTextSize(titleTextSize);
-        return textPaint;
-    }
-
-    private void initTouchViewProperties() {
-        commonStepValues
-                .setTouchViewHeight(resources.getDimensionPixelSize(R.dimen.touch_height))
-                .setTouchViewBackground(
-                        ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.selectableItemBackground, 0));
-    }
-
-    private void initConnectorProperties() {
-        initConnectorDimension();
-        initConnectorPaint();
-    }
-
-    private void initConnectorDimension() {
-        commonStepValues.setConnectorWidth(resources.getDimensionPixelSize(R.dimen.connector_width));
-    }
-
-    private void initConnectorPaint() {
-        Paint connectorPaint = new Paint();
-        setPaintColor(connectorPaint, R.color.connector_color);
-        connectorPaint.setAntiAlias(true);
-        connectorPaint.setStrokeWidth(commonStepValues.getConnectorWidth());
-        commonStepValues.setConnectorPaint(connectorPaint);
-    }
-
-    private void setPaintColor(Paint paint, int colorRes) {
-        int color = ResourcesCompat.getColor(resources, colorRes, context.getTheme());
-        paint.setColor(color);
     }
 
     @Override
@@ -246,12 +130,11 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void initStepViews() {
-        commonStepValues.validate();
+        ContextThemeWrapper contextWrapper = new ContextThemeWrapper(context, continueButtonStyle);
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             initStepView(new Step(getChildAt(i), new InternalTouchView(context),
-                    new AppCompatButton(commonStepValues.getContinueButtonContextWrapper(), null, 0), commonStepValues)
-            );
+                    new AppCompatButton(contextWrapper, null, 0), commonStepValues));
         }
 
         for (Step v : steps) {
@@ -600,7 +483,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIconBackground(Canvas canvas, Step step) {
-        canvas.drawArc(tmpRectIconBackground, 0f, 360f, true, step.getIconColor());
+        canvas.drawArc(commonStepValues.getTempRectIconBackground(), 0f, 360f, true, step.getIconColor());
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -611,6 +494,7 @@ public class VerticalStepper extends ViewGroup {
         float width = iconTextPaint.measureText(stepNumberString);
         float centeredTextX = (iconDimension / 2) - (width / 2);
 
+        Rect tmpRectIconTextBounds = commonStepValues.getTempRectIconTextBounds();
         iconTextPaint.getTextBounds(stepNumberString, 0, 1, tmpRectIconTextBounds);
         float centeredTextY = (iconDimension / 2) + (tmpRectIconTextBounds.height() / 2);
 
