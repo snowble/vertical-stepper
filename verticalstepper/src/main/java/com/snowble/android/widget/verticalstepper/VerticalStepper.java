@@ -124,26 +124,26 @@ public class VerticalStepper extends ViewGroup {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        initStepViews();
+        initSteps();
     }
 
     @VisibleForTesting
-    void initStepViews() {
+    void initSteps() {
         ContextThemeWrapper contextWrapper = new ContextThemeWrapper(context, continueButtonStyle);
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            initStepView(new Step(getChildAt(i), new InternalTouchView(context),
+            initStep(new Step(getChildAt(i), new InternalTouchView(context),
                     new AppCompatButton(contextWrapper, null, 0), commonStepValues));
         }
 
-        for (Step v : steps) {
-            initTouchView(v);
-            initNavButtons(v);
+        for (Step s : steps) {
+            initTouchView(s);
+            initNavButtons(s);
         }
     }
 
     @VisibleForTesting
-    void initStepView(Step step) {
+    void initStep(Step step) {
         steps.add(step);
         step.getInnerView().setVisibility(View.GONE);
     }
