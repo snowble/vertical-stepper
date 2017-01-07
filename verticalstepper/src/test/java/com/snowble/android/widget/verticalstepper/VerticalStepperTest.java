@@ -203,6 +203,12 @@ public class VerticalStepperTest {
             when(continueButton.getMeasuredWidth()).thenReturn(continueWidth);
         }
 
+        void mockStepHeights(int decoratorHeight, int childrenVisibleHeight, int bottomMarginHeight, Step step) {
+            when(step.getDecoratorHeight()).thenReturn(decoratorHeight);
+            when(step.getChildrenVisibleHeight()).thenReturn(childrenVisibleHeight);
+            when(step.getBottomMarginHeight()).thenReturn(bottomMarginHeight);
+        }
+
         void assertExpectedStep1MeasureSpecs(int maxWidth, int maxHeight,
                                              int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
             assertExpectedStepMeasureSpecs(captureStep1MeasureSpecs(), mockedStep1, maxWidth, maxHeight,
@@ -416,6 +422,20 @@ public class VerticalStepperTest {
 
             assertThat(maxWidth)
                     .isEqualTo(continueWidth + innerUsedSpace);
+        }
+
+        @Test
+        public void calculateHeight_ShouldReturnVerticalPaddingPlusTotalStepHeight() {
+            int decoratorHeight = 100;
+            int childrenVisibleHeight = 400;
+            int bottomMarginHeight = 48;
+            mockStepHeights(decoratorHeight, childrenVisibleHeight, bottomMarginHeight, mockedStep1);
+
+            int width = stepper.calculateHeight();
+
+            assertThat(width)
+                    .isEqualTo(stepper.calculateVerticalPadding()
+                            + decoratorHeight + childrenVisibleHeight + bottomMarginHeight);
         }
     }
 
@@ -649,6 +669,21 @@ public class VerticalStepperTest {
             assertThat(maxWidth)
                     .isNotEqualTo(inner1Width + innerUsedSpace)
                     .isEqualTo(inner2Width + innerUsedSpace);
+        }
+
+        @Test
+        public void calculateHeight_ShouldReturnVerticalPaddingPlusTotalStepHeight() {
+            int decoratorHeight = 100;
+            int childrenVisibleHeight = 400;
+            int bottomMarginHeight = 48;
+            mockStepHeights(decoratorHeight, childrenVisibleHeight, bottomMarginHeight, mockedStep1);
+            mockStepHeights(decoratorHeight, childrenVisibleHeight, bottomMarginHeight, mockedStep2);
+
+            int width = stepper.calculateHeight();
+
+            assertThat(width)
+                    .isEqualTo(stepper.calculateVerticalPadding()
+                            + (2 * (decoratorHeight + childrenVisibleHeight + bottomMarginHeight)));
         }
     }
 }
