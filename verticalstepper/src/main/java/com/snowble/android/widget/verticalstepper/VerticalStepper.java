@@ -18,7 +18,6 @@ import android.support.v7.widget.AppCompatButton;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +107,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void initIconPropertiesFromAttrs(TypedArray a) {
-        int defaultActiveColor = getResolvedAttributeData(R.attr.colorPrimary, R.color.bg_active_icon);
+        int defaultActiveColor =
+                ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.colorPrimary, R.color.bg_active_icon);
         int iconActiveColor = a.getColor(R.styleable.VerticalStepper_iconColorActive,
                 ResourcesCompat.getColor(resources, defaultActiveColor, context.getTheme()));
         int iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
@@ -212,20 +212,8 @@ public class VerticalStepper extends ViewGroup {
     private void initTouchViewProperties() {
         commonStepValues
                 .setTouchViewHeight(resources.getDimensionPixelSize(R.dimen.touch_height))
-                .setTouchViewBackground(getResolvedAttributeData(R.attr.selectableItemBackground, 0));
-    }
-
-    @VisibleForTesting
-    int getResolvedAttributeData(int attr, int defaultData) {
-        TypedValue value = new TypedValue();
-        context.getTheme().resolveAttribute(attr, value, false);
-        int resolvedAttributeData;
-        if (value.type != TypedValue.TYPE_NULL) {
-            resolvedAttributeData = value.data;
-        } else {
-            resolvedAttributeData = defaultData;
-        }
-        return resolvedAttributeData;
+                .setTouchViewBackground(
+                        ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.selectableItemBackground, 0));
     }
 
     private void initConnectorProperties() {
