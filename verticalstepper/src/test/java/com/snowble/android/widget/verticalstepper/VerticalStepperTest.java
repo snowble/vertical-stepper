@@ -27,14 +27,104 @@ public class VerticalStepperTest {
 
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-    public abstract static class GivenAStepper {
+    public abstract static class GivenAnActivity {
         Activity activity;
+
+        @Before
+        public void givenAnActivity() {
+            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
+            activity = activityController.create().get();
+        }
+    }
+
+    public static class GivenTestStepper extends GivenAnActivity {
+        TestStepper stepper;
+
+        private class TestStepper extends VerticalStepper {
+            private boolean initStepsCalled;
+            private int initStepCallCount;
+            private int initTouchViewCallCount;
+            private int initNavButtonsCallCount;
+
+            public TestStepper() {
+                super(activity);
+            }
+
+            @Override
+            void initSteps() {
+                super.initSteps();
+                initStepsCalled = true;
+            }
+
+            boolean wasInitStepsCalled() {
+                return initStepsCalled;
+            }
+
+            @Override
+            void initStep(Step step) {
+                super.initStep(step);
+                initStepCallCount++;
+            }
+
+            int getInitStepCallCount() {
+                return initStepCallCount;
+            }
+
+            @Override
+            void initTouchView(Step step) {
+                initTouchViewCallCount++;
+            }
+
+            public int getInitTouchViewCallCount() {
+                return initTouchViewCallCount;
+            }
+
+            @Override
+            void initNavButtons(Step step) {
+                initNavButtonsCallCount++;
+            }
+
+            public int getInitNavButtonsCallCount() {
+                return initNavButtonsCallCount;
+            }
+        }
+
+        @Before
+        public void givenTestStepper() {
+            stepper = new TestStepper();
+        }
+
+        @Test
+        public void onAttachedToWindow_ShouldInitSteps() {
+            stepper.onAttachedToWindow();
+
+            assertThat(stepper.wasInitStepsCalled()).isTrue();
+        }
+
+        @Test
+        public void initSteps_ShouldInitStepsAndChildViews() {
+            View child1 = mock(View.class);
+            View child2 = mock(View.class);
+            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+            when(lp.getTitle()).thenReturn("title");
+            when(child1.getLayoutParams()).thenReturn(lp);
+            when(child2.getLayoutParams()).thenReturn(lp);
+            stepper.addView(child1);
+            stepper.addView(child2);
+
+            stepper.initSteps();
+
+            assertThat(stepper.getInitStepCallCount()).isEqualTo(2);
+            assertThat(stepper.getInitTouchViewCallCount()).isEqualTo(2);
+            assertThat(stepper.getInitNavButtonsCallCount()).isEqualTo(2);
+        }
+    }
+
+    public abstract static class GivenAStepper extends GivenAnActivity {
         VerticalStepper stepper;
 
         @Before
         public void givenAStepper() {
-            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
-            activity = activityController.create().get();
             stepper = new VerticalStepper(activity);
         }
     }
@@ -73,7 +163,7 @@ public class VerticalStepperTest {
 
         @Test
         public void initChildViews_ShouldHaveEmptyInnerViews() {
-            stepper.initStepViews();
+            stepper.initSteps();
 
             assertThat(stepper.steps).isEmpty();
         }
@@ -181,7 +271,7 @@ public class VerticalStepperTest {
             when(mockedStep1.getTouchView()).thenReturn(mockTouchView1);
             when(mockedStep1.getContinueButton()).thenReturn(mockContinueButton1);
 
-            stepper.initStepView(mockedStep1);
+            stepper.initStep(mockedStep1);
 
             clearInvocations(mockInnerView1);
             clearInvocations(mockLayoutParams1);
@@ -287,7 +377,7 @@ public class VerticalStepperTest {
 
         @Test
         public void initInnerView_ShouldSetVisibilityToGone() {
-            stepper.initStepView(mockedStep1);
+            stepper.initStep(mockedStep1);
 
             verify(mockInnerView1).setVisibility(View.GONE);
         }
@@ -543,7 +633,7 @@ public class VerticalStepperTest {
             when(mockedStep2.getTouchView()).thenReturn(mockTouchView2);
             when(mockedStep2.getContinueButton()).thenReturn(mockContinueButton2);
 
-            stepper.initStepView(mockedStep2);
+            stepper.initStep(mockedStep2);
 
             clearInvocations(mockInnerView2);
             clearInvocations(mockLayoutParams2);
