@@ -348,26 +348,6 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void measureTouchView_ShouldMeasureWidthAndHeightExactly() {
-            ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
-            ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
-            int width = 20;
-            int height = 80;
-
-            stepper.measureTouchView(width, height, mockTouchView1);
-
-            verify(mockTouchView1).measure(wmsCaptor.capture(), hmsCaptor.capture());
-
-            int actualWms = wmsCaptor.getValue();
-            assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
-            assertThat(View.MeasureSpec.getSize(actualWms)).isEqualTo(width);
-
-            int actualHms = hmsCaptor.getValue();
-            assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
-            assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(height);
-        }
-
-        @Test
         public void calculateWidth_ShouldReturnHorizontalPaddingAndStepWidth() {
             int decoratorWidth = 20;
             int innerUsedSpace = 20;
@@ -684,6 +664,29 @@ public class VerticalStepperTest {
             assertThat(width)
                     .isEqualTo(stepper.calculateVerticalPadding()
                             + (2 * (decoratorHeight + childrenVisibleHeight + bottomMarginHeight)));
+        }
+
+        @Test
+        public void measureTouchViews_ShouldMeasureAllWidthsAndHeightsExactly() {
+            int width = 20;
+            int height = 80;
+
+            stepper.measureTouchViews(width, height);
+
+            ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
+            ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
+            verify(mockTouchView1).measure(wmsCaptor.capture(), hmsCaptor.capture());
+            verify(mockTouchView2).measure(wmsCaptor.capture(), hmsCaptor.capture());
+
+            for (int actualWms : wmsCaptor.getAllValues()) {
+                assertThat(View.MeasureSpec.getMode(actualWms)).isEqualTo(View.MeasureSpec.EXACTLY);
+                assertThat(View.MeasureSpec.getSize(actualWms)).isEqualTo(width);
+            }
+
+            for (int actualHms : hmsCaptor.getAllValues()) {
+                assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
+                assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(height);
+            }
         }
     }
 }
