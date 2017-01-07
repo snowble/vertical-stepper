@@ -243,14 +243,6 @@ public class StepTest {
         }
 
         @Test
-        public void calculateYDistanceToTextBottom_ShouldReturnTotalTextHeight(){
-            int yDistance = step.calculateYDistanceToTextBottom();
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT));
-        }
-
-        @Test
         public void calculateYDistanceToNextStep_ShouldReturnTotalTextHeightPlusBottomMargin() {
             int yDistance = step.calculateYDistanceToNextStep();
 
@@ -263,25 +255,6 @@ public class StepTest {
         @Before
         public void givenActiveTestStepWithStandardHeights() {
             step.setActive(true);
-        }
-
-        @Test
-        public void calculateYDistanceToTextBottom_ShouldReturnTitleHeight(){
-            int yDistance = step.calculateYDistanceToTextBottom();
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT));
-        }
-
-        @Test
-        public void calculateYDistanceToButtons_ShouldReturnTitleHeightPlusTitleMarginPlusInnerHeight() {
-            int titleMargin = 20;
-            common.setTitleMarginBottomToInnerView(titleMargin);
-
-            int yDistance = step.calculateYDistanceToButtons();
-
-            assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + titleMargin + STANDARD_INNER_HEIGHT));
         }
 
         @Test
