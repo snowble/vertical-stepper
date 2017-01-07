@@ -45,6 +45,7 @@ public class VerticalStepperTest {
             private int initStepCallCount;
             private int initTouchViewCallCount;
             private int initNavButtonsCallCount;
+            private boolean doMeasurementCalled;
 
             public TestStepper() {
                 super(activity);
@@ -87,6 +88,15 @@ public class VerticalStepperTest {
             public int getInitNavButtonsCallCount() {
                 return initNavButtonsCallCount;
             }
+
+            @Override
+            void doMeasurement(int widthMeasureSpec, int heightMeasureSpec) {
+                doMeasurementCalled = true;
+            }
+
+            boolean wasDoMeasurementCalled() {
+                return doMeasurementCalled;
+            }
         }
 
         @Before
@@ -117,6 +127,14 @@ public class VerticalStepperTest {
             assertThat(stepper.getInitStepCallCount()).isEqualTo(2);
             assertThat(stepper.getInitTouchViewCallCount()).isEqualTo(2);
             assertThat(stepper.getInitNavButtonsCallCount()).isEqualTo(2);
+        }
+
+        @SuppressLint("WrongCall") // We're explicitly testing onMeasure
+        @Test
+        public void onMeasure_ShouldCallDoMeasurement() {
+            stepper.onMeasure(0, 0);
+
+            assertThat(stepper.wasDoMeasurementCalled()).isTrue();
         }
     }
 
