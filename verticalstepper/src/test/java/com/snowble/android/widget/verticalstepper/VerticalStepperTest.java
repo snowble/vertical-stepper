@@ -55,11 +55,9 @@ public class VerticalStepperTest {
         public void initPropertiesFromAttrs_NoAttrsSet_ShouldUseDefaults() {
             stepper.initPropertiesFromAttrs(null, 0, 0);
 
-            assertThat(stepper.commonStepValues.getIconActiveBackgroundPaint().getColor())
-                    .isEqualTo(getColor(R.color.bg_active_icon));
-            assertThat(stepper.commonStepValues.getIconInactiveBackgroundPaint().getColor())
-                    .isEqualTo(getColor(R.color.bg_inactive_icon));
-            assertThat(stepper.commonStepValues.getContinueButtonStyle())
+            assertThat(stepper.iconActiveColor).isEqualTo(getColor(R.color.bg_active_icon));
+            assertThat(stepper.iconInactiveColor).isEqualTo(getColor(R.color.bg_inactive_icon));
+            assertThat(stepper.continueButtonStyle)
                     .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Colored);
         }
 
@@ -73,11 +71,9 @@ public class VerticalStepperTest {
 
             stepper.initPropertiesFromAttrs(builder.build(), 0, 0);
 
-            assertThat(stepper.commonStepValues.getIconActiveBackgroundPaint().getColor())
-                    .isEqualTo(getColor(android.R.color.black));
-            assertThat(stepper.commonStepValues.getIconInactiveBackgroundPaint().getColor())
-                    .isEqualTo(getColor(android.R.color.darker_gray));
-            assertThat(stepper.commonStepValues.getContinueButtonStyle())
+            assertThat(stepper.iconActiveColor).isEqualTo(getColor(android.R.color.black));
+            assertThat(stepper.iconInactiveColor).isEqualTo(getColor(android.R.color.darker_gray));
+            assertThat(stepper.continueButtonStyle)
                     .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Borderless);
         }
 
