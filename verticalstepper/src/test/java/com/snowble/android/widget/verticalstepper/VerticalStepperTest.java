@@ -265,6 +265,20 @@ public class VerticalStepperTest {
             int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
             stepper.measureChildViews(wms, hms);
         }
+
+        protected void mockActiveState(boolean isActive) {
+            when(mockedStep1.isActive()).thenReturn(isActive);
+            int visibility = isActive ? View.VISIBLE : View.GONE;
+            when(mockContinueButton1.getVisibility()).thenReturn(visibility);
+            when(mockInnerView1.getVisibility()).thenReturn(visibility);
+        }
+
+        protected void assertActiveState(boolean expectedActiveState) {
+            verify(mockedStep1).setActive(expectedActiveState);
+            int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
+            verify(mockInnerView1).setVisibility(visibility);
+            verify(mockContinueButton1).setVisibility(visibility);
+        }
     }
 
     public static class GivenExactlyOneStep extends GivenOneStep {
@@ -331,114 +345,10 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void toggleStepExpandedState_Inactive_ShouldBecomeActiveAndExpanded() {
-            testStepToggle(false, View.GONE, true, View.VISIBLE);
-        }
-
-        @Test
-        public void toggleStepExpandedState_Active_ShouldBecomeInactiveAndCollapsed() {
-            testStepToggle(true, View.VISIBLE, false, View.GONE);
-        }
-
-        private void testStepToggle(boolean initialActivateState, int initialVisibility,
-                                    boolean finalExpectedActiveState, int finalExpectedVisibility) {
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
-            when(mockedStep1.isActive()).thenReturn(initialActivateState);
-
-            when(mockContinueButton1.getVisibility()).thenReturn(initialVisibility);
-
-            when(mockInnerView1.getVisibility()).thenReturn(initialVisibility);
-            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-
-            stepper.toggleStepExpandedState(mockedStep1);
-
-            verify(mockedStep1).setActive(finalExpectedActiveState);
-            verify(mockInnerView1).setVisibility(finalExpectedVisibility);
-            verify(mockContinueButton1).setVisibility(finalExpectedVisibility);
-        }
-
-        @Test
         public void measureBottomMarginHeights_ShouldNotMeasureBottomMarginToNextStep() {
             stepper.measureStepBottomMarginHeights();
 
             verify(mockedStep1, never()).measureBottomMarginToNextStep();
-        }
-
-        @Test
-        public void measureChildViews_Active_ShouldHaveChildrenVisibleHeightsWithActualHeight() {
-            final int innerViewHeight = 100;
-            final int buttonHeight = 50;
-            when(mockInnerView1.getMeasuredHeight()).thenReturn(innerViewHeight);
-            when(mockContinueButton1.getMeasuredHeight()).thenReturn(buttonHeight);
-            when(mockedStep1.isActive()).thenReturn(true);
-
-            int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-            stepper.measureChildViews(ms, ms);
-
-            verify(mockedStep1).setChildrenVisibleHeight(innerViewHeight + buttonHeight);
-        }
-
-        @Test
-        public void measureChildViews_InactiveNoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
-            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-            int innerVerticalUSedSpace = 20;
-            when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
-
-            int maxWidth = 1080;
-            int maxHeight = 1920;
-            measureChildViews(maxWidth, maxHeight);
-
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUSedSpace, 0);
-        }
-
-        @Test
-        public void measureChildViews_InactiveHasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
-            int horizontalMargin = 10;
-            int verticalMargin = 20;
-            VerticalStepper.LayoutParams lp =
-                    RobolectricTestUtils.createTestLayoutParams(activity,
-                            horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
-            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-            int innerVerticalUSedSpace = 20;
-            when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
-
-            int maxWidth = 1080;
-            int maxHeight = 1920;
-            measureChildViews(maxWidth, maxHeight);
-
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUSedSpace, 0);
-        }
-
-        @Test
-        public void measureChildViews_Active_ShouldMeasureNavButtonsAccountingForInnerView() {
-            when(mockedStep1.isActive()).thenReturn(true);
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
-            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-            int innerHeight = 200;
-            when(mockInnerView1.getMeasuredHeight()).thenReturn(innerHeight);
-
-            int maxWidth = 1080;
-            int maxHeight = 1920;
-            measureChildViews(maxWidth, maxHeight);
-
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
-                    stepper.steps.get(0).calculateInnerViewVerticalUsedSpace(), innerHeight);
-        }
-
-        @Test
-        public void measureChildViews_Inactive_ShouldMeasureChildrenAccountingForDecorator() {
-            int decoratorHeight = 100;
-            when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
-            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-
-            int maxWidth = 1080;
-            int maxHeight = 1920;
-            measureChildViews(maxWidth, maxHeight);
-
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
-                    stepper.steps.get(0).calculateInnerViewVerticalUsedSpace() + decoratorHeight, decoratorHeight);
         }
 
         @Test
@@ -516,6 +426,111 @@ public class VerticalStepperTest {
 
             assertThat(maxWidth)
                     .isEqualTo(continueWidth + innerUsedSpace);
+        }
+    }
+
+    public static class GivenExactlyOneActiveStep extends GivenOneStep {
+
+        @Before
+        public void givenExactlyOneActiveStep() {
+            mockActiveState(true);
+        }
+
+        @Test
+        public void toggleStepExpandedState_ShouldBecomeInactiveAndCollapsed() {
+            stepper.toggleStepExpandedState(mockedStep1);
+
+            assertActiveState(false);
+        }
+
+        @Test
+        public void measureChildViews_ShouldHaveChildrenVisibleHeightsWithActualHeight() {
+            final int innerViewHeight = 100;
+            final int buttonHeight = 50;
+            when(mockInnerView1.getMeasuredHeight()).thenReturn(innerViewHeight);
+            when(mockContinueButton1.getMeasuredHeight()).thenReturn(buttonHeight);
+
+            int ms = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            stepper.measureChildViews(ms, ms);
+
+            verify(mockedStep1).setChildrenVisibleHeight(innerViewHeight + buttonHeight);
+        }
+
+        @Test
+        public void measureChildViews_ShouldMeasureNavButtonsAccountingForInnerView() {
+            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+            int innerHeight = 200;
+            when(mockInnerView1.getMeasuredHeight()).thenReturn(innerHeight);
+
+            int maxWidth = 1080;
+            int maxHeight = 1920;
+            measureChildViews(maxWidth, maxHeight);
+
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
+                    stepper.steps.get(0).calculateInnerViewVerticalUsedSpace(), innerHeight);
+        }
+    }
+
+    public static class GivenExactlyOneInactiveStep extends GivenOneStep {
+
+        @Before
+        public void givenExactlyOneInactiveStep() {
+            mockActiveState(false);
+        }
+
+        @Test
+        public void toggleStepExpandedState_ShouldBecomeActiveAndExpanded() {
+            stepper.toggleStepExpandedState(mockedStep1);
+
+            assertActiveState(true);
+        }
+
+        @Test
+        public void measureChildViews_NoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+            int innerVerticalUSedSpace = 20;
+            when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
+
+            int maxWidth = 1080;
+            int maxHeight = 1920;
+            measureChildViews(maxWidth, maxHeight);
+
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUSedSpace, 0);
+        }
+
+        @Test
+        public void measureChildViews_HasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
+            int horizontalMargin = 10;
+            int verticalMargin = 20;
+            VerticalStepper.LayoutParams lp =
+                    RobolectricTestUtils.createTestLayoutParams(activity,
+                            horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
+            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+            int innerVerticalUSedSpace = 20;
+            when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
+
+            int maxWidth = 1080;
+            int maxHeight = 1920;
+            measureChildViews(maxWidth, maxHeight);
+
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUSedSpace, 0);
+        }
+
+        @Test
+        public void measureChildViews_ShouldMeasureChildrenAccountingForDecorator() {
+            int decoratorHeight = 100;
+            when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
+            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            when(mockInnerView1.getLayoutParams()).thenReturn(lp);
+
+            int maxWidth = 1080;
+            int maxHeight = 1920;
+            measureChildViews(maxWidth, maxHeight);
+
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
+                    stepper.steps.get(0).calculateInnerViewVerticalUsedSpace() + decoratorHeight, decoratorHeight);
         }
     }
 
