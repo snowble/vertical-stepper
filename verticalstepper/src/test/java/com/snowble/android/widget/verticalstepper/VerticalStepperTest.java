@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -29,23 +28,14 @@ public class VerticalStepperTest {
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
     public abstract static class GivenAStepper {
-        protected Activity activity;
-        protected VerticalStepper stepper;
-
-        protected ArgumentMatcher<Integer> isGreaterThanZero;
+        Activity activity;
+        VerticalStepper stepper;
 
         @Before
         public void givenAStepper() {
             ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
             activity = activityController.create().get();
             stepper = new VerticalStepper(activity);
-
-            isGreaterThanZero = new ArgumentMatcher<Integer>() {
-                @Override
-                public boolean matches(Integer arg) {
-                    return arg > 0;
-                }
-            };
         }
     }
 
@@ -173,11 +163,11 @@ public class VerticalStepperTest {
     }
 
     public abstract static class GivenOneStep extends GivenAStepper {
-        protected View mockInnerView1;
-        protected VerticalStepper.InternalTouchView mockTouchView1;
-        protected AppCompatButton mockContinueButton1;
-        protected VerticalStepper.LayoutParams mockLayoutParams1;
-        protected Step mockedStep1;
+        View mockInnerView1;
+        VerticalStepper.InternalTouchView mockTouchView1;
+        AppCompatButton mockContinueButton1;
+        VerticalStepper.LayoutParams mockLayoutParams1;
+        Step mockedStep1;
 
         @Before
         public void givenOneStep() {
@@ -200,39 +190,39 @@ public class VerticalStepperTest {
             clearInvocations(mockedStep1);
         }
 
-        protected void mockStep1Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
+        void mockStep1Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
             mockStepWidths(mockedStep1, mockInnerView1, mockContinueButton1,
                     decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
         }
 
-        protected void mockStepWidths(Step step, View innerView, AppCompatButton continueButton,
-                                      int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
+        void mockStepWidths(Step step, View innerView, AppCompatButton continueButton,
+                            int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
             when(step.calculateStepDecoratorWidth()).thenReturn(decoratorWidth);
             when(step.calculateInnerViewHorizontalUsedSpace()).thenReturn(innerUsedSpace);
             when(innerView.getMeasuredWidth()).thenReturn(innerWidth);
             when(continueButton.getMeasuredWidth()).thenReturn(continueWidth);
         }
 
-        protected void assertExpectedStep1MeasureSpecs(int maxWidth, int maxHeight,
-                                                       int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        void assertExpectedStep1MeasureSpecs(int maxWidth, int maxHeight,
+                                             int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
             assertExpectedStepMeasureSpecs(captureStep1MeasureSpecs(), mockedStep1, maxWidth, maxHeight,
                     additionalInnerUsedSpace, additionalContinueUsedSpace);
         }
 
-        protected List<Integer> captureStep1MeasureSpecs() {
+        List<Integer> captureStep1MeasureSpecs() {
             return captureStepMeasureSpecs(mockInnerView1, mockContinueButton1);
         }
 
-        protected List<Integer> captureStepMeasureSpecs(View innerView, View continueButton) {
+        List<Integer> captureStepMeasureSpecs(View innerView, View continueButton) {
             ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
             verify(innerView).measure(captor.capture(), captor.capture());
             verify(continueButton).measure(captor.capture(), captor.capture());
             return captor.getAllValues();
         }
 
-        protected void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, Step step,
-                                                      int maxWidth, int maxHeight,
-                                                      int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, Step step,
+                                            int maxWidth, int maxHeight,
+                                            int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
             int innerWms = measureSpecs.get(0);
             assertExpectedWidthMeasureSpec(step, maxWidth, innerWms);
             int innerHms = measureSpecs.get(1);
@@ -244,36 +234,36 @@ public class VerticalStepperTest {
             assertExpectedHeightMeasureSpec(maxHeight, continueHms, additionalContinueUsedSpace);
         }
 
-        protected void assertExpectedHeightMeasureSpec(int maxHeight, int heightMeasureSpec,
-                                                       int additionalUsedSpace) {
+        void assertExpectedHeightMeasureSpec(int maxHeight, int heightMeasureSpec,
+                                             int additionalUsedSpace) {
             int verticalUsedSpace =
                     stepper.calculateVerticalPadding() + additionalUsedSpace;
             assertThat(View.MeasureSpec.getSize(heightMeasureSpec))
                     .isEqualTo(maxHeight - verticalUsedSpace);
         }
 
-        protected void assertExpectedWidthMeasureSpec(Step step,
-                                                      int maxWidth, int widthMeasureSpec) {
+        void assertExpectedWidthMeasureSpec(Step step,
+                                            int maxWidth, int widthMeasureSpec) {
             int horizontalUsedSpace =
                     step.calculateInnerViewHorizontalUsedSpace() + stepper.calculateHorizontalPadding();
             assertThat(View.MeasureSpec.getSize(widthMeasureSpec))
                     .isEqualTo(maxWidth - horizontalUsedSpace);
         }
 
-        protected void measureChildViews(int maxWidth, int maxHeight) {
+        void measureChildViews(int maxWidth, int maxHeight) {
             int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
             int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
             stepper.measureChildViews(wms, hms);
         }
 
-        protected void mockActiveState(boolean isActive) {
+        void mockActiveState(boolean isActive) {
             when(mockedStep1.isActive()).thenReturn(isActive);
             int visibility = isActive ? View.VISIBLE : View.GONE;
             when(mockContinueButton1.getVisibility()).thenReturn(visibility);
             when(mockInnerView1.getVisibility()).thenReturn(visibility);
         }
 
-        protected void assertActiveState(boolean expectedActiveState) {
+        void assertActiveState(boolean expectedActiveState) {
             verify(mockedStep1).setActive(expectedActiveState);
             int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
             verify(mockInnerView1).setVisibility(visibility);
@@ -535,11 +525,11 @@ public class VerticalStepperTest {
     }
 
     public static abstract class GivenTwoSteps extends GivenOneStep {
-        protected View mockInnerView2;
-        protected VerticalStepper.InternalTouchView mockTouchView2;
-        protected AppCompatButton mockContinueButton2;
-        protected VerticalStepper.LayoutParams mockLayoutParams2;
-        protected Step mockedStep2;
+        View mockInnerView2;
+        VerticalStepper.InternalTouchView mockTouchView2;
+        AppCompatButton mockContinueButton2;
+        VerticalStepper.LayoutParams mockLayoutParams2;
+        Step mockedStep2;
 
         @Before
         public void givenTwoSteps() {
@@ -562,17 +552,17 @@ public class VerticalStepperTest {
             clearInvocations(mockedStep2);
         }
 
-        protected void assertExpectedStep2MeasureSpecs(int maxWidth, int maxHeight,
-                                                       int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+        void assertExpectedStep2MeasureSpecs(int maxWidth, int maxHeight,
+                                             int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
             assertExpectedStepMeasureSpecs(captureStep2MeasureSpecs(), mockedStep2, maxWidth, maxHeight,
                     additionalInnerUsedSpace, additionalContinueUsedSpace);
         }
 
-        protected List<Integer> captureStep2MeasureSpecs() {
+        List<Integer> captureStep2MeasureSpecs() {
             return captureStepMeasureSpecs(mockInnerView2, mockContinueButton2);
         }
 
-        protected void mockStep2Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
+        void mockStep2Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
             mockStepWidths(mockedStep2, mockInnerView2, mockContinueButton2,
                     decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
         }
