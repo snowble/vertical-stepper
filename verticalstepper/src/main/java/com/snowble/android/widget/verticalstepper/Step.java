@@ -95,16 +95,8 @@ class Step {
         return decoratorHeight;
     }
 
-    void setDecoratorHeight(int decoratorHeight) {
-        this.decoratorHeight = decoratorHeight;
-    }
-
     int getBottomMarginHeight() {
         return bottomMarginHeight;
-    }
-
-    void setBottomMarginHeight(int bottomMarginHeight) {
-        this.bottomMarginHeight = bottomMarginHeight;
     }
 
     int getChildrenVisibleHeight() {
@@ -118,10 +110,6 @@ class Step {
     @NonNull
     String getTitle() {
         return title;
-    }
-
-    void setTitle(@NonNull String title) {
-        this.title = title;
     }
 
     float getTitleWidth() {
@@ -236,7 +224,7 @@ class Step {
         measureSummaryVerticalDimensions();
         int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
                 + getSummaryBottomRelativeToTitleBottom());
-        setDecoratorHeight(Math.max(iconDimension, textTotalHeight));
+        decoratorHeight = Math.max(iconDimension, textTotalHeight);
     }
 
     int calculateYDistanceToNextStep() {
@@ -257,7 +245,7 @@ class Step {
         return dyToButtons;
     }
 
-    int calculateYDistanceToTextBottom() {
+    private int calculateYDistanceToTextBottom() {
         int dyToTextBottom = (int) getTitleBottomRelativeToStepTop();
         if (!active) {
             dyToTextBottom += getSummaryBottomRelativeToTitleBottom();

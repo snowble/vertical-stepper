@@ -27,8 +27,7 @@ import java.util.Locale;
 public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
-    @VisibleForTesting
-    Step.Common commonStepValues;
+    private Step.Common commonStepValues;
 
     @VisibleForTesting
     List<Step> steps;

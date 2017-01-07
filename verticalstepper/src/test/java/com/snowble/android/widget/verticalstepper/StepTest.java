@@ -29,11 +29,11 @@ public class StepTest {
     @RunWith(RobolectricTestRunner.class)
     @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
     public static abstract class GivenChildViews {
-        protected Activity activity;
-        protected View innerView;
-        protected VerticalStepper.LayoutParams layoutParams;
-        protected VerticalStepper.InternalTouchView touchView;
-        protected AppCompatButton continueButton;
+        Activity activity;
+        View innerView;
+        VerticalStepper.LayoutParams layoutParams;
+        VerticalStepper.InternalTouchView touchView;
+        AppCompatButton continueButton;
 
         @Before
         public void givenChildViews() {
@@ -47,13 +47,13 @@ public class StepTest {
             continueButton = mock(AppCompatButton.class);
         }
 
-        protected Step createStep(Step.Common common) {
+        Step createStep(Step.Common common) {
             return new Step(innerView, touchView, continueButton, common);
         }
     }
 
     public static abstract class GivenCommonValues extends GivenChildViews {
-        protected Step.Common common;
+        Step.Common common;
 
         @Before
         public void givenCommonValues() {
@@ -62,7 +62,7 @@ public class StepTest {
     }
 
     public static abstract class GivenATestStep extends GivenCommonValues {
-        protected TestStep step;
+        TestStep step;
 
         protected class TestStep extends Step {
             private float titleWidth;
@@ -104,7 +104,7 @@ public class StepTest {
                 // Do nothing. The dimensions will be explicitly set
             }
 
-            public TestStep setTestStepTitleWidth(float width) {
+            TestStep setTestStepTitleWidth(float width) {
                 titleWidth = width;
                 return this;
             }
@@ -114,7 +114,7 @@ public class StepTest {
                 return titleWidth;
             }
 
-            public TestStep setTestStepTitleHeight(float height) {
+            TestStep setTestStepTitleHeight(float height) {
                 titleHeight = height;
                 return this;
             }
@@ -124,7 +124,7 @@ public class StepTest {
                 return titleHeight;
             }
 
-            public TestStep setTestStepSummaryWidth(float width) {
+            TestStep setTestStepSummaryWidth(float width) {
                 summaryWidth = width;
                 return this;
             }
@@ -134,7 +134,7 @@ public class StepTest {
                 return summaryWidth;
             }
 
-            public TestStep setTestStepSummaryHeight(float height) {
+            TestStep setTestStepSummaryHeight(float height) {
                 summaryHeight = height;
                 return this;
             }
@@ -224,10 +224,10 @@ public class StepTest {
     }
 
     public static abstract class GivenTestStepWithStandardHeights extends GivenATestStep {
-        protected static final float STANDARD_TITLE_HEIGHT = 10f;
-        protected static final float STANDARD_SUMMARY_HEIGHT = 10f;
-        protected static final int STANDARD_INNER_HEIGHT = 100;
-        protected static final int STANDARD_CONTINUE_HEIGHT = 20;
+        static final float STANDARD_TITLE_HEIGHT = 10f;
+        static final float STANDARD_SUMMARY_HEIGHT = 10f;
+        static final int STANDARD_INNER_HEIGHT = 100;
+        static final int STANDARD_CONTINUE_HEIGHT = 20;
 
         @Before
         public void givenTestStepWithStandardTextHeights() {
@@ -274,7 +274,7 @@ public class StepTest {
     }
 
     public static abstract class GivenAStep extends GivenCommonValues {
-        protected Step step;
+        Step step;
 
         @Before
         public void givenAStep() {
