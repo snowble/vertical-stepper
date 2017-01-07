@@ -556,7 +556,7 @@ public class VerticalStepper extends ViewGroup {
         private String title;
         private String summary;
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
 
             TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.VerticalStepper_Layout);
@@ -572,12 +572,12 @@ public class VerticalStepper extends ViewGroup {
             }
         }
 
-        public LayoutParams(int width, int height) {
+        LayoutParams(int width, int height) {
             super(width, height);
             title = EMPTY_TITLE;
         }
 
-        public LayoutParams(ViewGroup.LayoutParams source) {
+        LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
             title = EMPTY_TITLE;
         }

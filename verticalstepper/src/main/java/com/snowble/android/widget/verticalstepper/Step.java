@@ -282,7 +282,7 @@ class Step {
         private final Rect tempRectIconTextBounds;
         private final Rect tempRectTitleTextBounds;
 
-        public Common(Context context, int iconActiveColor, int iconInactiveColor) {
+        Common(Context context, int iconActiveColor, int iconInactiveColor) {
             this.context = context;
             Resources resources = context.getResources();
 
@@ -336,79 +336,79 @@ class Step {
             return ResourcesCompat.getColor(context.getResources(), colorRes, context.getTheme());
         }
 
-        public int getIconDimension() {
+        int getIconDimension() {
             return iconDimension;
         }
 
-        public int getIconMarginRight() {
+        int getIconMarginRight() {
             return iconMarginRight;
         }
 
-        public int getIconMarginVertical() {
+        int getIconMarginVertical() {
             return iconMarginVertical;
         }
 
-        public Paint getIconActiveBackgroundPaint() {
+        Paint getIconActiveBackgroundPaint() {
             return iconActiveBackgroundPaint;
         }
 
-        public Paint getIconInactiveBackgroundPaint() {
+        Paint getIconInactiveBackgroundPaint() {
             return iconInactiveBackgroundPaint;
         }
 
-        public TextPaint getIconTextPaint() {
+        TextPaint getIconTextPaint() {
             return iconTextPaint;
         }
 
-        public TextPaint getTitleActiveTextPaint() {
+        TextPaint getTitleActiveTextPaint() {
             return titleActiveTextPaint;
         }
 
-        public TextPaint getTitleInactiveTextPaint() {
+        TextPaint getTitleInactiveTextPaint() {
             return titleInactiveTextPaint;
         }
 
-        public int getTitleMarginBottomToInnerView() {
+        int getTitleMarginBottomToInnerView() {
             return titleMarginBottomToInnerView;
         }
 
-        public TextPaint getSummaryTextPaint() {
+        TextPaint getSummaryTextPaint() {
             return summaryTextPaint;
         }
 
-        public int getTouchViewHeight() {
+        int getTouchViewHeight() {
             return touchViewHeight;
         }
 
-        public int getTouchViewBackground() {
+        int getTouchViewBackground() {
             return touchViewBackground;
         }
 
-        public int getActiveBottomMarginToNextStep() {
+        int getActiveBottomMarginToNextStep() {
             return activeBottomMargin;
         }
 
-        public int getInactiveBottomMarginToNextStep() {
+        int getInactiveBottomMarginToNextStep() {
             return inactiveBottomMargin;
         }
 
-        public int getConnectorWidth() {
+        int getConnectorWidth() {
             return connectorWidth;
         }
 
-        public Paint getConnectorPaint() {
+        Paint getConnectorPaint() {
             return connectorPaint;
         }
 
-        public RectF getTempRectIconBackground() {
+        RectF getTempRectIconBackground() {
             return tempRectIconBackground;
         }
 
-        public Rect getTempRectIconTextBounds() {
+        Rect getTempRectIconTextBounds() {
             return tempRectIconTextBounds;
         }
 
-        public Rect getTempRectTitleTextBounds() {
+        Rect getTempRectTitleTextBounds() {
             return tempRectTitleTextBounds;
         }
     }
