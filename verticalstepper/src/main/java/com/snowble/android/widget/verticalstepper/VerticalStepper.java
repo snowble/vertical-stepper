@@ -371,7 +371,7 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void layoutTouchView(int left, int top, int right, int bottom, InternalTouchView touchView) {
-        int touchLeft = left + getPaddingLeft();
+        int touchLeft = getPaddingLeft();
 
         // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
         // Also offset touchTop for the other steps as well so the touch view has a consistent placement.
@@ -389,13 +389,13 @@ public class VerticalStepper extends ViewGroup {
     void layoutInnerView(int left, int top, int right, int bottom, Step step) {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
-        int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
+        int innerLeft = outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + step.calculateStepDecoratorIconWidth();
 
         int innerTop = (int) (top + lp.topMargin + step.getTitleBottomRelativeToStepTop()
                 + commonStepValues.getTitleMarginBottomToInnerView());
 
-        int innerRightMax = right - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+        int innerRightMax = right - left - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
         int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
 
         int innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
@@ -410,13 +410,13 @@ public class VerticalStepper extends ViewGroup {
         LayoutParams innerViewLp = getInternalLayoutParams(step.getInnerView());
         AppCompatButton button = step.getContinueButton();
 
-        int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
+        int buttonLeft = outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
                 + step.calculateStepDecoratorIconWidth();
 
         // TODO Add button margins
         int buttonTop = top;
 
-        int buttonRightMax = right - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
+        int buttonRightMax = right - left - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
         int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
 
         int buttonBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
