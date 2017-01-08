@@ -351,13 +351,7 @@ public class VerticalStepper extends ViewGroup {
             layoutTouchView(left, currentTop, right, bottom, step.getTouchView());
 
             if (step.isActive()) {
-                int activeTop = currentTop;
-                activeTop += step.calculateYDistanceToTextBottom();
-                int innerLeft = left + step.calculateStepDecoratorIconWidth();
-                layoutInnerView(innerLeft, activeTop, right, bottom, step);
-
-                activeTop += step.getInnerView().getHeight();
-                layoutNavButtons(left, activeTop, right, bottom, step);
+                layoutActiveViews(left, right, bottom, currentTop, step);
             }
             currentTop += step.calculateYDistanceToNextStep();
         }
@@ -377,6 +371,16 @@ public class VerticalStepper extends ViewGroup {
         int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
 
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
+    }
+
+    private void layoutActiveViews(int left, int right, int bottom, int top, Step step) {
+        int activeTop = top;
+        activeTop += step.calculateYDistanceToTextBottom();
+        int innerLeft = left + step.calculateStepDecoratorIconWidth();
+        layoutInnerView(innerLeft, activeTop, right, bottom, step);
+
+        activeTop += step.getInnerView().getHeight();
+        layoutNavButtons(left, activeTop, right, bottom, step);
     }
 
     @VisibleForTesting
