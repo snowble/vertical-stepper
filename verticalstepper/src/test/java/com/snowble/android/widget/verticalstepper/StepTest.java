@@ -1,9 +1,7 @@
 package com.snowble.android.widget.verticalstepper;
 
-import android.app.Activity;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatButton;
 import android.text.TextPaint;
@@ -13,10 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 import static org.assertj.core.api.Java6Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,10 +20,7 @@ public class StepTest {
     private static final int ICON_ACTIVE_COLOR = R.color.bg_active_icon;
     private static final int ICON_INACTIVE_COLOR = R.color.bg_inactive_icon;
 
-    @RunWith(RobolectricTestRunner.class)
-    @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-    public static abstract class GivenChildViews {
-        Activity activity;
+    public static abstract class GivenChildViews extends GivenAnActivity {
         View innerView;
         VerticalStepper.LayoutParams layoutParams;
         VerticalStepper.InternalTouchView touchView;
@@ -37,11 +28,8 @@ public class StepTest {
 
         @Before
         public void givenChildViews() {
-            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
-            activity = activityController.create().get();
-
             innerView = mock(View.class);
-            layoutParams = RobolectricTestUtils.createTestLayoutParams(activity);
+            layoutParams = createTestLayoutParams();
             when(innerView.getLayoutParams()).thenReturn(layoutParams);
             touchView = mock(VerticalStepper.InternalTouchView.class);
             continueButton = mock(AppCompatButton.class);
