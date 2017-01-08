@@ -39,10 +39,10 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenTestStepper extends GivenAnActivity {
+    public static abstract class GivenTestStepper extends GivenAnActivity {
         TestStepper stepper;
 
-        private class TestStepper extends VerticalStepper {
+        class TestStepper extends VerticalStepper {
             private boolean initStepsCalled;
             private int initStepCallCount;
             private int initTouchViewCallCount;
@@ -136,12 +136,7 @@ public class VerticalStepperTest {
             stepper = new TestStepper();
         }
 
-        private void initTwoSteps() {
-            addTwoChildViews();
-            stepper.initSteps();
-        }
-
-        private void addTwoChildViews() {
+        void addTwoChildViews() {
             View child1 = mock(View.class);
             View child2 = mock(View.class);
             VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
@@ -153,6 +148,9 @@ public class VerticalStepperTest {
             stepper.addView(child2);
         }
 
+    }
+
+    public static class GivenEmptyTestStepper extends GivenTestStepper {
         @Test
         public void onAttachedToWindow_ShouldInitSteps() {
             stepper.onAttachedToWindow();
@@ -179,11 +177,19 @@ public class VerticalStepperTest {
             assertThat(stepper.wasDoMeasurementCalled()).isTrue();
         }
 
+    }
+
+    public static class GivenTestStepperWithTwoSteps extends GivenTestStepper {
+
+        @Before
+        public void givenTestStepperWithTwoSteps() {
+            addTwoChildViews();
+            stepper.initSteps();
+        }
+
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_NoActiveSteps_ShouldNotCallLayoutInnerViewOrLayoutNavButtons() {
-            initTwoSteps();
-
             stepper.onLayout(true, 0, 0, 0, 0);
 
             assertThat(stepper.getLayoutTouchViewArgRects()).hasSize(2);
@@ -195,7 +201,6 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ActiveStep_ShouldCallLayoutInnerViewAndLayoutNavButtons() {
-            initTwoSteps();
             stepper.steps.get(0).setActive(true);
 
             stepper.onLayout(true, 0, 0, 0, 0);
@@ -209,7 +214,6 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ShouldAdjustTouchTopForPadding() {
-            initTwoSteps();
             int topPadding = 20;
             stepper.setPadding(0, topPadding, 0, 0);
 
@@ -225,7 +229,6 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ActiveStep_ShouldAdjustInnerTopForPaddingAndStepDecorators() {
-            initTwoSteps();
             Step step = stepper.steps.get(0);
             step.setActive(true);
             int topPadding = 20;
@@ -247,7 +250,6 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
-            initTwoSteps();
             Step step = stepper.steps.get(0);
             step.setActive(true);
             int topPadding = 20;
@@ -269,8 +271,6 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ShouldAdjustNextTopForPreviousStepHeight() {
-            initTwoSteps();
-
             stepper.onLayout(true, 0, 0, 0, 0);
 
             List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
