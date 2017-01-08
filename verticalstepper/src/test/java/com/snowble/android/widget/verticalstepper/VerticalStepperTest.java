@@ -224,9 +224,10 @@ public class VerticalStepperTest {
 
         @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
-        public void onLayout_ActiveStep_ShouldAdjustInnerTopForPadding() {
+        public void onLayout_ActiveStep_ShouldAdjustInnerTopForPaddingAndStepDecorators() {
             initTwoSteps();
-            stepper.steps.get(0).setActive(true);
+            Step step = stepper.steps.get(0);
+            step.setActive(true);
             int topPadding = 20;
             stepper.setPadding(0, topPadding, 0, 0);
 
@@ -235,8 +236,12 @@ public class VerticalStepperTest {
             List<Rect> layoutInnerViewArgRects = stepper.getLayoutInnerViewArgRects();
             assertThat(layoutInnerViewArgRects).isNotEmpty();
 
-            int innerTop = layoutInnerViewArgRects.get(0).top;
-            assertThat(innerTop).isEqualTo(stepper.outerVerticalPadding + topPadding);
+            Rect innerViewLayoutRect = layoutInnerViewArgRects.get(0);
+            int innerTop = innerViewLayoutRect.top;
+            assertThat(innerTop).isEqualTo(stepper.outerVerticalPadding + topPadding
+                    + step.calculateYDistanceToTextBottom());
+            int innerLeft = innerViewLayoutRect.left;
+            assertThat(innerLeft).isEqualTo(step.calculateStepDecoratorIconWidth());
         }
 
         @SuppressLint("WrongCall") // Explicitly testing onLayout
@@ -249,15 +254,15 @@ public class VerticalStepperTest {
 
             stepper.onLayout(true, 0, 0, 0, 0);
 
-            List<Rect> layoutInnerViewArgRects = stepper.getLayoutInnerViewArgRects();
+            List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
             List<Rect> layoutNavButtonArgRects = stepper.getLayoutNavButtonArgRects();
-            assertThat(layoutInnerViewArgRects).isNotEmpty();
+            assertThat(layoutTouchViewArgRects).isNotEmpty();
             assertThat(layoutNavButtonArgRects).isNotEmpty();
 
-            int innerTop = layoutInnerViewArgRects.get(0).top;
+            int stepTop = layoutTouchViewArgRects.get(0).top;
             int buttonsTop = layoutNavButtonArgRects.get(0).top;
 
-            assertThat(buttonsTop).isEqualTo(innerTop + stepper.steps.get(0).calculateYDistanceToButtons());
+            assertThat(buttonsTop).isEqualTo(stepTop + stepper.steps.get(0).calculateYDistanceToButtons());
         }
 
         @SuppressLint("WrongCall") // Explicitly testing onLayout

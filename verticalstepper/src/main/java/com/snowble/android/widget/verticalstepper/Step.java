@@ -240,15 +240,15 @@ class Step {
     }
 
     int calculateYDistanceToButtons() {
-        int dyToButtons = calculateYDistanceToTextBottom();
-        dyToButtons += innerView.getHeight() + common.getTitleMarginBottomToInnerView();
-        return dyToButtons;
+        return calculateYDistanceToTextBottom() + innerView.getHeight();
     }
 
-    private int calculateYDistanceToTextBottom() {
+    int calculateYDistanceToTextBottom() {
         int dyToTextBottom = (int) getTitleBottomRelativeToStepTop();
         if (!active) {
             dyToTextBottom += getSummaryBottomRelativeToTitleBottom();
+        } else {
+            dyToTextBottom += common.getTitleMarginBottomToInnerView();
         }
         return dyToTextBottom;
     }
