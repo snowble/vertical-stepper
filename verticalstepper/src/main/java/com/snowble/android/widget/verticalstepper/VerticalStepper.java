@@ -369,7 +369,8 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void layoutTouchView(int left, int top, int right, int bottom, InternalTouchView touchView) {
+    @VisibleForTesting
+    void layoutTouchView(int left, int top, int right, int bottom, InternalTouchView touchView) {
         int touchLeft = left + getPaddingLeft();
 
         // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
@@ -384,7 +385,8 @@ public class VerticalStepper extends ViewGroup {
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
     }
 
-    private void layoutInnerView(int left, int top, int right, int bottom, Step step) {
+    @VisibleForTesting
+    void layoutInnerView(int left, int top, int right, int bottom, Step step) {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
         int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
@@ -402,7 +404,8 @@ public class VerticalStepper extends ViewGroup {
         innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
     }
 
-    private void layoutNavButtons(int left, int top, int right, int bottom, Step step) {
+    @VisibleForTesting
+    void layoutNavButtons(int left, int top, int right, int bottom, Step step) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
         LayoutParams innerViewLp = getInternalLayoutParams(step.getInnerView());
         AppCompatButton button = step.getContinueButton();
