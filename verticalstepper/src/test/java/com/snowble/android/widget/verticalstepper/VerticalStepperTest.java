@@ -426,7 +426,7 @@ public class VerticalStepperTest {
             stepper.layoutTouchView(left, top, right, bottom, touchView);
 
             verify(touchView).layout(eq(leftPadding), eq(top - stepper.outerVerticalPadding),
-                    eq(right - rightPadding), eq(bottom - bottomPadding));
+                    eq(right - left - rightPadding), eq(bottom - bottomPadding));
         }
 
         @Test
@@ -443,7 +443,19 @@ public class VerticalStepperTest {
             stepper.layoutTouchView(left, top, right, bottom, touchView);
 
             int expectedTop = top - stepper.outerVerticalPadding;
-            verify(touchView).layout(eq(left), eq(expectedTop), eq(right), eq(expectedTop + touchMeasuredHeight));
+            verify(touchView).layout(eq(0), eq(expectedTop), eq(right - left), eq(expectedTop + touchMeasuredHeight));
+        }
+
+        @Test
+        public void layoutTouchView_NonZeroLeft_ShouldAdjustForLeftOffset() {
+            int left = 50;
+            int right = 300;
+
+            VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
+
+            stepper.layoutTouchView(left, 0, right, 0, touchView);
+
+            verify(touchView).layout(eq(0), anyInt(), eq(right - left), anyInt());
         }
     }
 
