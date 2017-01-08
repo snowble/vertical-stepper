@@ -228,19 +228,12 @@ class Step {
     }
 
     int calculateYDistanceToNextStep() {
-        int dyToNextStep;
-        if (!active) {
-            dyToNextStep = calculateYDistanceToTextBottom();
-        } else {
-            dyToNextStep = calculateYDistanceToButtons();
-            dyToNextStep += continueButton.getHeight();
+        int dyToNextStep = calculateYDistanceToTextBottom();
+        if (active) {
+            dyToNextStep += innerView.getHeight() + continueButton.getHeight();
         }
         dyToNextStep += getBottomMarginToNextStep();
         return dyToNextStep;
-    }
-
-    int calculateYDistanceToButtons() {
-        return calculateYDistanceToTextBottom() + innerView.getHeight();
     }
 
     int calculateYDistanceToTextBottom() {

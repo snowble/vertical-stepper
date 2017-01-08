@@ -248,21 +248,22 @@ public class VerticalStepperTest {
         @Test
         public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
             initTwoSteps();
-            stepper.steps.get(0).setActive(true);
+            Step step = stepper.steps.get(0);
+            step.setActive(true);
             int topPadding = 20;
             stepper.setPadding(0, topPadding, 0, 0);
 
             stepper.onLayout(true, 0, 0, 0, 0);
 
-            List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
+            List<Rect> layoutInnerViewArgRects = stepper.getLayoutInnerViewArgRects();
             List<Rect> layoutNavButtonArgRects = stepper.getLayoutNavButtonArgRects();
-            assertThat(layoutTouchViewArgRects).isNotEmpty();
+            assertThat(layoutInnerViewArgRects).isNotEmpty();
             assertThat(layoutNavButtonArgRects).isNotEmpty();
 
-            int stepTop = layoutTouchViewArgRects.get(0).top;
+            int innerTop = layoutInnerViewArgRects.get(0).top;
             int buttonsTop = layoutNavButtonArgRects.get(0).top;
 
-            assertThat(buttonsTop).isEqualTo(stepTop + stepper.steps.get(0).calculateYDistanceToButtons());
+            assertThat(buttonsTop).isEqualTo(innerTop + step.getInnerView().getHeight());
         }
 
         @SuppressLint("WrongCall") // Explicitly testing onLayout
