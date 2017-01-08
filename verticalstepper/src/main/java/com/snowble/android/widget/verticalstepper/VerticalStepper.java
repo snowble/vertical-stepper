@@ -374,13 +374,13 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void layoutActiveViews(int left, int right, int bottom, int top, Step step) {
-        int activeTop = top;
-        activeTop += step.calculateYDistanceToTextBottom();
-        int innerLeft = left + step.calculateStepDecoratorIconWidth();
-        layoutInnerView(innerLeft, activeTop, right, bottom, step);
+        int activeTop = top + step.calculateYDistanceToTextBottom();
+        int activeLeft = left + step.calculateStepDecoratorIconWidth();
+
+        layoutInnerView(activeLeft, activeTop, right, bottom, step);
 
         activeTop += step.getInnerView().getHeight();
-        layoutNavButtons(left, activeTop, right, bottom, step);
+        layoutNavButtons(activeLeft, activeTop, right, bottom, step);
     }
 
     @VisibleForTesting
@@ -388,8 +388,7 @@ public class VerticalStepper extends ViewGroup {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
 
-        int innerLeft = outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
-                + step.calculateStepDecoratorIconWidth();
+        int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin;
 
         int innerTop = top + lp.topMargin;
 
@@ -408,8 +407,7 @@ public class VerticalStepper extends ViewGroup {
         LayoutParams innerViewLp = getInternalLayoutParams(step.getInnerView());
         AppCompatButton button = step.getContinueButton();
 
-        int buttonLeft = outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin
-                + step.calculateStepDecoratorIconWidth();
+        int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin;
 
         // TODO Add button margins
         int buttonTop = top;
