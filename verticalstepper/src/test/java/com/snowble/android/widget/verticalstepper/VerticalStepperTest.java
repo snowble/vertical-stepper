@@ -1,9 +1,7 @@
 package com.snowble.android.widget.verticalstepper;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
@@ -14,9 +12,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +21,6 @@ import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class VerticalStepperTest {
-
-    @RunWith(RobolectricTestRunner.class)
-    @Config(constants = BuildConfig.class, sdk = Build.VERSION_CODES.M)
-    public abstract static class GivenAnActivity {
-        Activity activity;
-
-        @Before
-        public void givenAnActivity() {
-            ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
-            activity = activityController.create().get();
-        }
-    }
 
     public static abstract class GivenTestStepper extends GivenAnActivity {
         TestStepper stepper;
@@ -751,7 +734,7 @@ public class VerticalStepperTest {
 
         @Test
         public void measureChildViews_ShouldMeasureNavButtonsAccountingForInnerView() {
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            VerticalStepper.LayoutParams lp = createTestLayoutParams();
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
             int innerHeight = 200;
             when(mockInnerView1.getMeasuredHeight()).thenReturn(innerHeight);
@@ -781,7 +764,7 @@ public class VerticalStepperTest {
 
         @Test
         public void measureChildViews_NoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            VerticalStepper.LayoutParams lp = createTestLayoutParams();
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
             int innerVerticalUSedSpace = 20;
             when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
@@ -797,9 +780,8 @@ public class VerticalStepperTest {
         public void measureChildViews_HasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
             int horizontalMargin = 10;
             int verticalMargin = 20;
-            VerticalStepper.LayoutParams lp =
-                    RobolectricTestUtils.createTestLayoutParams(activity,
-                            horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
+            VerticalStepper.LayoutParams lp = createTestLayoutParams(
+                    horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
             int innerVerticalUSedSpace = 20;
             when(mockedStep1.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
@@ -815,7 +797,7 @@ public class VerticalStepperTest {
         public void measureChildViews_ShouldMeasureChildrenAccountingForDecorator() {
             int decoratorHeight = 100;
             when(mockedStep1.getDecoratorHeight()).thenReturn(decoratorHeight);
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            VerticalStepper.LayoutParams lp = createTestLayoutParams();
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
 
             int maxWidth = 1080;
@@ -914,9 +896,9 @@ public class VerticalStepperTest {
             when(mockedStep1.getBottomMarginHeight()).thenReturn(bottomMargin);
             when(mockedStep2.getBottomMarginHeight()).thenReturn(0);
 
-            VerticalStepper.LayoutParams lp = RobolectricTestUtils.createTestLayoutParams(activity);
+            VerticalStepper.LayoutParams lp = createTestLayoutParams();
             when(mockInnerView1.getLayoutParams()).thenReturn(lp);
-            VerticalStepper.LayoutParams lp2 = RobolectricTestUtils.createTestLayoutParams(activity);
+            VerticalStepper.LayoutParams lp2 = createTestLayoutParams();
             when(mockInnerView2.getLayoutParams()).thenReturn(lp2);
 
             int innerVerticalUSedSpace = 20;
