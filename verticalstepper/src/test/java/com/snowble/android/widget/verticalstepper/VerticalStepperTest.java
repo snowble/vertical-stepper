@@ -406,6 +406,45 @@ public class VerticalStepperTest {
                     .isEqualTo((stepper.outerVerticalPadding * 2) +
                             stepper.getPaddingTop() + stepper.getPaddingBottom());
         }
+
+        @Test
+        public void layoutTouchView_WhenNotEnoughSpace_ShouldClipToPadding() {
+            int leftPadding = 20;
+            int topPadding = 4;
+            int rightPadding = 10;
+            int bottomPadding = 2;
+            stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int left = 0;
+            int top = stepper.outerVerticalPadding + topPadding;
+            int right = 300;
+            int bottom = 500;
+
+            VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
+            when(touchView.getMeasuredHeight()).thenReturn((bottom - top) * 2);
+
+            stepper.layoutTouchView(left, top, right, bottom, touchView);
+
+            verify(touchView).layout(eq(leftPadding), eq(top - stepper.outerVerticalPadding),
+                    eq(right - rightPadding), eq(bottom - bottomPadding));
+        }
+
+        @Test
+        public void layoutTouchView_WhenEnoughSpace_ShouldUseMeasuredHeight() {
+            int left = 0;
+            int top = stepper.outerVerticalPadding;
+            int right = 300;
+            int bottom = 500;
+
+            VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
+            int touchMeasuredHeight = (bottom - top) / 2;
+            when(touchView.getMeasuredHeight()).thenReturn(touchMeasuredHeight);
+
+            stepper.layoutTouchView(left, top, right, bottom, touchView);
+
+            int expectedTop = top - stepper.outerVerticalPadding;
+            verify(touchView).layout(eq(left), eq(expectedTop), eq(right), eq(expectedTop + touchMeasuredHeight));
+        }
     }
 
     public abstract static class GivenOneStep extends GivenAStepper {
