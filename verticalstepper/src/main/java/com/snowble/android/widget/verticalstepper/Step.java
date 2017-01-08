@@ -163,7 +163,7 @@ class Step {
     }
 
     private void measureTitleBaseline(int heightToCenterIn) {
-        Rect tempRect = common.getTempRectTitleTextBounds();
+        Rect tempRect = common.getTempRectForTitleTextBounds();
         getTitleTextPaint().getTextBounds(title, 0, 1, tempRect);
         titleBaselineRelativeToStepTop = (heightToCenterIn / 2) + (tempRect.height() / 2);
     }
@@ -272,9 +272,9 @@ class Step {
         private final int connectorWidth;
         private final Paint connectorPaint;
 
-        private final RectF tempRectIconBackground;
-        private final Rect tempRectIconTextBounds;
-        private final Rect tempRectTitleTextBounds;
+        private final RectF tempRectForIconBackground;
+        private final Rect tempRectForIconTextBounds;
+        private final Rect tempRectForTitleTextBounds;
 
         Common(Context context, int iconActiveColor, int iconInactiveColor) {
             resources = context.getResources();
@@ -305,9 +305,9 @@ class Step {
             connectorPaint = createPaint(getColor(R.color.connector_color));
             connectorPaint.setStrokeWidth(getConnectorWidth());
 
-            tempRectIconBackground = new RectF(0, 0, getIconDimension(), getIconDimension());
-            tempRectIconTextBounds = new Rect();
-            tempRectTitleTextBounds = new Rect();
+            tempRectForIconBackground = new RectF(0, 0, getIconDimension(), getIconDimension());
+            tempRectForIconTextBounds = new Rect();
+            tempRectForTitleTextBounds = new Rect();
         }
 
         private Paint createPaint(int color) {
@@ -394,16 +394,16 @@ class Step {
             return connectorPaint;
         }
 
-        RectF getTempRectIconBackground() {
-            return tempRectIconBackground;
+        RectF getTempRectForIconBackground() {
+            return tempRectForIconBackground;
         }
 
-        Rect getTempRectIconTextBounds() {
-            return tempRectIconTextBounds;
+        Rect getTempRectForIconTextBounds() {
+            return tempRectForIconTextBounds;
         }
 
-        Rect getTempRectTitleTextBounds() {
-            return tempRectTitleTextBounds;
+        Rect getTempRectForTitleTextBounds() {
+            return tempRectForTitleTextBounds;
         }
     }
 }

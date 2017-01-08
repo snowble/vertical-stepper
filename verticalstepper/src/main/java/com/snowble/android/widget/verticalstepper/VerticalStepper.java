@@ -461,7 +461,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIconBackground(Canvas canvas, Step step) {
-        canvas.drawArc(commonStepValues.getTempRectIconBackground(), 0f, 360f, true, step.getIconColor());
+        canvas.drawArc(commonStepValues.getTempRectForIconBackground(), 0f, 360f, true, step.getIconColor());
     }
 
     private void drawIconText(Canvas canvas, int stepNumber) {
@@ -472,7 +472,7 @@ public class VerticalStepper extends ViewGroup {
         float width = iconTextPaint.measureText(stepNumberString);
         float centeredTextX = (iconDimension / 2) - (width / 2);
 
-        Rect tmpRectIconTextBounds = commonStepValues.getTempRectIconTextBounds();
+        Rect tmpRectIconTextBounds = commonStepValues.getTempRectForIconTextBounds();
         iconTextPaint.getTextBounds(stepNumberString, 0, 1, tmpRectIconTextBounds);
         float centeredTextY = (iconDimension / 2) + (tmpRectIconTextBounds.height() / 2);
 

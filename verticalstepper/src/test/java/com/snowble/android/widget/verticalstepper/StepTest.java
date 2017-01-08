@@ -364,7 +364,7 @@ public class StepTest {
             titleRect = mock(Rect.class);
             when(titlePaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
             when(common.getTitleInactiveTextPaint()).thenReturn(titlePaint);
-            when(common.getTempRectTitleTextBounds()).thenReturn(titleRect);
+            when(common.getTempRectForTitleTextBounds()).thenReturn(titleRect);
 
             summaryPaint = mock(TextPaint.class);
             when(summaryPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
