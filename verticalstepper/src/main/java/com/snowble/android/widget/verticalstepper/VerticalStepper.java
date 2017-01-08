@@ -344,28 +344,21 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int currentTop = top;
+        int currentTop = top + getPaddingTop() + outerVerticalPadding;
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
-            boolean isFirstStep = i == 0;
-            boolean isLastStep = i == innerViewsSize - 1;
-
-            if (isFirstStep) {
-                currentTop += getPaddingTop() + outerVerticalPadding;
-            }
 
             layoutTouchView(left, currentTop, right, bottom, step.getTouchView());
 
             if (step.isActive()) {
-                layoutInnerView(left, currentTop, right, bottom, step);
+                int innerTop = currentTop + step.calculateYDistanceToTextBottom();
+                int innerLeft = left + step.calculateStepDecoratorIconWidth();
+                layoutInnerView(innerLeft, innerTop, right, bottom, step);
 
                 int buttonsTop = currentTop + step.calculateYDistanceToButtons();
-
                 layoutNavButtons(left, buttonsTop, right, bottom, step);
             }
-            if (!isLastStep) {
-                currentTop += step.calculateYDistanceToNextStep();
-            }
+            currentTop += step.calculateYDistanceToNextStep();
         }
     }
 
@@ -389,11 +382,11 @@ public class VerticalStepper extends ViewGroup {
     void layoutInnerView(int left, int top, int right, int bottom, Step step) {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
+
         int innerLeft = outerHorizontalPadding + getPaddingLeft() + lp.leftMargin
                 + step.calculateStepDecoratorIconWidth();
 
-        int innerTop = (int) (top + lp.topMargin + step.getTitleBottomRelativeToStepTop()
-                + commonStepValues.getTitleMarginBottomToInnerView());
+        int innerTop = top + lp.topMargin;
 
         int innerRightMax = right - left - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
         int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
