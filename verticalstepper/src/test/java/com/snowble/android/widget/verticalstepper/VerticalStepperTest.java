@@ -430,7 +430,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void layoutTouchView_WhenEnoughSpace_ShouldUseMeasuredHeight() {
+        public void layoutTouchView_WhenEnoughSpace_ShouldUseFullWidthAndMeasuredHeight() {
             int left = 0;
             int top = stepper.outerVerticalPadding;
             int right = 300;
