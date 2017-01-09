@@ -344,7 +344,8 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int currentTop = top + getPaddingTop() + outerVerticalPadding;
+        int currentTop = getPaddingTop() + outerVerticalPadding;
+        bottom -= top;
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
 
