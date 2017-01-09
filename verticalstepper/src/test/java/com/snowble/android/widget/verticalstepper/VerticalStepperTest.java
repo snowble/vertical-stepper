@@ -162,6 +162,7 @@ public class VerticalStepperTest {
 
     }
 
+    @SuppressLint("WrongCall") // Explicitly testing onLayout
     public static class GivenTestStepperWithTwoSteps extends GivenTestStepper {
 
         @Before
@@ -170,7 +171,6 @@ public class VerticalStepperTest {
             stepper.initSteps();
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_NoActiveSteps_ShouldNotCallLayoutInnerViewOrLayoutNavButtons() {
             stepper.onLayout(true, 0, 0, 0, 0);
@@ -181,7 +181,6 @@ public class VerticalStepperTest {
             assertThat(stepper.getLayoutNavButtonArgRects()).isEmpty();
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ActiveStep_ShouldCallLayoutInnerViewAndLayoutNavButtons() {
             stepper.steps.get(0).setActive(true);
@@ -194,43 +193,62 @@ public class VerticalStepperTest {
             assertThat(stepper.getLayoutNavButtonArgRects()).hasSize(1);
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
-        public void onLayout_ShouldAdjustTouchTopForPadding() {
-            int topPadding = 20;
-            stepper.setPadding(0, topPadding, 0, 0);
+        public void onLayout_ShouldAdjustTouchForPadding() {
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
 
-            stepper.onLayout(true, 0, 0, 0, 0);
+            int leftPadding = 8;
+            int topPadding = 20;
+            int rightPadding = 4;
+            int bottomPadding = 10;
+            stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            stepper.onLayout(true, left, top, right, bottom);
 
             List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
             assertThat(layoutTouchViewArgRects).isNotEmpty();
+            Rect touchRect = layoutTouchViewArgRects.get(0);
 
-            int touchTop = layoutTouchViewArgRects.get(0).top;
-            assertThat(touchTop).isEqualTo(stepper.outerVerticalPadding + topPadding);
+            assertThat(touchRect.left).isEqualTo(stepper.outerHorizontalPadding + leftPadding);
+            assertThat(touchRect.top).isEqualTo(stepper.outerVerticalPadding + topPadding);
+            assertThat(touchRect.right).isEqualTo(right - stepper.outerHorizontalPadding - rightPadding);
+            assertThat(touchRect.bottom).isEqualTo(bottom - stepper.outerVerticalPadding - bottomPadding);
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
-        public void onLayout_ActiveStep_ShouldAdjustInnerTopForPaddingAndStepDecorators() {
+        public void onLayout_ActiveStep_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
             Step step = stepper.steps.get(0);
             step.setActive(true);
-            int topPadding = 20;
-            stepper.setPadding(0, topPadding, 0, 0);
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
 
-            stepper.onLayout(true, 0, 0, 0, 0);
+            int leftPadding = 8;
+            int topPadding = 20;
+            int rightPadding = 4;
+            int bottomPadding = 10;
+            stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            stepper.onLayout(true, left, top, right, bottom);
 
             List<Rect> layoutInnerViewArgRects = stepper.getLayoutInnerViewArgRects();
             assertThat(layoutInnerViewArgRects).isNotEmpty();
 
             Rect innerViewLayoutRect = layoutInnerViewArgRects.get(0);
-            int innerTop = innerViewLayoutRect.top;
-            assertThat(innerTop).isEqualTo(stepper.outerVerticalPadding + topPadding
-                    + step.calculateYDistanceToTextBottom());
-            int innerLeft = innerViewLayoutRect.left;
-            assertThat(innerLeft).isEqualTo(step.calculateStepDecoratorIconWidth());
+            assertThat(innerViewLayoutRect.left)
+                    .isEqualTo(leftPadding + stepper.outerHorizontalPadding + step.calculateStepDecoratorIconWidth());
+            assertThat(innerViewLayoutRect.top)
+                    .isEqualTo(stepper.outerVerticalPadding + topPadding + step.calculateYDistanceToTextBottom());
+            assertThat(innerViewLayoutRect.right)
+                    .isEqualTo(right - left - stepper.outerHorizontalPadding - rightPadding);
+            assertThat(innerViewLayoutRect.bottom)
+                    .isEqualTo(bottom - top - stepper.outerVerticalPadding - bottomPadding);
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
             Step step = stepper.steps.get(0);
@@ -251,7 +269,6 @@ public class VerticalStepperTest {
             assertThat(buttonsTop).isEqualTo(innerTop + step.getInnerView().getHeight());
         }
 
-        @SuppressLint("WrongCall") // Explicitly testing onLayout
         @Test
         public void onLayout_ShouldAdjustNextTopForPreviousStepHeight() {
             stepper.onLayout(true, 0, 0, 0, 0);
@@ -262,6 +279,36 @@ public class VerticalStepperTest {
             int firstStepTop = layoutTouchViewArgRects.get(0).top;
             int secondStepTop = layoutTouchViewArgRects.get(1).top;
             assertThat(secondStepTop).isEqualTo(firstStepTop + stepper.steps.get(0).calculateYDistanceToNextStep());
+        }
+
+        @Test
+        public void onLayout_NonZeroLeft_ShouldAdjustForLeftOffset() {
+            int left = 50;
+            int right = 300;
+
+            stepper.onLayout(true, left, 0, right, 0);
+
+            List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
+            assertThat(layoutTouchViewArgRects).isNotEmpty();
+
+            Rect rect = layoutTouchViewArgRects.get(0);
+            assertThat(rect.left).isEqualTo(stepper.outerHorizontalPadding);
+            assertThat(rect.right).isEqualTo(right - left - stepper.outerHorizontalPadding);
+        }
+
+        @Test
+        public void onLayout_NonZeroTop_ShouldAdjustForTopOffset() {
+            int top = 50;
+            int bottom = 300;
+
+            stepper.onLayout(true, 0, top, 0, bottom);
+
+            List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
+            assertThat(layoutTouchViewArgRects).isNotEmpty();
+
+            Rect rect = layoutTouchViewArgRects.get(0);
+            assertThat(rect.top).isEqualTo(stepper.outerVerticalPadding);
+            assertThat(rect.bottom).isEqualTo(bottom - top - stepper.outerVerticalPadding);
         }
     }
 
@@ -397,7 +444,7 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void layoutTouchView_WhenNotEnoughSpace_ShouldClipToPadding() {
+        public void layoutTouchView_WhenNotEnoughSpace_ShouldClip() {
             int leftPadding = 20;
             int topPadding = 4;
             int rightPadding = 10;
@@ -406,57 +453,42 @@ public class VerticalStepperTest {
 
             int left = 0;
             int top = 0;
-            int adjustedTop = top + stepper.outerVerticalPadding + topPadding;
             int right = 300;
             int bottom = 500;
+
+            int adjustedLeft = left + stepper.outerHorizontalPadding + leftPadding;
+            int adjustedTop = top + stepper.outerVerticalPadding + topPadding;
+            int adjustedRight = right - stepper.outerHorizontalPadding - rightPadding;
+            int adjustedBottom = bottom - stepper.outerVerticalPadding - bottomPadding;
 
             VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
             when(touchView.getMeasuredHeight()).thenReturn(bottom * 2);
 
-            stepper.layoutTouchView(new Rect(left, adjustedTop, right, bottom), touchView);
+            stepper.layoutTouchView(new Rect(adjustedLeft, adjustedTop, adjustedRight, adjustedBottom), touchView);
 
-            verify(touchView).layout(eq(leftPadding), eq(topPadding),
+            verify(touchView).layout(eq(left + leftPadding), eq(top + topPadding),
                     eq(right - left - rightPadding), eq(bottom - top - bottomPadding));
         }
 
         @Test
         public void layoutTouchView_WhenEnoughSpace_ShouldUseFullWidthAndMeasuredHeight() {
             int left = 0;
-            int top = stepper.outerVerticalPadding;
+            int top = 0;
             int right = 300;
             int bottom = 500;
+
+            int adjustedLeft = left + stepper.outerHorizontalPadding;
+            int adjustedTop = top + stepper.outerVerticalPadding;
+            int adjustedRight = right - stepper.outerHorizontalPadding;
+            int adjustedBottom = bottom - stepper.outerVerticalPadding;
 
             VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
             int touchMeasuredHeight = bottom / 2;
             when(touchView.getMeasuredHeight()).thenReturn(touchMeasuredHeight);
 
-            stepper.layoutTouchView(new Rect(left, top, right, bottom), touchView);
+            stepper.layoutTouchView(new Rect(adjustedLeft, adjustedTop, adjustedRight, adjustedBottom), touchView);
 
-            int expectedTop = top - stepper.outerVerticalPadding;
-            verify(touchView).layout(eq(0), eq(expectedTop), eq(right - left), eq(expectedTop + touchMeasuredHeight));
-        }
-
-        @Test
-        public void layoutTouchView_NonZeroLeft_ShouldAdjustForLeftOffset() {
-            int left = 50;
-            int right = 300;
-            VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
-
-            stepper.layoutTouchView(new Rect(left, 0, right, 0), touchView);
-
-            verify(touchView).layout(eq(0), anyInt(), eq(right - left), anyInt());
-        }
-
-        @Test
-        public void layoutTouchView_NonZeroTop_ShouldAdjustForTopOffset() {
-            int top = 50;
-            int adjustedTop = top + stepper.outerVerticalPadding;
-            int bottom = 300;
-            VerticalStepper.InternalTouchView touchView = mock(VerticalStepper.InternalTouchView.class);
-
-            stepper.layoutTouchView(new Rect(0, adjustedTop, 0, bottom), touchView);
-
-            verify(touchView).layout(anyInt(), eq(top), anyInt(), anyInt());
+            verify(touchView).layout(eq(left), eq(top), eq(right - left), eq(top + touchMeasuredHeight));
         }
     }
 
