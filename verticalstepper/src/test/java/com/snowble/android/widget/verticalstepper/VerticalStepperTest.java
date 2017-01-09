@@ -139,18 +139,6 @@ public class VerticalStepperTest {
             stepper = new TestStepper();
         }
 
-        void addTwoChildViews() {
-            View child1 = mock(View.class);
-            View child2 = mock(View.class);
-            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-            when(lp.getTitle()).thenReturn("title");
-            when(child1.getLayoutParams()).thenReturn(lp);
-            when(child2.getLayoutParams()).thenReturn(lp);
-
-            stepper.addView(child1);
-            stepper.addView(child2);
-        }
-
     }
 
     public static class GivenEmptyTestStepper extends GivenTestStepper {
@@ -163,7 +151,15 @@ public class VerticalStepperTest {
 
         @Test
         public void initSteps_ShouldInitStepsAndChildViews() {
-            addTwoChildViews();
+            View child1 = mock(View.class);
+            View child2 = mock(View.class);
+            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+            when(lp.getTitle()).thenReturn("title");
+            when(child1.getLayoutParams()).thenReturn(lp);
+            when(child2.getLayoutParams()).thenReturn(lp);
+
+            stepper.addView(child1);
+            stepper.addView(child2);
 
             stepper.initSteps();
 
@@ -185,10 +181,15 @@ public class VerticalStepperTest {
     @SuppressLint("WrongCall") // Explicitly testing onLayout
     public static class GivenTestStepperWithTwoSteps extends GivenTestStepper {
 
+        private MockedStep mockedStep1;
+        private MockedStep mockedStep2;
+
         @Before
         public void givenTestStepperWithTwoSteps() {
-            addTwoChildViews();
-            stepper.initSteps();
+            mockedStep1 = new MockedStep();
+            mockedStep2 = new MockedStep();
+            stepper.steps.add(mockedStep1.step);
+            stepper.steps.add(mockedStep2.step);
         }
 
         @Test
@@ -203,7 +204,7 @@ public class VerticalStepperTest {
 
         @Test
         public void onLayout_ActiveStep_ShouldCallLayoutInnerViewAndLayoutNavButtons() {
-            stepper.steps.get(0).setActive(true);
+            when(mockedStep1.step.isActive()).thenReturn(true);
 
             stepper.onLayout(true, 0, 0, 0, 0);
 
@@ -215,16 +216,16 @@ public class VerticalStepperTest {
 
         @Test
         public void onLayout_ShouldAdjustTouchForPadding() {
-            int left = 0;
-            int top = 0;
-            int right = 400;
-            int bottom = 200;
-
             int leftPadding = 8;
             int topPadding = 20;
             int rightPadding = 4;
             int bottomPadding = 10;
             stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
 
             stepper.onLayout(true, left, top, right, bottom);
 
@@ -240,18 +241,22 @@ public class VerticalStepperTest {
 
         @Test
         public void onLayout_ActiveStep_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
-            Step step = stepper.steps.get(0);
-            step.setActive(true);
-            int left = 0;
-            int top = 0;
-            int right = 400;
-            int bottom = 200;
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            int stepDecoratorIconWidth = 40;
+            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(stepDecoratorIconWidth);
+            int distanceToTextBottom = 80;
+            when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
 
             int leftPadding = 8;
             int topPadding = 20;
             int rightPadding = 4;
             int bottomPadding = 10;
             stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
 
             stepper.onLayout(true, left, top, right, bottom);
 
@@ -260,9 +265,9 @@ public class VerticalStepperTest {
 
             Rect innerViewLayoutRect = layoutInnerViewArgRects.get(0);
             assertThat(innerViewLayoutRect.left)
-                    .isEqualTo(leftPadding + stepper.outerHorizontalPadding + step.calculateStepDecoratorIconWidth());
+                    .isEqualTo(leftPadding + stepper.outerHorizontalPadding + stepDecoratorIconWidth);
             assertThat(innerViewLayoutRect.top)
-                    .isEqualTo(stepper.outerVerticalPadding + topPadding + step.calculateYDistanceToTextBottom());
+                    .isEqualTo(stepper.outerVerticalPadding + topPadding + distanceToTextBottom);
             assertThat(innerViewLayoutRect.right)
                     .isEqualTo(right - left - stepper.outerHorizontalPadding - rightPadding);
             assertThat(innerViewLayoutRect.bottom)
@@ -271,8 +276,9 @@ public class VerticalStepperTest {
 
         @Test
         public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
-            Step step = stepper.steps.get(0);
-            step.setActive(true);
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            int innerHeight = 400;
+            when(mockedStep1.innerView.getHeight()).thenReturn(innerHeight);
             int topPadding = 20;
             stepper.setPadding(0, topPadding, 0, 0);
 
@@ -286,11 +292,14 @@ public class VerticalStepperTest {
             int innerTop = layoutInnerViewArgRects.get(0).top;
             int buttonsTop = layoutNavButtonArgRects.get(0).top;
 
-            assertThat(buttonsTop).isEqualTo(innerTop + step.getInnerView().getHeight());
+            assertThat(buttonsTop).isEqualTo(innerTop + innerHeight);
         }
 
         @Test
         public void onLayout_ShouldAdjustNextTopForPreviousStepHeight() {
+            int distanceToNextStep = 400;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
             stepper.onLayout(true, 0, 0, 0, 0);
 
             List<Rect> layoutTouchViewArgRects = stepper.getLayoutTouchViewArgRects();
@@ -298,7 +307,7 @@ public class VerticalStepperTest {
 
             int firstStepTop = layoutTouchViewArgRects.get(0).top;
             int secondStepTop = layoutTouchViewArgRects.get(1).top;
-            assertThat(secondStepTop).isEqualTo(firstStepTop + stepper.steps.get(0).calculateYDistanceToNextStep());
+            assertThat(secondStepTop).isEqualTo(firstStepTop + distanceToNextStep);
         }
 
         @Test
