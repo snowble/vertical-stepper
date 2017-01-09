@@ -990,9 +990,9 @@ public class VerticalStepperTest {
             mockStepHeights(decoratorHeight, childrenVisibleHeight, bottomMarginHeight, mockedStep1.step);
             mockStepHeights(decoratorHeight, childrenVisibleHeight, bottomMarginHeight, mockedStep2.step);
 
-            int width = stepper.calculateHeight();
+            int height = stepper.calculateHeight();
 
-            assertThat(width)
+            assertThat(height)
                     .isEqualTo(stepper.calculateVerticalPadding()
                             + (2 * (decoratorHeight + childrenVisibleHeight + bottomMarginHeight)));
         }
