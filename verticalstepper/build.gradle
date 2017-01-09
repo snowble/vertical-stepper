@@ -27,6 +27,14 @@ android {
     lintOptions {
         warningsAsErrors true
     }
+    testOptions {
+        unitTests.all {
+            testLogging {
+                events "failed"
+                exceptionFormat "short"
+            }
+        }
+    }
 }
 
 dependencies {
