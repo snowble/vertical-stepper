@@ -345,7 +345,10 @@ public class VerticalStepper extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         Rect rect = commonStepValues.getTempRectForLayout();
-        rect.set(left, getPaddingTop() + outerVerticalPadding, right, bottom - top);
+        rect.set(getPaddingLeft() + outerHorizontalPadding,
+                getPaddingTop() + outerVerticalPadding,
+                right - left - getPaddingRight() - outerHorizontalPadding,
+                bottom - top - getPaddingBottom() - outerVerticalPadding);
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
 
@@ -360,15 +363,14 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void layoutTouchView(Rect rect, InternalTouchView touchView) {
-        int touchLeft = getPaddingLeft();
+        // The touch view isn't clipped to the outer padding for so offset it.
+        int touchLeft = rect.left - outerHorizontalPadding;
 
-        // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
-        // Also offset touchTop for the other steps as well so the touch view has a consistent placement.
         int touchTop = rect.top - outerVerticalPadding;
 
-        int touchRight = rect.right - rect.left - getPaddingRight();
+        int touchRight = rect.right + outerHorizontalPadding;
 
-        int touchBottomMax = rect.bottom - getPaddingBottom();
+        int touchBottomMax = rect.bottom + outerVerticalPadding;
         int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
 
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
@@ -395,14 +397,14 @@ public class VerticalStepper extends ViewGroup {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
 
-        int innerLeft = rect.left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin;
+        int innerLeft = rect.left + lp.leftMargin;
 
         int innerTop = rect.top + lp.topMargin;
 
-        int innerRightMax = rect.right - rect.left - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+        int innerRightMax = rect.right - lp.rightMargin;
         int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
 
-        int innerBottomMax = rect.bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
+        int innerBottomMax = rect.bottom - lp.bottomMargin;
         int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
 
         innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
@@ -414,16 +416,15 @@ public class VerticalStepper extends ViewGroup {
         LayoutParams innerViewLp = getInternalLayoutParams(step.getInnerView());
         AppCompatButton button = step.getContinueButton();
 
-        int buttonLeft = rect.left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin;
+        int buttonLeft = rect.left + innerViewLp.leftMargin;
 
         // TODO Add button margins
         int buttonTop = rect.top;
 
-        int buttonRightMax = rect.right - rect.left
-                - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
+        int buttonRightMax = rect.right - innerViewLp.rightMargin;
         int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
 
-        int buttonBottomMax = rect.bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
+        int buttonBottomMax = rect.bottom - innerViewLp.bottomMargin;
         int buttonBottom = Math.min(buttonTop + button.getMeasuredHeight(), buttonBottomMax);
 
         button.layout(buttonLeft, buttonTop, buttonRight, buttonBottom);
