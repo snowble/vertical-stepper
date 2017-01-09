@@ -275,6 +275,7 @@ class Step {
         private final RectF tempRectForIconBackground;
         private final Rect tempRectForIconTextBounds;
         private final Rect tempRectForTitleTextBounds;
+        private final Rect tempRectForLayout;
 
         Common(Context context, int iconActiveColor, int iconInactiveColor) {
             resources = context.getResources();
@@ -308,6 +309,7 @@ class Step {
             tempRectForIconBackground = new RectF(0, 0, getIconDimension(), getIconDimension());
             tempRectForIconTextBounds = new Rect();
             tempRectForTitleTextBounds = new Rect();
+            tempRectForLayout = new Rect();
         }
 
         private Paint createPaint(int color) {
@@ -404,6 +406,10 @@ class Step {
 
         Rect getTempRectForTitleTextBounds() {
             return tempRectForTitleTextBounds;
+        }
+
+        Rect getTempRectForLayout() {
+            return tempRectForLayout;
         }
     }
 }

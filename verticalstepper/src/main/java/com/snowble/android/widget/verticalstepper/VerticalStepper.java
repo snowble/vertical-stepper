@@ -344,79 +344,86 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int currentTop = getPaddingTop() + outerVerticalPadding;
-        bottom -= top;
+        Rect rect = commonStepValues.getTempRectForLayout();
+        rect.set(left, getPaddingTop() + outerVerticalPadding, right, bottom - top);
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
 
-            layoutTouchView(left, currentTop, right, bottom, step.getTouchView());
+            layoutTouchView(rect, step.getTouchView());
 
             if (step.isActive()) {
-                layoutActiveViews(left, right, bottom, currentTop, step);
+                layoutActiveViews(rect, step);
             }
-            currentTop += step.calculateYDistanceToNextStep();
+            rect.top += step.calculateYDistanceToNextStep();
         }
     }
 
     @VisibleForTesting
-    void layoutTouchView(int left, int top, int right, int bottom, InternalTouchView touchView) {
+    void layoutTouchView(Rect rect, InternalTouchView touchView) {
         int touchLeft = getPaddingLeft();
 
         // The touch view isn't clipped to the outer padding for the first step so offset touchTop to account for it.
         // Also offset touchTop for the other steps as well so the touch view has a consistent placement.
-        int touchTop = top - outerVerticalPadding;
+        int touchTop = rect.top - outerVerticalPadding;
 
-        int touchRight = right - left - getPaddingRight();
+        int touchRight = rect.right - rect.left - getPaddingRight();
 
-        int touchBottomMax = bottom - getPaddingBottom();
+        int touchBottomMax = rect.bottom - getPaddingBottom();
         int touchBottom = Math.min(touchTop + touchView.getMeasuredHeight(), touchBottomMax);
 
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
     }
 
-    private void layoutActiveViews(int left, int right, int bottom, int top, Step step) {
-        int activeTop = top + step.calculateYDistanceToTextBottom();
-        int activeLeft = left + step.calculateStepDecoratorIconWidth();
+    private void layoutActiveViews(Rect rect, Step step) {
+        int originalLeft = rect.left;
+        int originalTop = rect.top;
 
-        layoutInnerView(activeLeft, activeTop, right, bottom, step);
+        rect.left += step.calculateStepDecoratorIconWidth();
+        rect.top += step.calculateYDistanceToTextBottom();
 
-        activeTop += step.getInnerView().getHeight();
-        layoutNavButtons(activeLeft, activeTop, right, bottom, step);
+        layoutInnerView(rect, step);
+
+        rect.top += step.getInnerView().getHeight();
+        layoutNavButtons(rect, step);
+
+        rect.left = originalLeft;
+        rect.top = originalTop;
     }
 
     @VisibleForTesting
-    void layoutInnerView(int left, int top, int right, int bottom, Step step) {
+    void layoutInnerView(Rect rect, Step step) {
         View innerView = step.getInnerView();
         LayoutParams lp = getInternalLayoutParams(innerView);
 
-        int innerLeft = left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin;
+        int innerLeft = rect.left + outerHorizontalPadding + getPaddingLeft() + lp.leftMargin;
 
-        int innerTop = top + lp.topMargin;
+        int innerTop = rect.top + lp.topMargin;
 
-        int innerRightMax = right - left - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
+        int innerRightMax = rect.right - rect.left - outerHorizontalPadding - getPaddingRight() - lp.rightMargin;
         int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
 
-        int innerBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
+        int innerBottomMax = rect.bottom - outerVerticalPadding - getPaddingBottom() - lp.bottomMargin;
         int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
 
         innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
     }
 
     @VisibleForTesting
-    void layoutNavButtons(int left, int top, int right, int bottom, Step step) {
+    void layoutNavButtons(Rect rect, Step step) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
         LayoutParams innerViewLp = getInternalLayoutParams(step.getInnerView());
         AppCompatButton button = step.getContinueButton();
 
-        int buttonLeft = left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin;
+        int buttonLeft = rect.left + outerHorizontalPadding + getPaddingLeft() + innerViewLp.leftMargin;
 
         // TODO Add button margins
-        int buttonTop = top;
+        int buttonTop = rect.top;
 
-        int buttonRightMax = right - left - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
+        int buttonRightMax = rect.right - rect.left
+                - outerHorizontalPadding - getPaddingRight() - innerViewLp.rightMargin;
         int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
 
-        int buttonBottomMax = bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
+        int buttonBottomMax = rect.bottom - outerVerticalPadding - getPaddingBottom() - innerViewLp.bottomMargin;
         int buttonBottom = Math.min(buttonTop + button.getMeasuredHeight(), buttonBottomMax);
 
         button.layout(buttonLeft, buttonTop, buttonRight, buttonBottom);
