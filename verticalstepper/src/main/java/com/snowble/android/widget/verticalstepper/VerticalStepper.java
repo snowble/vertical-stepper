@@ -210,7 +210,7 @@ public class VerticalStepper extends ViewGroup {
     void doMeasurement(int widthMeasureSpec, int heightMeasureSpec) {
         measureStepDecoratorHeights();
         measureStepBottomMarginHeights();
-        measureChildViews(widthMeasureSpec, heightMeasureSpec);
+        measureActiveViews(widthMeasureSpec, heightMeasureSpec);
         int width = calculateWidth();
         int height = calculateHeight();
 
@@ -240,43 +240,42 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    void measureChildViews(int widthMeasureSpec, int heightMeasureSpec) {
+    void measureActiveViews(int widthMeasureSpec, int heightMeasureSpec) {
         int currentHeight = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
-            int childrenHeight = 0;
+            int activeViewsHeight = 0;
 
             currentHeight += step.getDecoratorHeight();
 
             View innerView = step.getInnerView();
-            measureChild(innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
-            childrenHeight += calculateChildHeight(step, innerView);
-            currentHeight += childrenHeight;
+            measureActiveView(innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            activeViewsHeight += calculateActiveHeight(step, innerView);
+            currentHeight += activeViewsHeight;
 
             View continueButton = step.getContinueButton();
-            measureChild(continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
-            childrenHeight += calculateChildHeight(step, continueButton);
+            measureActiveView(continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            activeViewsHeight += calculateActiveHeight(step, continueButton);
             currentHeight += step.getBottomMarginHeight();
 
-            step.setChildrenVisibleHeight(childrenHeight);
+            step.setActiveViewsHeight(activeViewsHeight);
         }
     }
 
-    private void measureChild(View child, int parentWms, int parentHms, int currentHeight) {
-        LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        int childUsedWidth = calculateHorizontalPadding() + calculateHorizontalUsedSpace(child);
-        int childWms = getChildMeasureSpec(parentWms, childUsedWidth, lp.width);
+    private void measureActiveView(View activeView, int parentWms, int parentHms, int currentHeight) {
+        LayoutParams lp = (LayoutParams) activeView.getLayoutParams();
+        int activeViewUsedWidth = calculateHorizontalPadding() + calculateHorizontalUsedSpace(activeView);
+        int activeViewWms = getChildMeasureSpec(parentWms, activeViewUsedWidth, lp.width);
 
-        int childVerticalPadding = calculateVerticalUsedSpace(child);
-        int childUsedHeight = childVerticalPadding + currentHeight;
-        int childHms = getChildMeasureSpec(parentHms, childUsedHeight, lp.height);
+        int activeViewUsedHeight = calculateVerticalUsedSpace(activeView) + currentHeight;
+        int activeViewHms = getChildMeasureSpec(parentHms, activeViewUsedHeight, lp.height);
 
-        child.measure(childWms, childHms);
+        activeView.measure(activeViewWms, activeViewHms);
     }
 
-    private int calculateChildHeight(Step step, View child) {
+    private int calculateActiveHeight(Step step, View activeView) {
         if (step.isActive()) {
-            return child.getMeasuredHeight() + calculateVerticalUsedSpace(child);
+            return activeView.getMeasuredHeight() + calculateVerticalUsedSpace(activeView);
         }
         return 0;
     }
@@ -403,29 +402,29 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void layoutInnerView(Rect rect, Step step) {
-        layoutChildView(rect, step.getInnerView());
+        layoutActiveView(rect, step.getInnerView());
     }
 
     @VisibleForTesting
     void layoutNavButtons(Rect rect, Step step) {
-        layoutChildView(rect, step.getContinueButton());
+        layoutActiveView(rect, step.getContinueButton());
     }
 
     @VisibleForTesting
-    void layoutChildView(Rect rect, View child) {
-        LayoutParams lp = (LayoutParams) child.getLayoutParams();
+    void layoutActiveView(Rect rect, View activeView) {
+        LayoutParams lp = (LayoutParams) activeView.getLayoutParams();
 
-        int childLeft = rect.left + lp.leftMargin;
+        int activeLeft = rect.left + lp.leftMargin;
 
-        int childTop = rect.top + lp.topMargin;
+        int activeTop = rect.top + lp.topMargin;
 
-        int childRightMax = rect.right - lp.rightMargin;
-        int childRight = Math.min(childLeft + child.getMeasuredWidth(), childRightMax);
+        int activeRightMax = rect.right - lp.rightMargin;
+        int activeRight = Math.min(activeLeft + activeView.getMeasuredWidth(), activeRightMax);
 
-        int childBottomMax = rect.bottom - lp.bottomMargin;
-        int childBottom = Math.min(childTop + child.getMeasuredHeight(), childBottomMax);
+        int activeBottomMax = rect.bottom - lp.bottomMargin;
+        int activeBottom = Math.min(activeTop + activeView.getMeasuredHeight(), activeBottomMax);
 
-        child.layout(childLeft, childTop, childRight, childBottom);
+        activeView.layout(activeLeft, activeTop, activeRight, activeBottom);
     }
 
     @Override
