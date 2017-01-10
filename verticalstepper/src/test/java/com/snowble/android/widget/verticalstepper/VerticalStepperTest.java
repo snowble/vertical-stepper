@@ -872,6 +872,16 @@ public class VerticalStepperTest {
                     .isEqualTo(stepper.calculateVerticalPadding()
                             + decoratorHeight + childrenVisibleHeight + bottomMarginHeight);
         }
+
+        @Test
+        public void layoutActiveViews_ShouldNotModifyInputRect() {
+            Rect rect = new Rect(1, 2, 3, 4);
+
+            stepper.layoutActiveViews(rect, mockedStep1.step);
+
+            assertThat(rect).isEqualTo(new Rect(1, 2, 3, 4));
+        }
+
     }
 
     public static class GivenExactlyOneActiveStep extends GivenOneStep {
