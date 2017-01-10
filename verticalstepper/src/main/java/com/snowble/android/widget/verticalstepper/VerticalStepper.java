@@ -440,26 +440,21 @@ public class VerticalStepper extends ViewGroup {
         int dyToNextStep = 0;
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             canvas.translate(0, dyToNextStep);
+
             canvas.save();
 
             int stepNumber = i + 1;
             Step step = steps.get(i);
 
-            canvas.save();
             drawIcon(canvas, step, stepNumber);
-            canvas.restore();
 
-            canvas.save();
             drawText(canvas, step);
-            canvas.restore();
 
             boolean hasMoreSteps = stepNumber < innerViewsSize;
             if (hasMoreSteps) {
                 dyToNextStep = step.calculateYDistanceToNextStep();
 
-                canvas.save();
                 drawConnector(canvas, dyToNextStep);
-                canvas.restore();
             }
 
             canvas.restore();
@@ -469,8 +464,12 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawIcon(Canvas canvas, Step step, int stepNumber) {
+        canvas.save();
+
         drawIconBackground(canvas, step);
         drawIconText(canvas, stepNumber);
+
+        canvas.restore();
     }
 
     private void drawIconBackground(Canvas canvas, Step step) {
@@ -493,6 +492,8 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, Step step) {
+        canvas.save();
+
         canvas.translate(commonStepValues.calculateStepDecoratorIconWidth(), 0);
 
         TextPaint paint = step.getTitleTextPaint();
@@ -504,9 +505,13 @@ public class VerticalStepper extends ViewGroup {
                     step.getSummaryBaselineRelativeToTitleBottom(), commonStepValues.getSummaryTextPaint());
         }
         // TODO Handle optional case
+
+        canvas.restore();
     }
 
     private void drawConnector(Canvas canvas, int yDistanceToNextStep) {
+        canvas.save();
+
         int iconDimension = commonStepValues.getIconDimension();
         int iconMarginVertical = commonStepValues.getIconMarginVertical();
         int connectorWidth = commonStepValues.getConnectorWidth();
@@ -516,6 +521,8 @@ public class VerticalStepper extends ViewGroup {
         float startY = iconDimension + iconMarginVertical;
         float stopY = yDistanceToNextStep - iconMarginVertical;
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
+
+        canvas.restore();
     }
 
     @Override
