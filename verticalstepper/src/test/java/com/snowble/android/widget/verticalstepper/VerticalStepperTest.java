@@ -248,8 +248,6 @@ public class VerticalStepperTest {
         @Test
         public void onLayout_ActiveStep_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
             when(mockedStep1.step.isActive()).thenReturn(true);
-            int stepDecoratorIconWidth = 40;
-            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(stepDecoratorIconWidth);
             int distanceToTextBottom = 80;
             when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
 
@@ -271,7 +269,8 @@ public class VerticalStepperTest {
 
             Rect innerViewLayoutRect = layoutInnerViewArgRects.get(0);
             assertThat(innerViewLayoutRect.left)
-                    .isEqualTo(leftPadding + stepper.outerHorizontalPadding + stepDecoratorIconWidth);
+                    .isEqualTo(leftPadding + stepper.outerHorizontalPadding
+                            + stepper.getCommonStepValues().calculateStepDecoratorIconWidth());
             assertThat(innerViewLayoutRect.top)
                     .isEqualTo(stepper.outerVerticalPadding + topPadding + distanceToTextBottom);
             assertThat(innerViewLayoutRect.right)

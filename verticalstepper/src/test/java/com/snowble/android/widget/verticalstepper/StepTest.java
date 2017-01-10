@@ -54,8 +54,15 @@ public class StepTest {
         }
     }
 
-    public static abstract class GivenATestStepDefinition extends GivenCommonValues {
-        protected class TestStep extends Step {
+    public static abstract class GivenATestStep extends GivenCommonValues {
+        TestStep step;
+
+        @Before
+        public void givenATestStep() {
+            step = new TestStep();
+        }
+
+        class TestStep extends Step {
             private float titleWidth;
             private float titleHeight;
             private float summaryWidth;
@@ -137,16 +144,32 @@ public class StepTest {
         }
     }
 
-    public static abstract class GivenATestStep extends GivenATestStepDefinition {
-        TestStep step;
-
-        @Before
-        public void givenATestStep() {
-            step = new TestStep();
-        }
-    }
-
     public static class GivenEmptyTestStep extends GivenATestStep {
+        @Test
+        public void calculateHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
+            int leftMargin = 20;
+            int rightMargin = 10;
+            innerLayoutParams.leftMargin = leftMargin;
+            innerLayoutParams.rightMargin = rightMargin;
+
+            int horizontalPadding = step.calculateHorizontalUsedSpace(innerView);
+
+            assertThat(horizontalPadding)
+                    .isEqualTo(leftMargin + rightMargin + common.calculateStepDecoratorIconWidth());
+        }
+
+        @Test
+        public void calculateVerticalUsedSpace_ShouldReturnAllMargins() {
+            int topMargin = 10;
+            int bottomMargin = 20;
+            innerLayoutParams.topMargin = topMargin;
+            innerLayoutParams.bottomMargin = bottomMargin;
+
+            int verticalPadding = step.calculateVerticalUsedSpace(innerView);
+
+            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
+        }
+
         @Test
         public void calculateStepDecoratorWidth_ShouldReturnIconSumPlusMaxTextWidth() {
             int iconWidth = common.getIconDimension() + common.getIconMarginRight();
@@ -162,7 +185,7 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthPlusMarginSum() {
-            int iconWidth = step.calculateStepDecoratorIconWidth();
+            int iconWidth = common.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
                     .isEqualTo(common.getIconDimension() + common.getIconMarginRight());
@@ -215,47 +238,6 @@ public class StepTest {
             int height = step.getDecoratorHeight();
 
             assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
-        }
-    }
-
-    public static class GivenTestStepWithPredefinedIconWidth extends GivenATestStepDefinition {
-        private static final int DECORATOR_ICON_WIDTH = 40;
-
-        TestStep step;
-
-        @Before
-        public void givenTestStepWithPredefinedIconWidth() {
-            step = new TestStep() {
-                @Override
-                int calculateStepDecoratorIconWidth() {
-                    return DECORATOR_ICON_WIDTH;
-                }
-            };
-        }
-
-        @Test
-        public void calculateHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
-            int leftMargin = 20;
-            int rightMargin = 10;
-            innerLayoutParams.leftMargin = leftMargin;
-            innerLayoutParams.rightMargin = rightMargin;
-
-            int horizontalPadding = step.calculateHorizontalUsedSpace(innerView);
-
-            assertThat(horizontalPadding)
-                    .isEqualTo(leftMargin + rightMargin + DECORATOR_ICON_WIDTH);
-        }
-
-        @Test
-        public void calculateVerticalUsedSpace_ShouldReturnAllMargins() {
-            int topMargin = 10;
-            int bottomMargin = 20;
-            innerLayoutParams.topMargin = topMargin;
-            innerLayoutParams.bottomMargin = bottomMargin;
-
-            int verticalPadding = step.calculateVerticalUsedSpace(innerView);
-
-            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
         }
     }
 

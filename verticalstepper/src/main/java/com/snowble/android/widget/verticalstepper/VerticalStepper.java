@@ -90,6 +90,11 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
+    Step.Common getCommonStepValues() {
+        return commonStepValues;
+    }
+
+    @VisibleForTesting
     void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
                     defStyleAttr, defStyleRes);
@@ -372,7 +377,7 @@ public class VerticalStepper extends ViewGroup {
         int originalLeft = rect.left;
         int originalTop = rect.top;
 
-        rect.left += step.calculateStepDecoratorIconWidth();
+        rect.left += commonStepValues.calculateStepDecoratorIconWidth();
         rect.top += step.calculateYDistanceToTextBottom();
 
         layoutInnerView(rect, step);
@@ -482,7 +487,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     private void drawText(Canvas canvas, Step step) {
-        canvas.translate(step.calculateStepDecoratorIconWidth(), 0);
+        canvas.translate(commonStepValues.calculateStepDecoratorIconWidth(), 0);
 
         TextPaint paint = step.getTitleTextPaint();
         canvas.drawText(step.getTitle(), 0, step.getTitleBaselineRelativeToStepTop(), paint);
