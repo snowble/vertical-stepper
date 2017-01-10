@@ -384,7 +384,8 @@ public class VerticalStepper extends ViewGroup {
         touchView.layout(touchLeft, touchTop, touchRight, touchBottom);
     }
 
-    private void layoutActiveViews(Rect rect, Step step) {
+    @VisibleForTesting
+    void layoutActiveViews(Rect rect, Step step) {
         int originalLeft = rect.left;
         int originalTop = rect.top;
 
