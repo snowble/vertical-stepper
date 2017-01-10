@@ -194,28 +194,12 @@ class Step {
         return active ? common.getIconActiveBackgroundPaint() : common.getIconInactiveBackgroundPaint();
     }
 
-    int calculateInnerViewHorizontalUsedSpace() {
-        return calculateViewHorizontalUsedSpace(innerView);
-    }
-
-    int calculateInnerViewVerticalUsedSpace() {
-        return calculateVerticalUsedSpace(innerView);
-    }
-
-    int calculateContinueHorizontalUsedSpace() {
-        return calculateViewHorizontalUsedSpace(continueButton);
-    }
-
-    int calculateContinueVerticalUsedSpace() {
-        return calculateVerticalUsedSpace(continueButton);
-    }
-
-    private int calculateViewHorizontalUsedSpace(View view) {
+    int calculateHorizontalUsedSpace(View view) {
         VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
         return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
     }
 
-    private int calculateVerticalUsedSpace(View view) {
+    int calculateVerticalUsedSpace(View view) {
         VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
         return lp.topMargin + lp.bottomMargin;
     }
