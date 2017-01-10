@@ -430,6 +430,11 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        doDraw(canvas);
+    }
+
+    @VisibleForTesting
+    void doDraw(Canvas canvas) {
         canvas.save();
         canvas.translate(outerHorizontalPadding + getPaddingLeft(), outerVerticalPadding + getPaddingTop());
         int dyToNextStep = 0;
