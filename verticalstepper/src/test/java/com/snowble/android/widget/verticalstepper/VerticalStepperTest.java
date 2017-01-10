@@ -51,275 +51,6 @@ public class VerticalStepperTest {
         }
     }
 
-    public static abstract class GivenStepperSpy extends GivenAnActivity {
-        VerticalStepper stepperSpy;
-
-        @Before
-        public void givenStepperSpy() {
-            stepperSpy = spy(new VerticalStepper(activity));
-        }
-
-    }
-
-    public static class GivenEmptyStepperSpy extends GivenStepperSpy {
-        @Test
-        public void onAttachedToWindow_ShouldInitSteps() {
-            stepperSpy.onAttachedToWindow();
-
-            verify(stepperSpy).initSteps();
-        }
-
-        @Test
-        public void initSteps_ShouldInitStepsAndChildViews() {
-            View child1 = mock(View.class);
-            View child2 = mock(View.class);
-            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
-            when(lp.getTitle()).thenReturn("title");
-            when(child1.getLayoutParams()).thenReturn(lp);
-            when(child2.getLayoutParams()).thenReturn(lp);
-
-            // For some reason, calling addView() doesn't update the children properly with the stepperSpy.
-            // So explicitly set child count and children
-            doReturn(2).when(stepperSpy).getChildCount();
-            doReturn(child1).when(stepperSpy).getChildAt(0);
-            doReturn(child2).when(stepperSpy).getChildAt(1);
-
-            stepperSpy.initSteps();
-
-            verify(stepperSpy, times(2)).initStep(any(Step.class));
-            verify(stepperSpy, times(2)).initTouchView(any(Step.class));
-            verify(stepperSpy, times(2)).initNavButtons(any(Step.class));
-        }
-
-        @SuppressLint("WrongCall") // Explicitly testing onMeasure
-        @Test
-        public void onMeasure_ShouldCallDoMeasurement() {
-            stepperSpy.onMeasure(0, 0);
-
-            verify(stepperSpy).doMeasurement(eq(0), eq(0));
-        }
-
-        @SuppressLint("WrongCall") // Explicitly testing onDraw
-        @Test
-        public void onDraw_ShouldCallDoDraw() {
-            Canvas canvas = mock(Canvas.class);
-            stepperSpy.onDraw(canvas);
-
-            verify(stepperSpy).doDraw(canvas);
-        }
-    }
-
-    @SuppressLint("WrongCall") // Explicitly testing onLayout
-    public static class GivenStepperSpyWithTwoSteps extends GivenStepperSpy {
-        private MockedStep mockedStep1;
-        private MockedStep mockedStep2;
-
-        @Before
-        public void givenStepperSpyWithTwoSteps() {
-            mockedStep1 = new MockedStep();
-            mockedStep2 = new MockedStep();
-            stepperSpy.steps.add(mockedStep1.step);
-            stepperSpy.steps.add(mockedStep2.step);
-        }
-
-        static class CaptureRectAnswer implements Answer<Void> {
-            private final Rect rectToCaptureArg;
-
-            CaptureRectAnswer(Rect rectToCaptureArg) {
-                this.rectToCaptureArg = rectToCaptureArg;
-            }
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Rect rect = invocation.getArgument(0);
-                rectToCaptureArg.set(rect);
-                return null;
-            }
-        }
-
-        @Test
-        public void onLayout_NoActiveSteps_ShouldNotCallLayoutInnerViewOrLayoutNavButtons() {
-            stepperSpy.onLayout(true, 0, 0, 0, 0);
-
-            verify(stepperSpy, times(2)).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
-
-            verify(stepperSpy, never()).layoutInnerView(any(Rect.class), any(Step.class));
-            verify(stepperSpy, never()).layoutNavButtons(any(Rect.class), any(Step.class));
-        }
-
-        @Test
-        public void onLayout_ActiveStep_ShouldCallLayoutInnerViewAndLayoutNavButtons() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
-
-            stepperSpy.onLayout(true, 0, 0, 0, 0);
-
-            verify(stepperSpy, times(2)).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
-
-            verify(stepperSpy).layoutInnerView(any(Rect.class), any(Step.class));
-            verify(stepperSpy).layoutNavButtons(any(Rect.class), any(Step.class));
-        }
-
-        @Test
-        public void onLayout_ShouldAdjustTouchForPadding() {
-            int leftPadding = 8;
-            int topPadding = 20;
-            int rightPadding = 4;
-            int bottomPadding = 10;
-            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-
-            int left = 0;
-            int top = 0;
-            int right = 400;
-            int bottom = 200;
-
-            stepperSpy.onLayout(true, left, top, right, bottom);
-
-            ArgumentCaptor<Rect> rectCaptor = ArgumentCaptor.forClass(Rect.class);
-            verify(stepperSpy).layoutTouchView(rectCaptor.capture(), same(mockedStep1.touchView));
-            Rect touchRect = rectCaptor.getValue();
-
-            assertThat(touchRect.left).isEqualTo(stepperSpy.outerHorizontalPadding + leftPadding);
-            assertThat(touchRect.top).isEqualTo(stepperSpy.outerVerticalPadding + topPadding);
-            assertThat(touchRect.right).isEqualTo(right - stepperSpy.outerHorizontalPadding - rightPadding);
-            assertThat(touchRect.bottom).isEqualTo(bottom - stepperSpy.outerVerticalPadding - bottomPadding);
-        }
-
-        @Test
-        public void onLayout_ActiveStep_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
-            int distanceToTextBottom = 80;
-            when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
-
-            int leftPadding = 8;
-            int topPadding = 20;
-            int rightPadding = 4;
-            int bottomPadding = 10;
-            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-
-            final Rect innerRect = new Rect();
-            doAnswer(new CaptureRectAnswer(innerRect))
-                    .when(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
-
-            int left = 0;
-            int top = 0;
-            int right = 400;
-            int bottom = 200;
-
-            stepperSpy.onLayout(true, left, top, right, bottom);
-
-            verify(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
-
-            assertThat(innerRect.left)
-                    .isEqualTo(leftPadding + stepperSpy.outerHorizontalPadding
-                            + stepperSpy.getCommonStepValues().calculateStepDecoratorIconWidth());
-            assertThat(innerRect.top)
-                    .isEqualTo(stepperSpy.outerVerticalPadding + topPadding + distanceToTextBottom);
-            assertThat(innerRect.right)
-                    .isEqualTo(right - left - stepperSpy.outerHorizontalPadding - rightPadding);
-            assertThat(innerRect.bottom)
-                    .isEqualTo(bottom - top - stepperSpy.outerVerticalPadding - bottomPadding);
-        }
-
-        @Test
-        public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
-            InOrder order = inOrder(stepperSpy);
-            when(mockedStep1.step.isActive()).thenReturn(true);
-            int innerHeight = 400;
-            when(mockedStep1.innerView.getHeight()).thenReturn(innerHeight);
-
-            final Rect innerRect = new Rect();
-            final Rect navRect = new Rect();
-            doAnswer(new CaptureRectAnswer(innerRect))
-                    .when(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
-            doAnswer(new CaptureRectAnswer(navRect))
-                    .when(stepperSpy).layoutNavButtons(any(Rect.class), same(mockedStep1.step));
-
-            stepperSpy.onLayout(true, 0, 0, 0, 0);
-
-            order.verify(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
-            order.verify(stepperSpy).layoutNavButtons(any(Rect.class), same(mockedStep1.step));
-
-            int innerTop = innerRect.top;
-            int buttonsTop = navRect.top;
-
-            assertThat(buttonsTop).isEqualTo(innerTop + innerHeight);
-        }
-
-        @Test
-        public void onLayout_ShouldAdjustNextTopForPreviousStepHeight() {
-            InOrder order = inOrder(stepperSpy);
-            int distanceToNextStep = 400;
-            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
-
-            final Rect firstRect = new Rect();
-            final Rect secondRect = new Rect();
-            doAnswer(new CaptureRectAnswer(firstRect))
-                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-            doAnswer(new CaptureRectAnswer(secondRect))
-                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep2.touchView));
-
-            stepperSpy.onLayout(true, 0, 0, 0, 0);
-
-            order.verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-            order.verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep2.touchView));
-
-            int firstStepTop = firstRect.top;
-            int secondStepTop = secondRect.top;
-            assertThat(secondStepTop).isEqualTo(firstStepTop + distanceToNextStep);
-        }
-
-        @Test
-        public void onLayout_NonZeroLeft_ShouldAdjustForLeftOffset() {
-            int left = 50;
-            int right = 300;
-
-            final Rect touchRect = new Rect();
-            doAnswer(new CaptureRectAnswer(touchRect))
-                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-
-            stepperSpy.onLayout(true, left, 0, right, 0);
-
-            verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-
-            assertThat(touchRect.left).isEqualTo(stepperSpy.outerHorizontalPadding);
-            assertThat(touchRect.right).isEqualTo(right - left - stepperSpy.outerHorizontalPadding);
-        }
-
-        @Test
-        public void onLayout_NonZeroTop_ShouldAdjustForTopOffset() {
-            int top = 50;
-            int bottom = 300;
-
-            final Rect touchRect = new Rect();
-            doAnswer(new CaptureRectAnswer(touchRect))
-                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-
-            stepperSpy.onLayout(true, 0, top, 0, bottom);
-
-            verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
-
-            assertThat(touchRect.top).isEqualTo(stepperSpy.outerVerticalPadding);
-            assertThat(touchRect.bottom).isEqualTo(bottom - top - stepperSpy.outerVerticalPadding);
-        }
-
-        @Test
-        public void layoutInnerView_ShouldCallLayoutActiveViewWithInnerView() {
-            Rect rect = mock(Rect.class);
-
-            stepperSpy.layoutInnerView(rect, mockedStep1.step);
-
-            verify(stepperSpy).layoutActiveView(rect, mockedStep1.innerView);
-        }
-
-        @Test
-        public void layoutNavButtons_ShouldCallLayoutActiveViewWithContinueButton() {
-            Rect rect = mock(Rect.class);
-
-            stepperSpy.layoutNavButtons(rect, mockedStep1.step);
-
-            verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
-        }
-    }
-
     public abstract static class GivenAStepper extends GivenAnActivity {
         VerticalStepper stepper;
 
@@ -1122,6 +853,274 @@ public class VerticalStepperTest {
                 assertThat(View.MeasureSpec.getMode(actualHms)).isEqualTo(View.MeasureSpec.EXACTLY);
                 assertThat(View.MeasureSpec.getSize(actualHms)).isEqualTo(height);
             }
+        }
+    }
+
+    public static abstract class GivenStepperSpy extends GivenAStepper {
+        VerticalStepper stepperSpy;
+
+        @Before
+        public void givenStepperSpy() {
+            stepperSpy = spy(stepper);
+        }
+    }
+
+    public static class GivenEmptyStepperSpy extends GivenStepperSpy {
+        @Test
+        public void onAttachedToWindow_ShouldInitSteps() {
+            stepperSpy.onAttachedToWindow();
+
+            verify(stepperSpy).initSteps();
+        }
+
+        @Test
+        public void initSteps_ShouldInitStepsAndChildViews() {
+            View child1 = mock(View.class);
+            View child2 = mock(View.class);
+            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+            when(lp.getTitle()).thenReturn("title");
+            when(child1.getLayoutParams()).thenReturn(lp);
+            when(child2.getLayoutParams()).thenReturn(lp);
+
+            // For some reason, calling addView() doesn't update the children properly with the stepperSpy.
+            // So explicitly set child count and children
+            doReturn(2).when(stepperSpy).getChildCount();
+            doReturn(child1).when(stepperSpy).getChildAt(0);
+            doReturn(child2).when(stepperSpy).getChildAt(1);
+
+            stepperSpy.initSteps();
+
+            verify(stepperSpy, times(2)).initStep(any(Step.class));
+            verify(stepperSpy, times(2)).initTouchView(any(Step.class));
+            verify(stepperSpy, times(2)).initNavButtons(any(Step.class));
+        }
+
+        @SuppressLint("WrongCall") // Explicitly testing onMeasure
+        @Test
+        public void onMeasure_ShouldCallDoMeasurement() {
+            stepperSpy.onMeasure(0, 0);
+
+            verify(stepperSpy).doMeasurement(eq(0), eq(0));
+        }
+
+        @SuppressLint("WrongCall") // Explicitly testing onDraw
+        @Test
+        public void onDraw_ShouldCallDoDraw() {
+            Canvas canvas = mock(Canvas.class);
+            stepperSpy.onDraw(canvas);
+
+            verify(stepperSpy).doDraw(canvas);
+        }
+    }
+
+    @SuppressLint("WrongCall") // Explicitly testing onLayout
+    public static class GivenStepperSpyWithTwoSteps extends GivenStepperSpy {
+        private MockedStep mockedStep1;
+        private MockedStep mockedStep2;
+
+        @Before
+        public void givenStepperSpyWithTwoSteps() {
+            mockedStep1 = new MockedStep();
+            mockedStep2 = new MockedStep();
+            stepperSpy.steps.add(mockedStep1.step);
+            stepperSpy.steps.add(mockedStep2.step);
+        }
+
+        static class CaptureRectAnswer implements Answer<Void> {
+            private final Rect rectToCaptureArg;
+
+            CaptureRectAnswer(Rect rectToCaptureArg) {
+                this.rectToCaptureArg = rectToCaptureArg;
+            }
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                Rect rect = invocation.getArgument(0);
+                rectToCaptureArg.set(rect);
+                return null;
+            }
+        }
+
+        @Test
+        public void onLayout_NoActiveSteps_ShouldNotCallLayoutInnerViewOrLayoutNavButtons() {
+            stepperSpy.onLayout(true, 0, 0, 0, 0);
+
+            verify(stepperSpy, times(2)).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
+
+            verify(stepperSpy, never()).layoutInnerView(any(Rect.class), any(Step.class));
+            verify(stepperSpy, never()).layoutNavButtons(any(Rect.class), any(Step.class));
+        }
+
+        @Test
+        public void onLayout_ActiveStep_ShouldCallLayoutInnerViewAndLayoutNavButtons() {
+            when(mockedStep1.step.isActive()).thenReturn(true);
+
+            stepperSpy.onLayout(true, 0, 0, 0, 0);
+
+            verify(stepperSpy, times(2)).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
+
+            verify(stepperSpy).layoutInnerView(any(Rect.class), any(Step.class));
+            verify(stepperSpy).layoutNavButtons(any(Rect.class), any(Step.class));
+        }
+
+        @Test
+        public void onLayout_ShouldAdjustTouchForPadding() {
+            int leftPadding = 8;
+            int topPadding = 20;
+            int rightPadding = 4;
+            int bottomPadding = 10;
+            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
+
+            stepperSpy.onLayout(true, left, top, right, bottom);
+
+            ArgumentCaptor<Rect> rectCaptor = ArgumentCaptor.forClass(Rect.class);
+            verify(stepperSpy).layoutTouchView(rectCaptor.capture(), same(mockedStep1.touchView));
+            Rect touchRect = rectCaptor.getValue();
+
+            assertThat(touchRect.left).isEqualTo(stepperSpy.outerHorizontalPadding + leftPadding);
+            assertThat(touchRect.top).isEqualTo(stepperSpy.outerVerticalPadding + topPadding);
+            assertThat(touchRect.right).isEqualTo(right - stepperSpy.outerHorizontalPadding - rightPadding);
+            assertThat(touchRect.bottom).isEqualTo(bottom - stepperSpy.outerVerticalPadding - bottomPadding);
+        }
+
+        @Test
+        public void onLayout_ActiveStep_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            int distanceToTextBottom = 80;
+            when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
+
+            int leftPadding = 8;
+            int topPadding = 20;
+            int rightPadding = 4;
+            int bottomPadding = 10;
+            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            final Rect innerRect = new Rect();
+            doAnswer(new CaptureRectAnswer(innerRect))
+                    .when(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
+
+            int left = 0;
+            int top = 0;
+            int right = 400;
+            int bottom = 200;
+
+            stepperSpy.onLayout(true, left, top, right, bottom);
+
+            verify(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
+
+            assertThat(innerRect.left)
+                    .isEqualTo(leftPadding + stepperSpy.outerHorizontalPadding
+                            + stepperSpy.getCommonStepValues().calculateStepDecoratorIconWidth());
+            assertThat(innerRect.top)
+                    .isEqualTo(stepperSpy.outerVerticalPadding + topPadding + distanceToTextBottom);
+            assertThat(innerRect.right)
+                    .isEqualTo(right - left - stepperSpy.outerHorizontalPadding - rightPadding);
+            assertThat(innerRect.bottom)
+                    .isEqualTo(bottom - top - stepperSpy.outerVerticalPadding - bottomPadding);
+        }
+
+        @Test
+        public void onLayout_ActiveStep_ShouldAdjustButtonsTopForInnerViewHeight() {
+            InOrder order = inOrder(stepperSpy);
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            int innerHeight = 400;
+            when(mockedStep1.innerView.getHeight()).thenReturn(innerHeight);
+
+            final Rect innerRect = new Rect();
+            final Rect navRect = new Rect();
+            doAnswer(new CaptureRectAnswer(innerRect))
+                    .when(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
+            doAnswer(new CaptureRectAnswer(navRect))
+                    .when(stepperSpy).layoutNavButtons(any(Rect.class), same(mockedStep1.step));
+
+            stepperSpy.onLayout(true, 0, 0, 0, 0);
+
+            order.verify(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
+            order.verify(stepperSpy).layoutNavButtons(any(Rect.class), same(mockedStep1.step));
+
+            int innerTop = innerRect.top;
+            int buttonsTop = navRect.top;
+
+            assertThat(buttonsTop).isEqualTo(innerTop + innerHeight);
+        }
+
+        @Test
+        public void onLayout_ShouldAdjustNextTopForPreviousStepHeight() {
+            InOrder order = inOrder(stepperSpy);
+            int distanceToNextStep = 400;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
+            final Rect firstRect = new Rect();
+            final Rect secondRect = new Rect();
+            doAnswer(new CaptureRectAnswer(firstRect))
+                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+            doAnswer(new CaptureRectAnswer(secondRect))
+                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep2.touchView));
+
+            stepperSpy.onLayout(true, 0, 0, 0, 0);
+
+            order.verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+            order.verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep2.touchView));
+
+            int firstStepTop = firstRect.top;
+            int secondStepTop = secondRect.top;
+            assertThat(secondStepTop).isEqualTo(firstStepTop + distanceToNextStep);
+        }
+
+        @Test
+        public void onLayout_NonZeroLeft_ShouldAdjustForLeftOffset() {
+            int left = 50;
+            int right = 300;
+
+            final Rect touchRect = new Rect();
+            doAnswer(new CaptureRectAnswer(touchRect))
+                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+
+            stepperSpy.onLayout(true, left, 0, right, 0);
+
+            verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+
+            assertThat(touchRect.left).isEqualTo(stepperSpy.outerHorizontalPadding);
+            assertThat(touchRect.right).isEqualTo(right - left - stepperSpy.outerHorizontalPadding);
+        }
+
+        @Test
+        public void onLayout_NonZeroTop_ShouldAdjustForTopOffset() {
+            int top = 50;
+            int bottom = 300;
+
+            final Rect touchRect = new Rect();
+            doAnswer(new CaptureRectAnswer(touchRect))
+                    .when(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+
+            stepperSpy.onLayout(true, 0, top, 0, bottom);
+
+            verify(stepperSpy).layoutTouchView(any(Rect.class), same(mockedStep1.touchView));
+
+            assertThat(touchRect.top).isEqualTo(stepperSpy.outerVerticalPadding);
+            assertThat(touchRect.bottom).isEqualTo(bottom - top - stepperSpy.outerVerticalPadding);
+        }
+
+        @Test
+        public void layoutInnerView_ShouldCallLayoutActiveViewWithInnerView() {
+            Rect rect = mock(Rect.class);
+
+            stepperSpy.layoutInnerView(rect, mockedStep1.step);
+
+            verify(stepperSpy).layoutActiveView(rect, mockedStep1.innerView);
+        }
+
+        @Test
+        public void layoutNavButtons_ShouldCallLayoutActiveViewWithContinueButton() {
+            Rect rect = mock(Rect.class);
+
+            stepperSpy.layoutNavButtons(rect, mockedStep1.step);
+
+            verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
         }
     }
 }
