@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.robolectric.Robolectric;
 
 import java.util.ArrayList;
@@ -618,6 +619,36 @@ public class VerticalStepperTest {
             stepper.layoutActiveView(new Rect(left, top, right, bottom), activeView);
 
             verify(activeView).layout(eq(left), eq(top), eq(left + measuredWidth), eq(top + measuredHeight));
+        }
+
+        @Test
+        public void doDraw_SaveAndRestoreCanvas() {
+            Canvas canvas = mock(Canvas.class);
+            InOrder order = inOrder(canvas);
+
+            stepper.doDraw(canvas);
+
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+        }
+
+        @Test
+        public void doDraw_ShouldTranslateByPadding() {
+            Canvas canvas = mock(Canvas.class);
+            InOrder order = inOrder(canvas);
+            int leftPadding = 10;
+            int topPadding = 20;
+            int rightPadding = 5;
+            int bottomPadding = 15;
+
+            stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            stepper.doDraw(canvas);
+
+            order.verify(canvas).translate(stepper.outerHorizontalPadding + leftPadding,
+                    stepper.outerVerticalPadding + topPadding);
+            order.verify(canvas).translate(stepper.outerHorizontalPadding + rightPadding,
+                    stepper.outerVerticalPadding + bottomPadding);
         }
     }
 
