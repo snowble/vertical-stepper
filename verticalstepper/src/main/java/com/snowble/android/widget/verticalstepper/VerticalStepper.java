@@ -473,11 +473,13 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private void drawIconBackground(Canvas canvas, Step step) {
+    @VisibleForTesting
+    void drawIconBackground(Canvas canvas, Step step) {
         canvas.drawArc(commonStepValues.getTempRectForIconBackground(), 0f, 360f, true, step.getIconColor());
     }
 
-    private void drawIconText(Canvas canvas, int stepNumber) {
+    @VisibleForTesting
+    void drawIconText(Canvas canvas, int stepNumber) {
         String stepNumberString = String.format(Locale.getDefault(), "%d", stepNumber);
         TextPaint iconTextPaint = commonStepValues.getIconTextPaint();
         int iconDimension = commonStepValues.getIconDimension();

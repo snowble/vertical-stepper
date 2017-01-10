@@ -1143,6 +1143,7 @@ public class VerticalStepperTest {
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
             canvas = mock(Canvas.class);
+
             doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
             doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
             doNothing().when(stepperSpy).drawConnector(same(canvas), anyInt());
@@ -1227,6 +1228,34 @@ public class VerticalStepperTest {
 
             // for all of doDraw
             order.verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawIconMethods extends GivenStepperSpyWithTwoSteps {
+        private Canvas canvas;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
+            canvas = mock(Canvas.class);
+
+            doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawIconText(same(canvas), anyInt());
+        }
+
+        @Test
+        public void drawIcon_ShouldCallDrawIconBackgroundAndDrawIconText() {
+            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
+
+            verify(stepperSpy).drawIconBackground(canvas, mockedStep1.step);
+            verify(stepperSpy).drawIconText(canvas, 1);
+        }
+
+        @Test
+        public void drawIcon_ShouldCallSaveAndRestore() {
+            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
+
+            verify(canvas).save();
+            verify(canvas).restore();
         }
     }
 }
