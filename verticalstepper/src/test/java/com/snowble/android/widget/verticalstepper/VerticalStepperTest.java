@@ -1,6 +1,7 @@
 package com.snowble.android.widget.verticalstepper;
 
 import android.annotation.SuppressLint;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
@@ -63,6 +64,7 @@ public class VerticalStepperTest {
             private List<Rect> layoutInnerViewArgRects = new ArrayList<>();
             private List<Rect> layoutNavButtonArgRects = new ArrayList<>();
             private Map<Rect, View> layoutActiveViewCalls = new HashMap<>();
+            private boolean doDrawCalled;
 
             public TestStepper() {
                 super(activity);
@@ -152,6 +154,15 @@ public class VerticalStepperTest {
             public Map<Rect, View> getLayoutActiveViewCalls() {
                 return layoutActiveViewCalls;
             }
+
+            @Override
+            void doDraw(Canvas canvas) {
+                doDrawCalled = true;
+            }
+
+            public boolean wasDoDrawCalled() {
+                return doDrawCalled;
+            }
         }
 
         @Before
@@ -196,6 +207,13 @@ public class VerticalStepperTest {
             assertThat(stepper.wasDoMeasurementCalled()).isTrue();
         }
 
+        @SuppressLint("WrongCall") // Explicitly testing onDraw
+        @Test
+        public void onDraw_ShouldCallDoDraw() {
+            stepper.onDraw(null);
+
+            assertThat(stepper.wasDoDrawCalled()).isTrue();
+        }
     }
 
     @SuppressLint("WrongCall") // Explicitly testing onLayout
