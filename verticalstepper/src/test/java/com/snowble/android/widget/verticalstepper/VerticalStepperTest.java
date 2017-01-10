@@ -24,17 +24,23 @@ public class VerticalStepperTest {
 
     private static class MockedStep {
         View innerView;
+        VerticalStepper.LayoutParams innerLayoutParams;
         VerticalStepper.InternalTouchView touchView;
         AppCompatButton continueButton;
-        VerticalStepper.LayoutParams layoutParams;
+        VerticalStepper.LayoutParams continueLayoutParams;
         Step step;
 
         MockedStep() {
             innerView = mock(View.class);
-            layoutParams = mock(VerticalStepper.LayoutParams.class);
-            when(innerView.getLayoutParams()).thenReturn(layoutParams);
+            innerLayoutParams = mock(VerticalStepper.LayoutParams.class);
+            when(innerView.getLayoutParams()).thenReturn(innerLayoutParams);
+
             continueButton = mock(AppCompatButton.class);
+            continueLayoutParams = mock(VerticalStepper.LayoutParams.class);
+            when(continueButton.getLayoutParams()).thenReturn(continueLayoutParams);
+
             touchView = mock(VerticalStepper.InternalTouchView.class);
+
             step = mock(Step.class);
             when(step.getInnerView()).thenReturn(innerView);
             when(step.getTouchView()).thenReturn(touchView);
@@ -351,6 +357,10 @@ public class VerticalStepperTest {
     }
 
     public static class GivenZeroSteps extends GivenAStepper {
+        private int getColor(int colorRes) {
+            return ResourcesCompat.getColor(activity.getResources(), colorRes, activity.getTheme());
+        }
+
         @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
         @Test
         public void initPropertiesFromAttrs_NoAttrsSet_ShouldUseDefaults() {
@@ -376,10 +386,6 @@ public class VerticalStepperTest {
             assertThat(stepper.iconInactiveColor).isEqualTo(getColor(android.R.color.darker_gray));
             assertThat(stepper.continueButtonStyle)
                     .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Borderless);
-        }
-
-        private int getColor(int colorRes) {
-            return ResourcesCompat.getColor(activity.getResources(), colorRes, activity.getTheme());
         }
 
         @Test
@@ -531,21 +537,25 @@ public class VerticalStepperTest {
             stepper.initStep(mockedStep1.step);
 
             clearInvocations(mockedStep1.innerView);
-            clearInvocations(mockedStep1.layoutParams);
+            clearInvocations(mockedStep1.innerLayoutParams);
             clearInvocations(mockedStep1.continueButton);
+            clearInvocations(mockedStep1.continueLayoutParams);
             clearInvocations(mockedStep1.touchView);
             clearInvocations(mockedStep1.step);
         }
 
-        void mockStep1Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
-            mockStepWidths(mockedStep1, decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+        void mockStep1Widths(int decoratorWidth, int innerUsedSpace, int innerWidth,
+                             int continueUsedSpace, int continueWidth) {
+            mockStepWidths(mockedStep1, decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
         }
 
-        void mockStepWidths(MockedStep mockedStep,
-                            int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
+        void mockStepWidths(MockedStep mockedStep, int decoratorWidth,
+                            int innerUsedSpace, int innerWidth,
+                            int continueUsedSpace, int continueWidth) {
             when(mockedStep.step.calculateStepDecoratorWidth()).thenReturn(decoratorWidth);
             when(mockedStep.step.calculateInnerViewHorizontalUsedSpace()).thenReturn(innerUsedSpace);
             when(mockedStep.innerView.getMeasuredWidth()).thenReturn(innerWidth);
+            when(mockedStep.step.calculateContinueHorizontalUsedSpace()).thenReturn(continueUsedSpace);
             when(mockedStep.continueButton.getMeasuredWidth()).thenReturn(continueWidth);
         }
 
@@ -574,29 +584,29 @@ public class VerticalStepperTest {
 
         void assertExpectedStepMeasureSpecs(List<Integer> measureSpecs, Step step,
                                             int maxWidth, int maxHeight,
-                                            int additionalInnerUsedSpace, int additionalContinueUsedSpace) {
+                                            int additionalInnerVerticalUsedSpace,
+                                            int additionalContinueVerticalUsedSpace) {
             int innerWms = measureSpecs.get(0);
-            assertExpectedWidthMeasureSpec(step, maxWidth, innerWms);
+            assertExpectedWidthMeasureSpec(maxWidth, innerWms, step.calculateInnerViewHorizontalUsedSpace());
             int innerHms = measureSpecs.get(1);
-            assertExpectedHeightMeasureSpec(maxHeight, innerHms, additionalInnerUsedSpace);
+            assertExpectedHeightMeasureSpec(maxHeight, innerHms, additionalInnerVerticalUsedSpace);
 
             int continueWms = measureSpecs.get(2);
-            assertExpectedWidthMeasureSpec(step, maxWidth, continueWms);
+            assertExpectedWidthMeasureSpec(maxWidth, continueWms, step.calculateContinueHorizontalUsedSpace());
             int continueHms = measureSpecs.get(3);
-            assertExpectedHeightMeasureSpec(maxHeight, continueHms, additionalContinueUsedSpace);
+            assertExpectedHeightMeasureSpec(maxHeight, continueHms, additionalContinueVerticalUsedSpace);
         }
 
-        void assertExpectedHeightMeasureSpec(int maxHeight, int heightMeasureSpec,
-                                             int additionalUsedSpace) {
+        void assertExpectedHeightMeasureSpec(int maxHeight, int heightMeasureSpec, int additionalUsedSpace) {
             int verticalUsedSpace =
                     stepper.calculateVerticalPadding() + additionalUsedSpace;
             assertThat(View.MeasureSpec.getSize(heightMeasureSpec))
                     .isEqualTo(maxHeight - verticalUsedSpace);
         }
 
-        void assertExpectedWidthMeasureSpec(Step step, int maxWidth, int widthMeasureSpec) {
+        void assertExpectedWidthMeasureSpec(int maxWidth, int widthMeasureSpec, int additionalUsedSpace) {
             int horizontalUsedSpace =
-                    step.calculateInnerViewHorizontalUsedSpace() + stepper.calculateHorizontalPadding();
+                    stepper.calculateHorizontalPadding() + additionalUsedSpace;
             assertThat(View.MeasureSpec.getSize(widthMeasureSpec))
                     .isEqualTo(maxWidth - horizontalUsedSpace);
         }
@@ -697,8 +707,9 @@ public class VerticalStepperTest {
             int decoratorWidth = 20;
             int innerUsedSpace = 20;
             int innerWidth = decoratorWidth * 4;
+            int continueUsedSpace = 30;
             int continueWidth = 0;
-            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
 
             int width = stepper.calculateWidth();
 
@@ -712,8 +723,9 @@ public class VerticalStepperTest {
             int decoratorWidth = 20;
             int innerUsedSpace = 10;
             int innerWidth = 0;
+            int continueUsedSpace = 15;
             int continueWidth = 0;
-            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
 
             int maxWidth = stepper.calculateMaxStepWidth();
 
@@ -726,8 +738,9 @@ public class VerticalStepperTest {
             int decoratorWidth = 20;
             int innerUsedSpace = 20;
             int innerWidth = decoratorWidth * 4;
+            int continueUsedSpace = 15;
             int continueWidth = 0;
-            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
 
             int maxWidth = stepper.calculateMaxStepWidth();
 
@@ -740,13 +753,14 @@ public class VerticalStepperTest {
             int decoratorWidth = 20;
             int innerUsedSpace = 20;
             int innerWidth = 0;
+            int continueUsedSpace = 10;
             int continueWidth = decoratorWidth * 4;
-            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+            mockStep1Widths(decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
 
             int maxWidth = stepper.calculateMaxStepWidth();
 
             assertThat(maxWidth)
-                    .isEqualTo(continueWidth + innerUsedSpace);
+                    .isEqualTo(continueWidth + continueUsedSpace);
         }
 
         @Test
@@ -793,19 +807,22 @@ public class VerticalStepperTest {
 
         @Test
         public void measureChildViews_ShouldMeasureNavButtonsAccountingForInnerView() {
-            VerticalStepper.LayoutParams lp = createTestLayoutParams();
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(lp);
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(createTestLayoutParams());
             int innerHeight = 200;
             when(mockedStep1.innerView.getMeasuredHeight()).thenReturn(innerHeight);
             int innerVerticalUsedSpace = 20;
             when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
+
+            when(mockedStep1.continueButton.getLayoutParams()).thenReturn(createTestLayoutParams());
+            int continueVerticalUsedSpace = 10;
+            when(mockedStep1.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
 
             int maxWidth = 1080;
             int maxHeight = 1920;
             measureChildViews(maxWidth, maxHeight);
 
             assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUsedSpace,
-                    innerHeight + innerVerticalUsedSpace);
+                    innerHeight + innerVerticalUsedSpace + continueVerticalUsedSpace);
         }
     }
 
@@ -825,50 +842,59 @@ public class VerticalStepperTest {
 
         @Test
         public void measureChildViews_NoMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
-            VerticalStepper.LayoutParams lp = createTestLayoutParams();
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(lp);
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(createTestLayoutParams());
             int innerVerticalUsedSpace = 20;
             when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
+
+            when(mockedStep1.continueButton.getLayoutParams()).thenReturn(createTestLayoutParams());
+            int continueVerticalUsedSpace = 10;
+            when(mockedStep1.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
 
             int maxWidth = 1080;
             int maxHeight = 1920;
             measureChildViews(maxWidth, maxHeight);
 
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUsedSpace, 0);
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUsedSpace, continueVerticalUsedSpace);
         }
 
         @Test
         public void measureChildViews_HasMargins_ShouldMeasureChildrenAccountingForUsedSpace() {
-            int horizontalMargin = 10;
-            int verticalMargin = 20;
-            VerticalStepper.LayoutParams lp = createTestLayoutParams(
-                    horizontalMargin / 2, verticalMargin / 2, horizontalMargin / 2, verticalMargin / 2);
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(lp);
+            VerticalStepper.LayoutParams innerLp = createTestLayoutParams(5, 10, 5, 10);
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(innerLp);
+            VerticalStepper.LayoutParams continueLp = createTestLayoutParams(10, 20, 10, 20);
+            when(mockedStep1.continueButton.getLayoutParams()).thenReturn(continueLp);
+
             int innerVerticalUsedSpace = 20;
             when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
+            int continueVerticalUsedSpace = 10;
+            when(mockedStep1.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
 
             int maxWidth = 1080;
             int maxHeight = 1920;
             measureChildViews(maxWidth, maxHeight);
 
-            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUsedSpace, 0);
+            assertExpectedStep1MeasureSpecs(maxWidth, maxHeight, innerVerticalUsedSpace, continueVerticalUsedSpace);
         }
 
         @Test
         public void measureChildViews_ShouldMeasureChildrenAccountingForDecorator() {
             int decoratorHeight = 100;
             when(mockedStep1.step.getDecoratorHeight()).thenReturn(decoratorHeight);
-            VerticalStepper.LayoutParams lp = createTestLayoutParams();
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(lp);
+
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(createTestLayoutParams());
             int innerVerticalUsedSpace = 20;
             when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
+
+            when(mockedStep1.continueButton.getLayoutParams()).thenReturn(createTestLayoutParams());
+            int continueVerticalUsedSpace = 10;
+            when(mockedStep1.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
 
             int maxWidth = 1080;
             int maxHeight = 1920;
             measureChildViews(maxWidth, maxHeight);
 
             assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
-                    innerVerticalUsedSpace + decoratorHeight, decoratorHeight);
+                    innerVerticalUsedSpace + decoratorHeight, continueVerticalUsedSpace + decoratorHeight);
         }
     }
 
@@ -882,8 +908,9 @@ public class VerticalStepperTest {
             stepper.initStep(mockedStep2.step);
 
             clearInvocations(mockedStep2.innerView);
-            clearInvocations(mockedStep2.layoutParams);
+            clearInvocations(mockedStep2.innerLayoutParams);
             clearInvocations(mockedStep2.continueButton);
+            clearInvocations(mockedStep2.continueLayoutParams);
             clearInvocations(mockedStep2.touchView);
             clearInvocations(mockedStep2.step);
         }
@@ -898,8 +925,9 @@ public class VerticalStepperTest {
             return captureStepMeasureSpecs(mockedStep2.innerView, mockedStep2.continueButton);
         }
 
-        void mockStep2Widths(int decoratorWidth, int innerUsedSpace, int innerWidth, int continueWidth) {
-            mockStepWidths(mockedStep2, decoratorWidth, innerUsedSpace, innerWidth, continueWidth);
+        void mockStep2Widths(int decoratorWidth, int innerUsedSpace, int innerWidth,
+                             int continueUsedSpace, int continueWidth) {
+            mockStepWidths(mockedStep2, decoratorWidth, innerUsedSpace, innerWidth, continueUsedSpace, continueWidth);
         }
     }
 
@@ -946,25 +974,29 @@ public class VerticalStepperTest {
             when(mockedStep1.step.getBottomMarginHeight()).thenReturn(bottomMargin);
             when(mockedStep2.step.getBottomMarginHeight()).thenReturn(0);
 
-            VerticalStepper.LayoutParams lp = createTestLayoutParams();
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(lp);
-            VerticalStepper.LayoutParams lp2 = createTestLayoutParams();
-            when(mockedStep2.innerView.getLayoutParams()).thenReturn(lp2);
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(createTestLayoutParams());
+            when(mockedStep2.innerView.getLayoutParams()).thenReturn(createTestLayoutParams());
+            int innerVerticalUsedSpace = 20;
+            when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
+            when(mockedStep2.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUsedSpace);
 
-            int innerVerticalUSedSpace = 20;
-            when(mockedStep1.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
-            when(mockedStep2.step.calculateInnerViewVerticalUsedSpace()).thenReturn(innerVerticalUSedSpace);
+            when(mockedStep1.continueButton.getLayoutParams()).thenReturn(createTestLayoutParams());
+            when(mockedStep2.continueButton.getLayoutParams()).thenReturn(createTestLayoutParams());
+            int continueVerticalUsedSpace = 10;
+            when(mockedStep1.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
+            when(mockedStep2.step.calculateContinueVerticalUsedSpace()).thenReturn(continueVerticalUsedSpace);
 
             int maxWidth = 1080;
             int maxHeight = 1920;
             measureChildViews(maxWidth, maxHeight);
 
             assertExpectedStep1MeasureSpecs(maxWidth, maxHeight,
-                    innerVerticalUSedSpace + decoratorHeight, decoratorHeight);
+                    innerVerticalUsedSpace + decoratorHeight,
+                    continueVerticalUsedSpace + decoratorHeight);
 
             assertExpectedStep2MeasureSpecs(maxWidth, maxHeight,
-                    innerVerticalUSedSpace + decoratorHeight * 2 + bottomMargin,
-                    decoratorHeight * 2 + bottomMargin);
+                    innerVerticalUsedSpace + decoratorHeight * 2 + bottomMargin,
+                    continueVerticalUsedSpace + decoratorHeight * 2 + bottomMargin);
         }
 
         @Test
@@ -972,12 +1004,13 @@ public class VerticalStepperTest {
             int decoratorWidth = 20;
             int innerUsedSpace = 20;
             int continueWidth = 0;
+            int continueUsedSpace = 10;
 
             int inner1Width = decoratorWidth * 2;
-            mockStep1Widths(decoratorWidth, innerUsedSpace, inner1Width, continueWidth);
+            mockStep1Widths(decoratorWidth, innerUsedSpace, inner1Width, continueUsedSpace, continueWidth);
 
             int inner2Width = decoratorWidth * 3;
-            mockStep2Widths(decoratorWidth, innerUsedSpace, inner2Width, continueWidth);
+            mockStep2Widths(decoratorWidth, innerUsedSpace, inner2Width, continueUsedSpace, continueWidth);
 
             int maxWidth = stepper.calculateMaxStepWidth();
 
