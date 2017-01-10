@@ -272,36 +272,6 @@ public class VerticalStepperTest {
 
             verify(activeView).layout(eq(left), eq(top), eq(left + measuredWidth), eq(top + measuredHeight));
         }
-
-        @Test
-        public void doDraw_SaveAndRestoreCanvas() {
-            Canvas canvas = mock(Canvas.class);
-            InOrder order = inOrder(canvas);
-
-            stepper.doDraw(canvas);
-
-            order.verify(canvas).save();
-            order.verify(canvas).restore();
-        }
-
-        @Test
-        public void doDraw_ShouldTranslateByPadding() {
-            Canvas canvas = mock(Canvas.class);
-            InOrder order = inOrder(canvas);
-            int leftPadding = 10;
-            int topPadding = 20;
-            int rightPadding = 5;
-            int bottomPadding = 15;
-
-            stepper.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-
-            stepper.doDraw(canvas);
-
-            order.verify(canvas).translate(stepper.outerHorizontalPadding + leftPadding,
-                    stepper.outerVerticalPadding + topPadding);
-            order.verify(canvas).translate(stepper.outerHorizontalPadding + rightPadding,
-                    stepper.outerVerticalPadding + bottomPadding);
-        }
     }
 
     public abstract static class GivenOneStep extends GivenAStepper {
@@ -1142,12 +1112,12 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenSpyStepperWithTwoViewsAndStubbedLayoutActiveViewMethod
+    public static class GivenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod
             extends GivenStepperSpyWithTwoSteps {
         private Rect rect;
 
         @Before
-        public void givenSpyStepperWithTwoViewsAndStubbedLayoutActiveViewMethod() {
+        public void givenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod() {
             rect = mock(Rect.class);
             doNothing().when(stepperSpy).layoutActiveView(same(rect), any(View.class));
         }
@@ -1164,6 +1134,99 @@ public class VerticalStepperTest {
             stepperSpy.layoutNavButtons(rect, mockedStep1.step);
 
             verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawMethods extends GivenStepperSpyWithTwoSteps {
+        private Canvas canvas;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
+            canvas = mock(Canvas.class);
+            doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
+            doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawConnector(same(canvas), anyInt());
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawIconTwice() {
+            InOrder order = inOrder(stepperSpy);
+
+            stepperSpy.doDraw(canvas);
+
+            order.verify(stepperSpy).drawIcon(canvas, mockedStep1.step, 1);
+            order.verify(stepperSpy).drawIcon(canvas, mockedStep2.step, 2);
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawTextTwice() {
+            InOrder order = inOrder(stepperSpy);
+
+            stepperSpy.doDraw(canvas);
+
+            order.verify(stepperSpy).drawText(canvas, mockedStep1.step);
+            order.verify(stepperSpy).drawText(canvas, mockedStep2.step);
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawConnectorOnce() {
+            int distanceToNextStep = 300;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
+            stepperSpy.doDraw(canvas);
+
+            verify(stepperSpy).drawConnector(canvas, distanceToNextStep);
+        }
+
+        @Test
+        public void doDraw_ShouldTranslateByDistanceToNextStep() {
+            InOrder order = inOrder(canvas);
+
+            int leftPadding = 10;
+            int topPadding = 20;
+            int rightPadding = 5;
+            int bottomPadding = 15;
+            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int distanceToNextStep = 300;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
+            stepperSpy.doDraw(canvas);
+
+            // first translate for the left and top padding
+            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + leftPadding,
+                    stepperSpy.outerVerticalPadding + topPadding);
+
+            // translate for the first step
+            order.verify(canvas).translate(0, 0);
+
+            // translate for the second step
+            order.verify(canvas).translate(0, distanceToNextStep);
+
+            // finally translate for the right and bottom padding
+            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + rightPadding,
+                    stepperSpy.outerVerticalPadding + bottomPadding);
+        }
+
+        @Test
+        public void doDraw_ShouldSaveAndRestoreForEachChild() {
+            InOrder order = inOrder(canvas);
+
+            stepperSpy.doDraw(canvas);
+
+            // for all of doDraw
+            order.verify(canvas).save();
+
+            // first step
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+
+            // second step
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+
+            // for all of doDraw
+            order.verify(canvas).restore();
         }
     }
 }

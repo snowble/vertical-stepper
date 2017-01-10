@@ -463,7 +463,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private void drawIcon(Canvas canvas, Step step, int stepNumber) {
+    @VisibleForTesting
+    void drawIcon(Canvas canvas, Step step, int stepNumber) {
         canvas.save();
 
         drawIconBackground(canvas, step);
@@ -491,7 +492,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
     }
 
-    private void drawText(Canvas canvas, Step step) {
+    @VisibleForTesting
+    void drawText(Canvas canvas, Step step) {
         canvas.save();
 
         canvas.translate(commonStepValues.calculateStepDecoratorIconWidth(), 0);
@@ -509,7 +511,8 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private void drawConnector(Canvas canvas, int yDistanceToNextStep) {
+    @VisibleForTesting
+    void drawConnector(Canvas canvas, int yDistanceToNextStep) {
         canvas.save();
 
         int iconDimension = commonStepValues.getIconDimension();
