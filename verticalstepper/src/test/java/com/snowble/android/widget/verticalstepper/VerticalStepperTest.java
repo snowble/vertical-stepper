@@ -14,7 +14,9 @@ import org.mockito.ArgumentCaptor;
 import org.robolectric.Robolectric;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.*;
 import static org.mockito.Mockito.*;
@@ -60,6 +62,7 @@ public class VerticalStepperTest {
             private List<Rect> layoutTouchViewArgRects = new ArrayList<>();
             private List<Rect> layoutInnerViewArgRects = new ArrayList<>();
             private List<Rect> layoutNavButtonArgRects = new ArrayList<>();
+            private Map<Rect, View> layoutChildViewCalls = new HashMap<>();
 
             public TestStepper() {
                 super(activity);
@@ -123,6 +126,7 @@ public class VerticalStepperTest {
 
             @Override
             void layoutInnerView(Rect rect, Step step) {
+                super.layoutInnerView(rect, step);
                 layoutInnerViewArgRects.add(new Rect(rect));
             }
 
@@ -132,11 +136,21 @@ public class VerticalStepperTest {
 
             @Override
             void layoutNavButtons(Rect rect, Step step) {
+                super.layoutNavButtons(rect, step);
                 layoutNavButtonArgRects.add(new Rect(rect));
             }
 
             public List<Rect> getLayoutNavButtonArgRects() {
                 return layoutNavButtonArgRects;
+            }
+
+            @Override
+            void layoutChildView(Rect rect, View child) {
+                layoutChildViewCalls.put(rect, child);
+            }
+
+            public Map<Rect, View> getLayoutChildViewCalls() {
+                return layoutChildViewCalls;
             }
         }
 
@@ -344,6 +358,26 @@ public class VerticalStepperTest {
             assertThat(rect.top).isEqualTo(stepper.outerVerticalPadding);
             assertThat(rect.bottom).isEqualTo(bottom - top - stepper.outerVerticalPadding);
         }
+
+        @Test
+        public void layoutInnerView_ShouldCallLayoutChildViewWithInnerView() {
+            Rect rect = mock(Rect.class);
+            stepper.layoutInnerView(rect, mockedStep1.step);
+
+            Map<Rect, View> layoutChildViewCalls = stepper.getLayoutChildViewCalls();
+            assertThat(layoutChildViewCalls).isNotEmpty();
+            assertThat(layoutChildViewCalls.get(rect)).isEqualTo(mockedStep1.innerView);
+        }
+
+        @Test
+        public void layoutNavButtons_ShouldCallLayoutChildViewWithContinueButton() {
+            Rect rect = mock(Rect.class);
+            stepper.layoutNavButtons(rect, mockedStep1.step);
+
+            Map<Rect, View> layoutChildViewCalls = stepper.getLayoutChildViewCalls();
+            assertThat(layoutChildViewCalls).isNotEmpty();
+            assertThat(layoutChildViewCalls.get(rect)).isEqualTo(mockedStep1.continueButton);
+        }
     }
 
     public abstract static class GivenAStepper extends GivenAnActivity {
@@ -523,6 +557,49 @@ public class VerticalStepperTest {
             stepper.layoutTouchView(new Rect(adjustedLeft, adjustedTop, adjustedRight, adjustedBottom), touchView);
 
             verify(touchView).layout(eq(left), eq(top), eq(right - left), eq(top + touchMeasuredHeight));
+        }
+
+        @Test
+        public void layoutChildView_WhenNotEnoughSpace_ShouldClip() {
+            int left = 0;
+            int top = 0;
+            int right = 300;
+            int bottom = 500;
+
+            int leftMargin = 5;
+            int topMargin = 20;
+            int rightMargin = 10;
+            int bottomMargin = 15;
+
+            View child = mock(View.class);
+            when(child.getMeasuredWidth()).thenReturn(right * 2);
+            when(child.getMeasuredHeight()).thenReturn(bottom * 2);
+            when(child.getLayoutParams()).thenReturn(
+                    createTestLayoutParams(leftMargin, topMargin, rightMargin, bottomMargin));
+
+            stepper.layoutChildView(new Rect(left, top, right, bottom), child);
+
+            verify(child).layout(eq(left + leftMargin), eq(top + topMargin),
+                    eq(right - rightMargin), eq(bottom - bottomMargin));
+        }
+
+        @Test
+        public void layoutChildView_WhenEnoughSpace_ShouldUseFullWidthAndMeasuredHeight() {
+            int left = 0;
+            int top = 0;
+            int right = 300;
+            int bottom = 500;
+
+            View child = mock(View.class);
+            int measuredWidth = right / 2;
+            when(child.getMeasuredWidth()).thenReturn(measuredWidth);
+            int measuredHeight = bottom / 2;
+            when(child.getMeasuredHeight()).thenReturn(measuredHeight);
+            when(child.getLayoutParams()).thenReturn(mock(VerticalStepper.LayoutParams.class));
+
+            stepper.layoutChildView(new Rect(left, top, right, bottom), child);
+
+            verify(child).layout(eq(left), eq(top), eq(left + measuredWidth), eq(top + measuredHeight));
         }
     }
 

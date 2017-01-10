@@ -403,41 +403,30 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void layoutInnerView(Rect rect, Step step) {
-        View innerView = step.getInnerView();
-        LayoutParams lp = getInternalLayoutParams(innerView);
-
-        int innerLeft = rect.left + lp.leftMargin;
-
-        int innerTop = rect.top + lp.topMargin;
-
-        int innerRightMax = rect.right - lp.rightMargin;
-        int innerRight = Math.min(innerLeft + innerView.getMeasuredWidth(), innerRightMax);
-
-        int innerBottomMax = rect.bottom - lp.bottomMargin;
-        int innerBottom = Math.min(innerTop + innerView.getMeasuredHeight(), innerBottomMax);
-
-        innerView.layout(innerLeft, innerTop, innerRight, innerBottom);
+        layoutChildView(rect, step.getInnerView());
     }
 
     @VisibleForTesting
     void layoutNavButtons(Rect rect, Step step) {
-        // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
-        AppCompatButton button = step.getContinueButton();
-        LayoutParams lp = (LayoutParams) button.getLayoutParams();
-
-        int buttonLeft = rect.left + lp.leftMargin;
-
-        int buttonTop = rect.top + lp.topMargin;
-
-        int buttonRightMax = rect.right - lp.rightMargin;
-        int buttonRight = Math.min(buttonLeft + button.getMeasuredWidth(), buttonRightMax);
-
-        int buttonBottomMax = rect.bottom - lp.bottomMargin;
-        int buttonBottom = Math.min(buttonTop + button.getMeasuredHeight(), buttonBottomMax);
-
-        button.layout(buttonLeft, buttonTop, buttonRight, buttonBottom);
+        layoutChildView(rect, step.getContinueButton());
     }
 
+    @VisibleForTesting
+    void layoutChildView(Rect rect, View child) {
+        LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+        int childLeft = rect.left + lp.leftMargin;
+
+        int childTop = rect.top + lp.topMargin;
+
+        int childRightMax = rect.right - lp.rightMargin;
+        int childRight = Math.min(childLeft + child.getMeasuredWidth(), childRightMax);
+
+        int childBottomMax = rect.bottom - lp.bottomMargin;
+        int childBottom = Math.min(childTop + child.getMeasuredHeight(), childBottomMax);
+
+        child.layout(childLeft, childTop, childRight, childBottom);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -522,10 +511,6 @@ public class VerticalStepper extends ViewGroup {
         float startY = iconDimension + iconMarginVertical;
         float stopY = yDistanceToNextStep - iconMarginVertical;
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
-    }
-
-    private static LayoutParams getInternalLayoutParams(View innerView) {
-        return (LayoutParams) innerView.getLayoutParams();
     }
 
     @Override
