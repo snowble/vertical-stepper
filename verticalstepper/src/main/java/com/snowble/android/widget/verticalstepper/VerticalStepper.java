@@ -249,12 +249,12 @@ public class VerticalStepper extends ViewGroup {
             currentHeight += step.getDecoratorHeight();
 
             View innerView = step.getInnerView();
-            measureChild(step, innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            measureChild(innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
             childrenHeight += calculateChildHeight(step, innerView);
             currentHeight += childrenHeight;
 
             View continueButton = step.getContinueButton();
-            measureChild(step, continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            measureChild(continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
             childrenHeight += calculateChildHeight(step, continueButton);
             currentHeight += step.getBottomMarginHeight();
 
@@ -262,12 +262,12 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void measureChild(Step step, View child, int parentWms, int parentHms, int currentHeight) {
+    private void measureChild(View child, int parentWms, int parentHms, int currentHeight) {
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        int childUsedWidth = calculateHorizontalPadding() + step.calculateHorizontalUsedSpace(child);
+        int childUsedWidth = calculateHorizontalPadding() + calculateHorizontalUsedSpace(child);
         int childWms = getChildMeasureSpec(parentWms, childUsedWidth, lp.width);
 
-        int childVerticalPadding = step.calculateVerticalUsedSpace(child);
+        int childVerticalPadding = calculateVerticalUsedSpace(child);
         int childUsedHeight = childVerticalPadding + currentHeight;
         int childHms = getChildMeasureSpec(parentHms, childUsedHeight, lp.height);
 
@@ -276,9 +276,15 @@ public class VerticalStepper extends ViewGroup {
 
     private int calculateChildHeight(Step step, View child) {
         if (step.isActive()) {
-            return child.getMeasuredHeight() + step.calculateVerticalUsedSpace(child);
+            return child.getMeasuredHeight() + calculateVerticalUsedSpace(child);
         }
         return 0;
+    }
+
+    @VisibleForTesting
+    int calculateVerticalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
+        return lp.topMargin + lp.bottomMargin;
     }
 
     @VisibleForTesting
@@ -295,14 +301,20 @@ public class VerticalStepper extends ViewGroup {
             width = Math.max(width, step.calculateStepDecoratorWidth());
 
             View innerView = step.getInnerView();
-            int innerViewHorizontalPadding = step.calculateHorizontalUsedSpace(innerView);
+            int innerViewHorizontalPadding = calculateHorizontalUsedSpace(innerView);
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
             AppCompatButton continueButton = step.getContinueButton();
-            int continueHorizontalPadding = step.calculateHorizontalUsedSpace(continueButton);
+            int continueHorizontalPadding = calculateHorizontalUsedSpace(continueButton);
             width = Math.max(width, continueButton.getMeasuredWidth() + continueHorizontalPadding);
         }
         return width;
+    }
+
+    @VisibleForTesting
+    int calculateHorizontalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
+        return commonStepValues.calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
     }
 
     @VisibleForTesting

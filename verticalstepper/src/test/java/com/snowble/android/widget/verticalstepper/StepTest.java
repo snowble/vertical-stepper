@@ -146,31 +146,6 @@ public class StepTest {
 
     public static class GivenEmptyTestStep extends GivenATestStep {
         @Test
-        public void calculateHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
-            int leftMargin = 20;
-            int rightMargin = 10;
-            innerLayoutParams.leftMargin = leftMargin;
-            innerLayoutParams.rightMargin = rightMargin;
-
-            int horizontalPadding = step.calculateHorizontalUsedSpace(innerView);
-
-            assertThat(horizontalPadding)
-                    .isEqualTo(leftMargin + rightMargin + common.calculateStepDecoratorIconWidth());
-        }
-
-        @Test
-        public void calculateVerticalUsedSpace_ShouldReturnAllMargins() {
-            int topMargin = 10;
-            int bottomMargin = 20;
-            innerLayoutParams.topMargin = topMargin;
-            innerLayoutParams.bottomMargin = bottomMargin;
-
-            int verticalPadding = step.calculateVerticalUsedSpace(innerView);
-
-            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
-        }
-
-        @Test
         public void calculateStepDecoratorWidth_ShouldReturnIconSumPlusMaxTextWidth() {
             int iconWidth = common.getIconDimension() + common.getIconMarginRight();
             final float textWidth = 10f;
