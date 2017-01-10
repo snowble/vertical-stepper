@@ -907,6 +907,15 @@ public class VerticalStepperTest {
         }
     }
 
+    public static abstract class GivenStepperSpyWithTwoStepsAndMockCanvas extends GivenStepperSpyWithTwoSteps {
+        Canvas canvas;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndMockCanvas() {
+            canvas = mock(Canvas.class);
+        }
+    }
+
     public static abstract class GivenStepperSpyWithTwoStepsAndStubbedLayoutMethods extends GivenStepperSpyWithTwoSteps {
         static class CaptureRectAnswer implements Answer<Void> {
             private final Rect rectToCaptureArg;
@@ -1139,13 +1148,10 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawMethods extends GivenStepperSpyWithTwoSteps {
-        private Canvas canvas;
-
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawMethods
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
-            canvas = mock(Canvas.class);
-
             doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
             doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
             doNothing().when(stepperSpy).drawConnector(same(canvas), anyInt());
@@ -1233,13 +1239,11 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawIconMethods extends GivenStepperSpyWithTwoSteps {
-        private Canvas canvas;
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawIconMethods
+        extends GivenStepperSpyWithTwoStepsAndMockCanvas {
 
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
-            canvas = mock(Canvas.class);
-
             doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
             doNothing().when(stepperSpy).drawIconText(same(canvas), anyInt());
         }
@@ -1261,14 +1265,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
-        private Canvas canvas;
-
-        @Before
-        public void givenStepperSpyWithExactlyTwoSteps() {
-            canvas = mock(Canvas.class);
-        }
-
+    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoStepsAndMockCanvas {
         @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
