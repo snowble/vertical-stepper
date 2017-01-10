@@ -2,7 +2,9 @@ package com.snowble.android.widget.verticalstepper;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
@@ -1256,6 +1258,25 @@ public class VerticalStepperTest {
 
             verify(canvas).save();
             verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
+        private Canvas canvas;
+
+        @Before
+        public void givenStepperSpyWithExactlyTwoSteps() {
+            canvas = mock(Canvas.class);
+        }
+
+        @Test
+        public void drawIconBackground_ShouldDrawCircleWithIconColor() {
+            Paint color = mock(Paint.class);
+            when(mockedStep1.step.getIconColor()).thenReturn(color);
+
+            stepperSpy.drawIconBackground(canvas, mockedStep1.step);
+
+            verify(canvas).drawArc(any(RectF.class), eq(0f), eq(360f), eq(true), same(color));
         }
     }
 }
