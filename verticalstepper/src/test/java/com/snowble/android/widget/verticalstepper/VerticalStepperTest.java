@@ -868,6 +868,8 @@ public class VerticalStepperTest {
     public static class GivenEmptyStepperSpy extends GivenStepperSpy {
         @Test
         public void onAttachedToWindow_ShouldInitSteps() {
+            doNothing().when(stepperSpy).initSteps();
+
             stepperSpy.onAttachedToWindow();
 
             verify(stepperSpy).initSteps();
@@ -888,6 +890,9 @@ public class VerticalStepperTest {
             doReturn(child1).when(stepperSpy).getChildAt(0);
             doReturn(child2).when(stepperSpy).getChildAt(1);
 
+            doNothing().when(stepperSpy).initTouchView(any(Step.class));
+            doNothing().when(stepperSpy).initNavButtons(any(Step.class));
+
             stepperSpy.initSteps();
 
             verify(stepperSpy, times(2)).initStep(any(Step.class));
@@ -898,6 +903,8 @@ public class VerticalStepperTest {
         @SuppressLint("WrongCall") // Explicitly testing onMeasure
         @Test
         public void onMeasure_ShouldCallDoMeasurement() {
+            doNothing().when(stepperSpy).doMeasurement(anyInt(), anyInt());
+
             stepperSpy.onMeasure(0, 0);
 
             verify(stepperSpy).doMeasurement(eq(0), eq(0));
@@ -907,16 +914,17 @@ public class VerticalStepperTest {
         @Test
         public void onDraw_ShouldCallDoDraw() {
             Canvas canvas = mock(Canvas.class);
+            doNothing().when(stepperSpy).doDraw(same(canvas));
+
             stepperSpy.onDraw(canvas);
 
             verify(stepperSpy).doDraw(canvas);
         }
     }
 
-    @SuppressLint("WrongCall") // Explicitly testing onLayout
-    public static class GivenStepperSpyWithTwoSteps extends GivenStepperSpy {
-        private MockedStep mockedStep1;
-        private MockedStep mockedStep2;
+    public static abstract class GivenStepperSpyWithTwoSteps extends GivenStepperSpy {
+        MockedStep mockedStep1;
+        MockedStep mockedStep2;
 
         @Before
         public void givenStepperSpyWithTwoSteps() {
@@ -924,6 +932,16 @@ public class VerticalStepperTest {
             mockedStep2 = new MockedStep();
             stepperSpy.steps.add(mockedStep1.step);
             stepperSpy.steps.add(mockedStep2.step);
+        }
+    }
+
+    @SuppressLint("WrongCall") // Explicitly testing onLayout
+    public static class GivenStepperSpyWithExactlyTwoStepsAndStubbedLayoutMethods extends GivenStepperSpyWithTwoSteps {
+        @Before
+        public void givenStepperSpyWithStubbedLayoutMethods() {
+            doNothing().when(stepperSpy).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
+            doNothing().when(stepperSpy).layoutInnerView(any(Rect.class), any(Step.class));
+            doNothing().when(stepperSpy).layoutNavButtons(any(Rect.class), any(Step.class));
         }
 
         static class CaptureRectAnswer implements Answer<Void> {
@@ -1104,11 +1122,20 @@ public class VerticalStepperTest {
             assertThat(touchRect.top).isEqualTo(stepperSpy.outerVerticalPadding);
             assertThat(touchRect.bottom).isEqualTo(bottom - top - stepperSpy.outerVerticalPadding);
         }
+    }
+
+    public static class GivenSpyStepperWithExactlyTwoViewsAndStubbedLayoutActiveView
+            extends GivenStepperSpyWithTwoSteps {
+        private Rect rect;
+
+        @Before
+        public void givenSpyStepperWithExactlyTwoViewsAndStubbedLayoutActiveView() {
+            rect = mock(Rect.class);
+            doNothing().when(stepperSpy).layoutActiveView(same(rect), any(View.class));
+        }
 
         @Test
         public void layoutInnerView_ShouldCallLayoutActiveViewWithInnerView() {
-            Rect rect = mock(Rect.class);
-
             stepperSpy.layoutInnerView(rect, mockedStep1.step);
 
             verify(stepperSpy).layoutActiveView(rect, mockedStep1.innerView);
@@ -1116,8 +1143,6 @@ public class VerticalStepperTest {
 
         @Test
         public void layoutNavButtons_ShouldCallLayoutActiveViewWithContinueButton() {
-            Rect rect = mock(Rect.class);
-
             stepperSpy.layoutNavButtons(rect, mockedStep1.step);
 
             verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
