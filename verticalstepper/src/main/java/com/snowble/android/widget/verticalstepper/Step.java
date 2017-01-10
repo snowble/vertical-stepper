@@ -195,12 +195,28 @@ class Step {
     }
 
     int calculateInnerViewHorizontalUsedSpace() {
-        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) innerView.getLayoutParams();
-        return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
+        return calculateViewHorizontalUsedSpace(innerView);
     }
 
     int calculateInnerViewVerticalUsedSpace() {
-        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) innerView.getLayoutParams();
+        return calculateVerticalUsedSpace(innerView);
+    }
+
+    int calculateContinueHorizontalUsedSpace() {
+        return calculateViewHorizontalUsedSpace(continueButton);
+    }
+
+    int calculateContinueVerticalUsedSpace() {
+        return calculateVerticalUsedSpace(continueButton);
+    }
+
+    private int calculateViewHorizontalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
+        return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
+    }
+
+    private int calculateVerticalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
         return lp.topMargin + lp.bottomMargin;
     }
 
