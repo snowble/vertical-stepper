@@ -103,7 +103,7 @@ class Step {
         return childrenVisibleHeight;
     }
 
-    void setChildrenVisibleHeight(int childrenVisibleHeight) {
+    void setActiveViewsHeight(int childrenVisibleHeight) {
         this.childrenVisibleHeight = childrenVisibleHeight;
     }
 
