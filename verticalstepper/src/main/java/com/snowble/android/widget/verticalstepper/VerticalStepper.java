@@ -236,56 +236,44 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void measureChildViews(int widthMeasureSpec, int heightMeasureSpec) {
-        int stepperHorizontalPadding = calculateHorizontalPadding();
         int currentHeight = calculateVerticalPadding();
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
+            int childrenHeight = 0;
 
             currentHeight += step.getDecoratorHeight();
 
             View innerView = step.getInnerView();
-            int innerUsedWidth = stepperHorizontalPadding + step.calculateInnerViewHorizontalUsedSpace();
-            int innerViewVerticalPadding = step.calculateInnerViewVerticalUsedSpace();
-            int innerUsedHeight = innerViewVerticalPadding + currentHeight;
-            measureInnerView(widthMeasureSpec, heightMeasureSpec, innerView, innerUsedWidth, innerUsedHeight);
-
-            int childrenHeight = 0;
-            if (step.isActive()) {
-                childrenHeight += innerView.getMeasuredHeight() + innerViewVerticalPadding;
-            }
+            measureChild(step, innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            childrenHeight += calculateChildHeight(step, innerView);
             currentHeight += childrenHeight;
 
-            AppCompatButton continueButton = step.getContinueButton();
-            int continueUsedWidth = stepperHorizontalPadding + step.calculateContinueHorizontalUsedSpace();
-            int continueVerticalPadding = step.calculateContinueVerticalUsedSpace();
-            int continueUsedHeight = currentHeight + continueVerticalPadding;
-            measureNavButton(widthMeasureSpec, heightMeasureSpec, continueButton,
-                    continueUsedWidth, continueUsedHeight);
-
-            if (step.isActive()) {
-                childrenHeight += continueButton.getMeasuredHeight() + continueVerticalPadding;
-            }
-            step.setChildrenVisibleHeight(childrenHeight);
-
+            View continueButton = step.getContinueButton();
+            measureChild(step, continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            childrenHeight += calculateChildHeight(step, continueButton);
             currentHeight += step.getBottomMarginHeight();
+
+            step.setChildrenVisibleHeight(childrenHeight);
         }
     }
 
-    private void measureInnerView(int widthMeasureSpec, int heightMeasureSpec, View innerView,
-                                  int usedWidthFromPadding, int usedHeight) {
-        LayoutParams lp = getInternalLayoutParams(innerView);
-        int innerWms =
-                getChildMeasureSpec(widthMeasureSpec, usedWidthFromPadding, lp.width);
-        int innerHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, lp.height);
-        innerView.measure(innerWms, innerHms);
+    private void measureChild(Step step, View child, int parentWms, int parentHms, int currentHeight) {
+        LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        int childUsedWidth = calculateHorizontalPadding() + step.calculateHorizontalUsedSpace(child);
+        int childWms = getChildMeasureSpec(parentWms, childUsedWidth, lp.width);
+
+        int childVerticalPadding = step.calculateVerticalUsedSpace(child);
+        int childUsedHeight = childVerticalPadding + currentHeight;
+        int childHms = getChildMeasureSpec(parentHms, childUsedHeight, lp.height);
+
+        child.measure(childWms, childHms);
     }
 
-    private void measureNavButton(int widthMeasureSpec, int heightMeasureSpec, AppCompatButton continueButton,
-                                  int usedWidth, int usedHeight) {
-        LayoutParams lp = (LayoutParams) continueButton.getLayoutParams();
-        int navButtonsWms = getChildMeasureSpec(widthMeasureSpec, usedWidth, lp.width);
-        int navButtonsHms = getChildMeasureSpec(heightMeasureSpec, usedHeight, lp.height);
-        continueButton.measure(navButtonsWms, navButtonsHms);
+    private int calculateChildHeight(Step step, View child) {
+        if (step.isActive()) {
+            return child.getMeasuredHeight() + step.calculateVerticalUsedSpace(child);
+        }
+        return 0;
     }
 
     @VisibleForTesting
@@ -298,16 +286,15 @@ public class VerticalStepper extends ViewGroup {
         int width = 0;
         for (int i = 0, innerViewsSize = steps.size(); i < innerViewsSize; i++) {
             Step step = steps.get(i);
-            View innerView = step.getInnerView();
 
             width = Math.max(width, step.calculateStepDecoratorWidth());
 
-            int innerViewHorizontalPadding = step.calculateInnerViewHorizontalUsedSpace();
-
+            View innerView = step.getInnerView();
+            int innerViewHorizontalPadding = step.calculateHorizontalUsedSpace(innerView);
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
             AppCompatButton continueButton = step.getContinueButton();
-            int continueHorizontalPadding = step.calculateContinueHorizontalUsedSpace();
+            int continueHorizontalPadding = step.calculateHorizontalUsedSpace(continueButton);
             width = Math.max(width, continueButton.getMeasuredWidth() + continueHorizontalPadding);
         }
         return width;
@@ -418,7 +405,6 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void layoutNavButtons(Rect rect, Step step) {
         // TODO There's quite a bit of common code between this and layoutInnerView. See if it can be consolidated.
-        // TODO This applies to measurement as well.
         AppCompatButton button = step.getContinueButton();
         LayoutParams lp = (LayoutParams) button.getLayoutParams();
 
