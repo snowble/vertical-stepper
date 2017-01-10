@@ -54,9 +54,7 @@ public class StepTest {
         }
     }
 
-    public static abstract class GivenATestStep extends GivenCommonValues {
-        TestStep step;
-
+    public static abstract class GivenATestStepDefinition extends GivenCommonValues {
         protected class TestStep extends Step {
             private float titleWidth;
             private float titleHeight;
@@ -137,6 +135,10 @@ public class StepTest {
                 return summaryHeight;
             }
         }
+    }
+
+    public static abstract class GivenATestStep extends GivenATestStepDefinition {
+        TestStep step;
 
         @Before
         public void givenATestStep() {
@@ -213,6 +215,72 @@ public class StepTest {
             int height = step.getDecoratorHeight();
 
             assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
+        }
+    }
+
+    public static class GivenTestStepWithPredefinedIconWidth extends GivenATestStepDefinition {
+        private static final int DECORATOR_ICON_WIDTH = 40;
+
+        TestStep step;
+
+        @Before
+        public void givenTestStepWithPredefinedIconWidth() {
+            step = new TestStep() {
+                @Override
+                int calculateStepDecoratorIconWidth() {
+                    return DECORATOR_ICON_WIDTH;
+                }
+            };
+        }
+
+        @Test
+        public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
+            int leftMargin = 20;
+            int rightMargin = 10;
+            innerLayoutParams.leftMargin = leftMargin;
+            innerLayoutParams.rightMargin = rightMargin;
+
+            int horizontalPadding = step.calculateInnerViewHorizontalUsedSpace();
+
+            assertThat(horizontalPadding)
+                    .isEqualTo(leftMargin + rightMargin + DECORATOR_ICON_WIDTH);
+        }
+
+        @Test
+        public void calculateInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
+            int topMargin = 10;
+            int bottomMargin = 20;
+            innerLayoutParams.topMargin = topMargin;
+            innerLayoutParams.bottomMargin = bottomMargin;
+
+            int verticalPadding = step.calculateInnerViewVerticalUsedSpace();
+
+            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
+        }
+
+        @Test
+        public void calculateContinueHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
+            int leftMargin = 20;
+            int rightMargin = 10;
+            continueLayoutParams.leftMargin = leftMargin;
+            continueLayoutParams.rightMargin = rightMargin;
+
+            int horizontalPadding = step.calculateContinueHorizontalUsedSpace();
+
+            assertThat(horizontalPadding)
+                    .isEqualTo(leftMargin + rightMargin + DECORATOR_ICON_WIDTH);
+        }
+
+        @Test
+        public void calculateContinueVerticalUsedSpace_ShouldReturnAllMargins() {
+            int topMargin = 10;
+            int bottomMargin = 20;
+            continueLayoutParams.topMargin = topMargin;
+            continueLayoutParams.bottomMargin = bottomMargin;
+
+            int verticalPadding = step.calculateContinueVerticalUsedSpace();
+
+            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
         }
     }
 
@@ -293,56 +361,6 @@ public class StepTest {
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(common.getTitleInactiveTextPaint());
-        }
-
-        @Test
-        public void calculateInnerViewHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
-            int leftMargin = 20;
-            int rightMargin = 10;
-            innerLayoutParams.leftMargin = leftMargin;
-            innerLayoutParams.rightMargin = rightMargin;
-
-            int horizontalPadding = step.calculateInnerViewHorizontalUsedSpace();
-
-            assertThat(horizontalPadding)
-                    .isEqualTo(leftMargin + rightMargin + step.calculateStepDecoratorIconWidth());
-        }
-
-        @Test
-        public void calculateInnerViewVerticalUsedSpace_ShouldReturnAllMargins() {
-            int topMargin = 10;
-            int bottomMargin = 20;
-            innerLayoutParams.topMargin = topMargin;
-            innerLayoutParams.bottomMargin = bottomMargin;
-
-            int verticalPadding = step.calculateInnerViewVerticalUsedSpace();
-
-            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
-        }
-
-        @Test
-        public void calculateContinueHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
-            int leftMargin = 20;
-            int rightMargin = 10;
-            continueLayoutParams.leftMargin = leftMargin;
-            continueLayoutParams.rightMargin = rightMargin;
-
-            int horizontalPadding = step.calculateContinueHorizontalUsedSpace();
-
-            assertThat(horizontalPadding)
-                    .isEqualTo(leftMargin + rightMargin + step.calculateStepDecoratorIconWidth());
-        }
-
-        @Test
-        public void calculateContinueVerticalUsedSpace_ShouldReturnAllMargins() {
-            int topMargin = 10;
-            int bottomMargin = 20;
-            continueLayoutParams.topMargin = topMargin;
-            continueLayoutParams.bottomMargin = bottomMargin;
-
-            int verticalPadding = step.calculateContinueVerticalUsedSpace();
-
-            assertThat(verticalPadding).isEqualTo(topMargin + bottomMargin);
         }
 
         @Test
