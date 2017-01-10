@@ -196,7 +196,7 @@ class Step {
 
     int calculateHorizontalUsedSpace(View view) {
         VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
-        return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
+        return common.calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
     }
 
     int calculateVerticalUsedSpace(View view) {
@@ -205,11 +205,7 @@ class Step {
     }
 
     int calculateStepDecoratorWidth() {
-        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth();
-    }
-
-    int calculateStepDecoratorIconWidth() {
-        return common.getIconDimension() + common.getIconMarginRight();
+        return common.calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth();
     }
 
     float calculateStepDecoratorTextWidth() {
@@ -330,6 +326,10 @@ class Step {
 
         private int getColor(int colorRes) {
             return ResourcesCompat.getColor(resources, colorRes, theme);
+        }
+
+        int calculateStepDecoratorIconWidth() {
+            return iconDimension + iconMarginRight;
         }
 
         int getIconDimension() {
