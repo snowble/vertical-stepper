@@ -164,7 +164,7 @@ class Step {
     }
 
     private void measureTitleBaseline(int heightToCenterIn) {
-        titleBaselineRelativeToStepTop = ViewUtils.findTextCenterY(
+        titleBaselineRelativeToStepTop = ViewUtils.findTextCenterStartY(
                 title, heightToCenterIn, getTitleTextPaint(), common.getTempRectForTitleTextBounds());
     }
 
