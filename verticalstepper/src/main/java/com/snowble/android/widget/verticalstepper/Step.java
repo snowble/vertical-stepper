@@ -3,6 +3,7 @@ package com.snowble.android.widget.verticalstepper;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -259,6 +260,7 @@ class Step {
 
         private final RectF tempRectForIconBackground;
         private final Rect tempRectForIconTextBounds;
+        private final PointF tempPointForIconTextCenter;
         private final Rect tempRectForTitleTextBounds;
         private final Rect tempRectForLayout;
 
@@ -293,6 +295,7 @@ class Step {
 
             tempRectForIconBackground = new RectF(0, 0, getIconDimension(), getIconDimension());
             tempRectForIconTextBounds = new Rect();
+            tempPointForIconTextCenter = new PointF();
             tempRectForTitleTextBounds = new Rect();
             tempRectForLayout = new Rect();
         }
@@ -391,6 +394,10 @@ class Step {
 
         Rect getTempRectForIconTextBounds() {
             return tempRectForIconTextBounds;
+        }
+
+        public PointF getTempPointForIconTextCenter() {
+            return tempPointForIconTextCenter;
         }
 
         Rect getTempRectForTitleTextBounds() {
