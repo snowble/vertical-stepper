@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -484,14 +485,11 @@ public class VerticalStepper extends ViewGroup {
         TextPaint iconTextPaint = commonStepValues.getIconTextPaint();
         int iconDimension = commonStepValues.getIconDimension();
 
-        float width = iconTextPaint.measureText(stepNumberString);
-        float centeredTextX = (iconDimension / 2) - (width / 2);
+        PointF center = new PointF();
+        ViewUtils.findTextCenter(stepNumberString, iconDimension, iconDimension, iconTextPaint,
+                commonStepValues.getTempRectForIconTextBounds(), center);
 
-        Rect tmpRectIconTextBounds = commonStepValues.getTempRectForIconTextBounds();
-        iconTextPaint.getTextBounds(stepNumberString, 0, 1, tmpRectIconTextBounds);
-        float centeredTextY = (iconDimension / 2) + (tmpRectIconTextBounds.height() / 2);
-
-        canvas.drawText(stepNumberString, centeredTextX, centeredTextY, iconTextPaint);
+        canvas.drawText(stepNumberString, center.x, center.y, iconTextPaint);
     }
 
     @VisibleForTesting
