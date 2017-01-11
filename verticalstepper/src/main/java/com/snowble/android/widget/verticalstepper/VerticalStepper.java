@@ -498,17 +498,24 @@ public class VerticalStepper extends ViewGroup {
 
         canvas.translate(commonStepValues.calculateStepDecoratorIconWidth(), 0);
 
+        drawTitle(canvas, step);
+        drawSummary(canvas, step);
+
+        canvas.restore();
+    }
+
+    private void drawTitle(Canvas canvas, Step step) {
         TextPaint paint = step.getTitleTextPaint();
         canvas.drawText(step.getTitle(), 0, step.getTitleBaselineRelativeToStepTop(), paint);
+    }
 
+    private void drawSummary(Canvas canvas, Step step) {
         if (!TextUtils.isEmpty(step.getSummary()) && !step.isActive()) {
             canvas.translate(0, step.getTitleBottomRelativeToStepTop());
             canvas.drawText(step.getSummary(), 0,
                     step.getSummaryBaselineRelativeToTitleBottom(), commonStepValues.getSummaryTextPaint());
         }
         // TODO Handle optional case
-
-        canvas.restore();
     }
 
     @VisibleForTesting
