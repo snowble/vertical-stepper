@@ -1371,5 +1371,30 @@ public class VerticalStepperTest {
             TextPaint paint = stepperSpy.getCommonStepValues().getSummaryTextPaint();
             order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
         }
+
+        @Test
+        public void drawConnector_ShouldSaveTranslateDrawAndRestore() {
+            InOrder order = inOrder(canvas);
+
+            stepperSpy.drawConnector(canvas, 0);
+
+            order.verify(canvas).save();
+            order.verify(canvas).translate(anyFloat(), anyFloat());
+            order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), any(Paint.class));
+            order.verify(canvas).restore();
+        }
+
+        @Test
+        public void drawConnector_ShouldDrawLineAccountingForIconVerticalMargin() {
+            Step.Common common = stepperSpy.getCommonStepValues();
+            Paint paint = common.getConnectorPaint();
+            float startY = common.getIconDimension() + common.getIconMarginVertical();
+            int yDistanceToNextStep = 300;
+            float stopY = yDistanceToNextStep - common.getIconMarginVertical();
+
+            stepperSpy.drawConnector(canvas, yDistanceToNextStep);
+
+            verify(canvas).drawLine(0, startY, 0, stopY, paint);
+        }
     }
 }
