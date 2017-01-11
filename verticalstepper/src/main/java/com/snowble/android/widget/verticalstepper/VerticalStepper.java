@@ -486,7 +486,7 @@ public class VerticalStepper extends ViewGroup {
         int iconDimension = commonStepValues.getIconDimension();
 
         PointF center = commonStepValues.getTempPointForIconTextCenter();
-        ViewUtils.findTextCenter(stepNumberString, iconDimension, iconDimension, iconTextPaint,
+        ViewUtils.findTextCenterStartPoint(stepNumberString, iconDimension, iconDimension, iconTextPaint,
                 commonStepValues.getTempRectForIconTextBounds(), center);
 
         canvas.drawText(stepNumberString, center.x, center.y, iconTextPaint);
