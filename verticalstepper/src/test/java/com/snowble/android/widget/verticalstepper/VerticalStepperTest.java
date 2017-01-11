@@ -1259,10 +1259,41 @@ public class VerticalStepperTest {
 
         @Test
         public void drawIcon_ShouldCallSaveAndRestore() {
+            InOrder order = inOrder(canvas);
+
             stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
 
-            verify(canvas).save();
-            verify(canvas).restore();
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawTextMethods
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawTextMethods() {
+            doNothing().when(stepperSpy).drawTitle(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawSummary(same(canvas), any(Step.class));
+        }
+
+        @Test
+        public void drawText_ShouldCallDrawTitleAndDrawSummary() {
+            stepperSpy.drawText(canvas, mockedStep1.step);
+
+            verify(stepperSpy).drawTitle(canvas, mockedStep1.step);
+            verify(stepperSpy).drawSummary(canvas, mockedStep1.step);
+        }
+
+        @Test
+        public void drawText_ShouldSaveTranslateByIconWidthAndRestoreCanvas() {
+            InOrder order = inOrder(canvas);
+
+            stepperSpy.drawText(canvas, mockedStep1.step);
+
+            order.verify(canvas).save();
+            order.verify(canvas).translate(stepperSpy.getCommonStepValues().calculateStepDecoratorIconWidth(), 0);
+            order.verify(canvas).restore();
         }
     }
 

@@ -504,12 +504,14 @@ public class VerticalStepper extends ViewGroup {
         canvas.restore();
     }
 
-    private void drawTitle(Canvas canvas, Step step) {
+    @VisibleForTesting
+    void drawTitle(Canvas canvas, Step step) {
         TextPaint paint = step.getTitleTextPaint();
         canvas.drawText(step.getTitle(), 0, step.getTitleBaselineRelativeToStepTop(), paint);
     }
 
-    private void drawSummary(Canvas canvas, Step step) {
+    @VisibleForTesting
+    void drawSummary(Canvas canvas, Step step) {
         if (!TextUtils.isEmpty(step.getSummary()) && !step.isActive()) {
             canvas.translate(0, step.getTitleBottomRelativeToStepTop());
             canvas.drawText(step.getSummary(), 0,
