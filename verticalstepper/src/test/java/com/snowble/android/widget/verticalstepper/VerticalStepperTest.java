@@ -1315,8 +1315,61 @@ public class VerticalStepperTest {
             stepperSpy.drawIconText(canvas, stepNumber);
 
             String stepNumberString = String.valueOf(stepNumber);
-            TextPaint iconTextPaint = stepperSpy.getCommonStepValues().getIconTextPaint();
-            verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(iconTextPaint));
+            TextPaint paint = stepperSpy.getCommonStepValues().getIconTextPaint();
+            verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(paint));
+        }
+
+        @Test
+        public void drawTitle_ShouldDrawTextWithStepTitle() {
+            TextPaint paint = mock(TextPaint.class);
+            String title = "vertical stepper";
+            float titleBaseline = 20f;
+            when(mockedStep1.step.getTitle()).thenReturn(title);
+            when(mockedStep1.step.getTitleTextPaint()).thenReturn(paint);
+            when(mockedStep1.step.getTitleBaselineRelativeToStepTop()).thenReturn(titleBaseline);
+
+            stepperSpy.drawTitle(canvas, mockedStep1.step);
+
+            verify(canvas).drawText(title, 0, titleBaseline, paint);
+        }
+
+        @Test
+        public void drawSummary_WhenActive_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            when(mockedStep1.step.getSummary()).thenReturn("summary");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_WhenEmpty_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.getSummary()).thenReturn("");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_NotEmptyNotActive_ShouldTranslateAndDraw() {
+            InOrder order = inOrder(canvas);
+
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            String summary = "summary";
+            when(mockedStep1.step.getSummary()).thenReturn(summary);
+            float titleBottom = 15f;
+            when(mockedStep1.step.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
+            float summaryBaseline = 20f;
+            when(mockedStep1.step.getSummaryBaselineRelativeToTitleBottom()).thenReturn(summaryBaseline);
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            order.verify(canvas).translate(0, titleBottom);
+            TextPaint paint = stepperSpy.getCommonStepValues().getSummaryTextPaint();
+            order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
         }
     }
 }
