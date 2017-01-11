@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatButton;
+import android.text.TextPaint;
 import android.view.View;
 
 import org.junit.Before;
@@ -1274,6 +1275,17 @@ public class VerticalStepperTest {
             stepperSpy.drawIconBackground(canvas, mockedStep1.step);
 
             verify(canvas).drawArc(any(RectF.class), eq(0f), eq(360f), eq(true), same(color));
+        }
+
+        @Test
+        public void drawIconText_ShouldDrawStepNumber() {
+            int stepNumber = 4;
+
+            stepperSpy.drawIconText(canvas, stepNumber);
+
+            String stepNumberString = String.valueOf(stepNumber);
+            TextPaint iconTextPaint = stepperSpy.getCommonStepValues().getIconTextPaint();
+            verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(iconTextPaint));
         }
     }
 }
