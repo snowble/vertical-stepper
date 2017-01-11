@@ -34,6 +34,19 @@ public class ViewUtilsTest {
     }
 
     @Test
+    public void findCenterStartX() throws Exception {
+        float innerWidth = 30f;
+        int totalWidth = 100;
+
+        float centerX = ViewUtils.findCenterStartX(innerWidth, totalWidth);
+
+        Rect outer = new Rect(0, 0, totalWidth, 0);
+        Rect inner = new Rect(0, 0, (int) innerWidth, 0);
+        int expectedCenter = outer.centerX() - inner.centerX();
+        assertThat(centerX).isEqualTo(expectedCenter);
+    }
+
+    @Test
     public void findTextCenterStartY() throws Exception {
         int textHeight = 30;
         int totalHeight = 100;
