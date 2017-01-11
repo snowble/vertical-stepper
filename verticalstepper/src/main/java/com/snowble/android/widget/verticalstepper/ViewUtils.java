@@ -13,7 +13,11 @@ class ViewUtils {
 
     static float findTextCenterStartX(String text, int totalWidth, TextPaint textPaint) {
         float textWidth = textPaint.measureText(text);
-        return ((totalWidth / 2) - (textWidth / 2));
+        return findCenterStartX(textWidth, totalWidth);
+    }
+
+    static float findCenterStartX(float innerWidth, float totalWidth) {
+        return (totalWidth - innerWidth) / 2;
     }
 
     static float findTextCenterStartY(String text, int totalHeight,
