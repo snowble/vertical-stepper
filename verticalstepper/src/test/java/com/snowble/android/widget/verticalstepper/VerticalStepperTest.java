@@ -1381,15 +1381,15 @@ public class VerticalStepperTest {
         private void mockActiveState(MockedStep step, boolean isActive) {
             when(step.step.isActive()).thenReturn(isActive);
             int visibility = isActive ? View.VISIBLE : View.GONE;
-            when(mockedStep1.innerView.getVisibility()).thenReturn(visibility);
-            when(mockedStep1.continueButton.getVisibility()).thenReturn(visibility);
+            when(step.innerView.getVisibility()).thenReturn(visibility);
+            when(step.continueButton.getVisibility()).thenReturn(visibility);
         }
 
         private void assertActiveState(MockedStep step, boolean expectedActiveState) {
             verify(step.step).setActive(expectedActiveState);
             int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
-            when(mockedStep1.innerView.getVisibility()).thenReturn(visibility);
-            when(mockedStep1.continueButton.getVisibility()).thenReturn(visibility);
+            verify(step.innerView).setVisibility(visibility);
+            verify(step.continueButton).setVisibility(visibility);
         }
 
         @Test
