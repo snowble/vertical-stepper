@@ -44,6 +44,7 @@ class Step {
     private float summaryWidth;
     private float summaryBaselineRelativeToTitleBottom;
     private float summaryBottomRelativeToTitleBottom;
+    private boolean complete;
 
     Step(@NonNull View innerView, @NonNull VerticalStepper.InternalTouchView touchView,
          @NonNull AppCompatButton continueButton, @NonNull Common common) {
@@ -90,6 +91,14 @@ class Step {
 
     void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.complete = complete;
     }
 
     int getDecoratorHeight() {

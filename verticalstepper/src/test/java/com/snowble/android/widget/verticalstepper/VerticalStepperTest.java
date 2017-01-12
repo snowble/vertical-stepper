@@ -1369,11 +1369,12 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void completeStep_ShouldCollapseCurrentStep() {
+        public void completeStep_ShouldCollapseCompleteCurrentStep() {
             mockActiveState(mockedStep1, true);
 
             stepperSpy.completeStep(mockedStep1.step);
 
+            verify(mockedStep1.step).setComplete(true);
             verifyActiveState(mockedStep1, false);
         }
 
