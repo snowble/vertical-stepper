@@ -1441,6 +1441,18 @@ public class VerticalStepperTest {
         @Test
         public void drawSummary_WhenActive_ShouldNotDraw() {
             when(mockedStep1.step.isActive()).thenReturn(true);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
+            when(mockedStep1.step.getSummary()).thenReturn("summary");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_WhenIncomplete_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(false);
             when(mockedStep1.step.getSummary()).thenReturn("summary");
 
             stepperSpy.drawSummary(canvas, mockedStep1.step);
@@ -1451,6 +1463,7 @@ public class VerticalStepperTest {
         @Test
         public void drawSummary_WhenEmpty_ShouldNotDraw() {
             when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
             when(mockedStep1.step.getSummary()).thenReturn("");
 
             stepperSpy.drawSummary(canvas, mockedStep1.step);
@@ -1459,10 +1472,11 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void drawSummary_NotEmptyNotActive_ShouldTranslateAndDraw() {
+        public void drawSummary_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
             InOrder order = inOrder(canvas);
 
             when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
             String summary = "summary";
             when(mockedStep1.step.getSummary()).thenReturn(summary);
             float titleBottom = 15f;
