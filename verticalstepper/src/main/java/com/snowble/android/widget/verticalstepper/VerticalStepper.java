@@ -543,7 +543,7 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void drawSummary(Canvas canvas, Step step) {
-        if (!TextUtils.isEmpty(step.getSummary()) && !step.isActive()) {
+        if (!TextUtils.isEmpty(step.getSummary()) && !step.isActive() && step.isComplete()) {
             canvas.translate(0, step.getTitleBottomRelativeToStepTop());
             canvas.drawText(step.getSummary(), 0,
                     step.getSummaryBaselineRelativeToTitleBottom(), commonStepValues.getSummaryTextPaint());
