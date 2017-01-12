@@ -298,18 +298,28 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void measureActiveView(Step step, View activeView, int parentWms, int parentHms, int currentHeight) {
+    @VisibleForTesting
+    void measureActiveView(Step step, View activeView, int parentWms, int parentHms, int currentHeight) {
         LayoutParams lp = (LayoutParams) activeView.getLayoutParams();
         int activeViewUsedWidth = calculateHorizontalPadding() + step.calculateHorizontalUsedSpace(activeView);
-        int activeViewWms = getChildMeasureSpec(parentWms, activeViewUsedWidth, lp.width);
+        int activeViewWms = nonStaticGetChildMeasureSpec(parentWms, activeViewUsedWidth, lp.width);
 
         int activeViewUsedHeight = step.calculateVerticalUsedSpace(activeView) + currentHeight;
-        int activeViewHms = getChildMeasureSpec(parentHms, activeViewUsedHeight, lp.height);
+        int activeViewHms = nonStaticGetChildMeasureSpec(parentHms, activeViewUsedHeight, lp.height);
 
         activeView.measure(activeViewWms, activeViewHms);
     }
 
-    private int calculateActiveHeight(Step step, View activeView) {
+    /***
+     * This is simply a non-static version of {@link ViewGroup#getChildMeasureSpec(int, int, int)} for testing.
+     */
+    @VisibleForTesting
+    int nonStaticGetChildMeasureSpec(int spec, int padding, int childDimension) {
+        return ViewGroup.getChildMeasureSpec(spec, padding, childDimension);
+    }
+
+    @VisibleForTesting
+    int calculateActiveHeight(Step step, View activeView) {
         if (step.isActive()) {
             return activeView.getMeasuredHeight() + step.calculateVerticalUsedSpace(activeView);
         }
