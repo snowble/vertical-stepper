@@ -188,7 +188,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void completeStep(Step step) {
         // TODO Add step validation
-        // TODO Update step state
+        step.setComplete(true);
         toggleStepExpandedState(step);
 
         int nextIndex = steps.indexOf(step) + 1;
