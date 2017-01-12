@@ -69,7 +69,7 @@ public class VerticalStepperTest {
             when(step.continueButton.getVisibility()).thenReturn(visibility);
         }
 
-        void assertActiveState(MockedStep step, boolean expectedActiveState) {
+        void verifyActiveState(MockedStep step, boolean expectedActiveState) {
             verify(step.step).setActive(expectedActiveState);
             int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
             verify(step.innerView).setVisibility(visibility);
@@ -589,7 +589,7 @@ public class VerticalStepperTest {
         public void toggleStepExpandedState_ShouldBecomeInactiveAndCollapsed() {
             stepper.toggleStepExpandedState(mockedStep1.step);
 
-            assertActiveState(mockedStep1, false);
+            verifyActiveState(mockedStep1, false);
         }
 
         @Test
@@ -635,7 +635,7 @@ public class VerticalStepperTest {
         public void toggleStepExpandedState_ShouldBecomeActiveAndExpanded() {
             stepper.toggleStepExpandedState(mockedStep1.step);
 
-            assertActiveState(mockedStep1, true);
+            verifyActiveState(mockedStep1, true);
         }
 
         @Test
@@ -727,7 +727,7 @@ public class VerticalStepperTest {
 
             stepper.collapseOtherSteps(mockedStep1.step);
 
-            assertActiveState(mockedStep2, false);
+            verifyActiveState(mockedStep2, false);
         }
 
         @Test
