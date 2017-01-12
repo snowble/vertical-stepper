@@ -252,6 +252,9 @@ class Step {
         private final int touchViewHeight;
         private final int touchViewBackground;
 
+        private final int navButtonTopMargin;
+        private final int navButtonHeight;
+
         private final int activeBottomMargin;
         private final int inactiveBottomMargin;
 
@@ -286,6 +289,8 @@ class Step {
             touchViewBackground =
                     ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.selectableItemBackground, 0);
 
+            navButtonHeight = resources.getDimensionPixelSize(R.dimen.nav_btn_height);
+            navButtonTopMargin = resources.getDimensionPixelSize(R.dimen.nav_btn_margin_top);
             activeBottomMargin = resources.getDimensionPixelSize(R.dimen.inactive_bottom_margin_to_next_step);
             inactiveBottomMargin = resources.getDimensionPixelSize(R.dimen.active_bottom_margin_to_next_step);
 
@@ -370,6 +375,14 @@ class Step {
 
         int getTouchViewBackground() {
             return touchViewBackground;
+        }
+
+        public int getNavButtonHeight() {
+            return navButtonHeight;
+        }
+
+        public int getNavButtonTopMargin() {
+            return navButtonTopMargin;
         }
 
         int getActiveBottomMarginToNextStep() {
