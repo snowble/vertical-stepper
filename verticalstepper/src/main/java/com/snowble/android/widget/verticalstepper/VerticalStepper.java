@@ -158,7 +158,13 @@ public class VerticalStepper extends ViewGroup {
     void initTouchView(final Step step) {
         InternalTouchView touchView = step.getTouchView();
         touchView.setBackgroundResource(commonStepValues.getTouchViewBackground());
-        touchView.setOnClickListener(new ExpandCollapseListener(step));
+        touchView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                collapseOtherSteps(step);
+                toggleStepExpandedState(step);
+            }
+        });
         addView(touchView);
     }
 
@@ -176,6 +182,35 @@ public class VerticalStepper extends ViewGroup {
             }
         });
         addView(continueButton, lp);
+    }
+
+    @VisibleForTesting
+    void collapseOtherSteps(Step stepThatShouldntCollapse) {
+        for (Step s : steps) {
+            if (s != stepThatShouldntCollapse && s.isActive()) {
+                toggleStepExpandedState(s);
+            }
+        }
+    }
+
+    @VisibleForTesting
+    void toggleStepExpandedState(Step step) {
+        toggleActiveState(step);
+        toggleViewVisibility(step.getInnerView());
+        toggleViewVisibility(step.getContinueButton());
+    }
+
+    private void toggleActiveState(Step step) {
+        step.setActive(!step.isActive());
+    }
+
+    private void toggleViewVisibility(View view) {
+        int visibility = view.getVisibility();
+        if (visibility == VISIBLE) {
+            view.setVisibility(GONE);
+        } else {
+            view.setVisibility(VISIBLE);
+        }
     }
 
     @Override
@@ -578,50 +613,6 @@ public class VerticalStepper extends ViewGroup {
     static class InternalTouchView extends View {
         public InternalTouchView(Context context) {
             super(context);
-        }
-    }
-
-    @VisibleForTesting
-    class ExpandCollapseListener implements OnClickListener {
-        private final Step step;
-
-        ExpandCollapseListener(Step step) {
-            this.step = step;
-        }
-
-        @Override
-        public void onClick(View v) {
-            collapseOtherSteps();
-            toggleStepExpandedState(step);
-        }
-
-        @VisibleForTesting
-        void collapseOtherSteps() {
-            for (Step s : steps) {
-                if (s != step && s.isActive()) {
-                    toggleStepExpandedState(s);
-                }
-            }
-        }
-
-        @VisibleForTesting
-        void toggleStepExpandedState(Step step) {
-            toggleActiveState(step);
-            toggleViewVisibility(step.getInnerView());
-            toggleViewVisibility(step.getContinueButton());
-        }
-
-        private void toggleActiveState(Step step) {
-            step.setActive(!step.isActive());
-        }
-
-        private void toggleViewVisibility(View view) {
-            int visibility = view.getVisibility();
-            if (visibility == VISIBLE) {
-                view.setVisibility(GONE);
-            } else {
-                view.setVisibility(VISIBLE);
-            }
         }
     }
 }
