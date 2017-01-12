@@ -1420,6 +1420,17 @@ public class VerticalStepperTest {
         }
 
         @Test
+        public void collapseOtherSteps_ShouldNotCollapseListenerStep() {
+            mockActiveState(mockedStep1, true);
+
+            listener.collapseOtherSteps();
+
+            verify(mockedStep1.step, never()).setActive(false);
+            verify(mockedStep1.innerView, never()).setVisibility(View.GONE);
+            verify(mockedStep1.continueButton, never()).setVisibility(View.GONE);
+        }
+
+        @Test
         public void onClick_ShouldCallCollapseOtherStepsAndToggle() {
             VerticalStepper.ExpandCollapseListener listenerSpy = spy(listener);
             doNothing().when(listenerSpy).collapseOtherSteps();
