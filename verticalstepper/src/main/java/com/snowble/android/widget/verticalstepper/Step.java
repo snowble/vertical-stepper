@@ -188,7 +188,11 @@ class Step {
     }
 
     TextPaint getTitleTextPaint() {
-        return active ? common.getTitleActiveTextPaint() : common.getTitleInactiveTextPaint();
+        if (active) {
+            return common.getTitleActiveTextPaint();
+        } else  {
+            return complete ? common.getTitleCompleteTextPaint() : common.getTitleInactiveTextPaint();
+        }
     }
 
     void measureBottomMarginToNextStep() {
@@ -259,6 +263,7 @@ class Step {
 
         private final TextPaint titleActiveTextPaint;
         private final TextPaint titleInactiveTextPaint;
+        private final TextPaint titleCompleteTextPaint;
         private final int titleMarginBottomToInnerView;
 
         private final TextPaint summaryTextPaint;
@@ -297,6 +302,7 @@ class Step {
             titleActiveTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
             titleActiveTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
+            titleCompleteTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
 
             summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
 
@@ -378,6 +384,10 @@ class Step {
 
         TextPaint getTitleInactiveTextPaint() {
             return titleInactiveTextPaint;
+        }
+
+        TextPaint getTitleCompleteTextPaint() {
+            return titleCompleteTextPaint;
         }
 
         int getTitleMarginBottomToInnerView() {

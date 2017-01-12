@@ -290,7 +290,7 @@ public class StepTest {
         }
 
         @Test
-        public void getIconColor_CompleteStep_ShouldReturCompleteStepPaint() {
+        public void getIconColor_CompleteStep_ShouldReturnCompleteStepPaint() {
             step.setComplete(true);
 
             Paint paint = step.getIconColor();
@@ -303,6 +303,15 @@ public class StepTest {
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(common.getTitleInactiveTextPaint());
+        }
+
+        @Test
+        public void getTitleTextPaint_CompleteStep_ShouldReturnCompleteStepPaint() {
+            step.setComplete(true);
+
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(common.getTitleCompleteTextPaint());
         }
 
         @Test
@@ -337,6 +346,15 @@ public class StepTest {
 
         @Test
         public void getTitleTextPaint_ShouldReturnActiveStepPaint() {
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(common.getTitleActiveTextPaint());
+        }
+
+        @Test
+        public void getTitleTextPaint_CompleteStep_ShouldReturnActiveStepPaint() {
+            step.setComplete(true);
+
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(common.getTitleActiveTextPaint());
