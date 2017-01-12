@@ -169,7 +169,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    void initNavButtons(Step step) {
+    void initNavButtons(final Step step) {
         AppCompatButton continueButton = step.getContinueButton();
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
@@ -178,10 +178,26 @@ public class VerticalStepper extends ViewGroup {
         continueButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO collapse current view and expand next view
+                completeStep(step);
+
             }
         });
         addView(continueButton, lp);
+    }
+
+    @VisibleForTesting
+    void completeStep(Step step) {
+        // TODO Add step validation
+        // TODO Update step state
+        toggleStepExpandedState(step);
+
+        int nextIndex = steps.indexOf(step) + 1;
+        if (nextIndex < steps.size()) {
+            toggleStepExpandedState(steps.get(nextIndex));
+        } else {
+            // TODO this is the last step. Complete the form
+            // TODO Add listener for entire stepper validation
+        }
     }
 
     @VisibleForTesting
