@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 public class StepTest {
     private static final int ICON_ACTIVE_COLOR = R.color.bg_active_icon;
     private static final int ICON_INACTIVE_COLOR = R.color.bg_inactive_icon;
+    private static final int ICON_COMPLETE_COLOR = android.R.color.black;
 
     public static abstract class GivenChildViews extends GivenAnActivity {
         View innerView;
@@ -50,7 +51,7 @@ public class StepTest {
 
         @Before
         public void givenCommonValues() {
-            common = new Step.Common(activity, ICON_ACTIVE_COLOR, ICON_INACTIVE_COLOR);
+            common = new Step.Common(activity, ICON_ACTIVE_COLOR, ICON_INACTIVE_COLOR, ICON_COMPLETE_COLOR);
         }
     }
 
@@ -289,6 +290,15 @@ public class StepTest {
         }
 
         @Test
+        public void getIconColor_CompleteStep_ShouldReturCompleteStepPaint() {
+            step.setComplete(true);
+
+            Paint paint = step.getIconColor();
+
+            assertThat(paint).isSameAs(common.getIconCompleteBackgroundPaint());
+        }
+
+        @Test
         public void getTitleTextPaint_ShouldReturnInactiveStepPaint() {
             TextPaint paint = step.getTitleTextPaint();
 
@@ -311,6 +321,15 @@ public class StepTest {
 
         @Test
         public void getIconColor_ShouldReturnActiveStepPaint() {
+            Paint paint = step.getIconColor();
+
+            assertThat(paint).isSameAs(common.getIconActiveBackgroundPaint());
+        }
+
+        @Test
+        public void getIconColor_CompleteStep_ShouldReturnActiveStepPaint() {
+            step.setComplete(true);
+
             Paint paint = step.getIconColor();
 
             assertThat(paint).isSameAs(common.getIconActiveBackgroundPaint());

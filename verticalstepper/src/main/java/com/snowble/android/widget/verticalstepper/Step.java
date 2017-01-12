@@ -200,7 +200,11 @@ class Step {
     }
 
     Paint getIconColor() {
-        return active ? common.getIconActiveBackgroundPaint() : common.getIconInactiveBackgroundPaint();
+        if (active) {
+            return common.getIconActiveBackgroundPaint();
+        } else  {
+            return complete ? common.getIconCompleteBackgroundPaint() : common.getIconInactiveBackgroundPaint();
+        }
     }
 
     int calculateStepDecoratorWidth() {
@@ -250,6 +254,7 @@ class Step {
         private final int iconMarginVertical;
         private final Paint iconActiveBackgroundPaint;
         private final Paint iconInactiveBackgroundPaint;
+        private final Paint iconCompleteBackgroundPaint;
         private final TextPaint iconTextPaint;
 
         private final TextPaint titleActiveTextPaint;
@@ -276,7 +281,7 @@ class Step {
         private final Rect tempRectForTitleTextBounds;
         private final Rect tempRectForLayout;
 
-        Common(Context context, int iconActiveColor, int iconInactiveColor) {
+        Common(Context context, int iconActiveColor, int iconInactiveColor, int iconCompleteColor) {
             resources = context.getResources();
             theme = context.getTheme();
 
@@ -285,6 +290,7 @@ class Step {
             iconMarginVertical = resources.getDimensionPixelSize(R.dimen.icon_margin_vertical);
             iconActiveBackgroundPaint = createPaint(iconActiveColor);
             iconInactiveBackgroundPaint = createPaint(iconInactiveColor);
+            iconCompleteBackgroundPaint = createPaint(iconCompleteColor);
             iconTextPaint = createTextPaint(R.color.white, R.dimen.icon_font_size);
 
             titleMarginBottomToInnerView = resources.getDimensionPixelSize(R.dimen.title_margin_bottom_to_inner_view);
@@ -356,6 +362,10 @@ class Step {
 
         Paint getIconInactiveBackgroundPaint() {
             return iconInactiveBackgroundPaint;
+        }
+
+        Paint getIconCompleteBackgroundPaint() {
+            return iconCompleteBackgroundPaint;
         }
 
         TextPaint getIconTextPaint() {
