@@ -1355,6 +1355,51 @@ public class VerticalStepperTest {
         }
 
         @Test
+        public void continueButtonOnClickListener_ShouldCallCompleteStep() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initNavButtons(mockedStep1.step);
+            verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).completeStep(mockedStep1.step);
+        }
+
+        @Test
+        public void completeStep_ShouldCollapseCurrentStep() {
+            mockActiveState(mockedStep1, true);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verifyActiveState(mockedStep1, false);
+        }
+
+        @Test
+        public void completeStep_ShouldExpandNextStep() {
+            mockActiveState(mockedStep1, true);
+            mockActiveState(mockedStep2, false);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verifyActiveState(mockedStep2, true);
+        }
+
+        @Test
+        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
+            mockActiveState(mockedStep2, true);
+
+            stepperSpy.completeStep(mockedStep2.step);
+
+            verify(stepperSpy).completeStep(mockedStep2.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
+            verifyActiveState(mockedStep2, false);
+            verifyNoMoreInteractions(stepperSpy);
+        }
+
+        @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
             when(mockedStep1.step.getIconColor()).thenReturn(color);
