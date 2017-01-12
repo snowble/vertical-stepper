@@ -185,9 +185,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    void collapseOtherSteps(Step stepThatShouldntCollapse) {
+    void collapseOtherSteps(Step stepToExcludeFromCollapse) {
         for (Step s : steps) {
-            if (s != stepThatShouldntCollapse && s.isActive()) {
+            if (s != stepToExcludeFromCollapse && s.isActive()) {
                 toggleStepExpandedState(s);
             }
         }
