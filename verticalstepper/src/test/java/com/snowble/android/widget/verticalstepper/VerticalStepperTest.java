@@ -431,6 +431,26 @@ public class VerticalStepperTest {
         }
 
         @Test
+        public void initNavButtons_ShouldSetTextToContinue() {
+            stepper.initNavButtons(mockedStep1.step);
+
+            verify(mockedStep1.continueButton).setText(R.string.continue_button);
+        }
+
+        @Test
+        public void initNavButtons_ShouldSetLayoutParamsWithTopMarginAndHeight() {
+            stepper.initNavButtons(mockedStep1.step);
+
+            ArgumentCaptor<VerticalStepper.LayoutParams> lpCaptor =
+                    ArgumentCaptor.forClass(VerticalStepper.LayoutParams.class);
+            verify(mockedStep1.continueButton).setLayoutParams(lpCaptor.capture());
+
+            VerticalStepper.LayoutParams lp = lpCaptor.getValue();
+            assertThat(lp.topMargin).isEqualTo(stepper.getCommonStepValues().getNavButtonTopMargin());
+            assertThat(lp.height).isEqualTo(stepper.getCommonStepValues().getNavButtonHeight());
+        }
+
+        @Test
         public void initNavButtons_ShouldSetClickListener() {
             stepper.initNavButtons(mockedStep1.step);
 
