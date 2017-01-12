@@ -61,6 +61,20 @@ public class VerticalStepperTest {
         public void givenAStepper() {
             stepper = new VerticalStepper(activity);
         }
+
+        void mockActiveState(MockedStep step, boolean isActive) {
+            when(step.step.isActive()).thenReturn(isActive);
+            int visibility = isActive ? View.VISIBLE : View.GONE;
+            when(step.innerView.getVisibility()).thenReturn(visibility);
+            when(step.continueButton.getVisibility()).thenReturn(visibility);
+        }
+
+        void assertActiveState(MockedStep step, boolean expectedActiveState) {
+            verify(step.step).setActive(expectedActiveState);
+            int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
+            verify(step.innerView).setVisibility(visibility);
+            verify(step.continueButton).setVisibility(visibility);
+        }
     }
 
     public static class GivenZeroSteps extends GivenAStepper {
@@ -364,20 +378,6 @@ public class VerticalStepperTest {
             int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
             int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
             stepper.measureActiveViews(wms, hms);
-        }
-
-        void mockActiveState(MockedStep step, boolean isActive) {
-            when(step.step.isActive()).thenReturn(isActive);
-            int visibility = isActive ? View.VISIBLE : View.GONE;
-            when(step.innerView.getVisibility()).thenReturn(visibility);
-            when(step.continueButton.getVisibility()).thenReturn(visibility);
-        }
-
-        void assertActiveState(MockedStep step, boolean expectedActiveState) {
-            verify(step.step).setActive(expectedActiveState);
-            int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
-            verify(step.innerView).setVisibility(visibility);
-            verify(step.continueButton).setVisibility(visibility);
         }
     }
 
