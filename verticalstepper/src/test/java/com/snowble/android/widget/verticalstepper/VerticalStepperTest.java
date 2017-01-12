@@ -1339,69 +1339,8 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoStepsAndMockCanvas {
-        @Test
-        public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
-            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
-            stepperSpy.initTouchView(mockedStep1.step);
-            verify(mockedStep1.touchView).setOnClickListener(captor.capture());
-            View.OnClickListener clickListenerSpy = spy(captor.getValue());
-
-            doNothing().when(stepperSpy).collapseOtherSteps(mockedStep1.step);
-            doNothing().when(stepperSpy).toggleStepExpandedState(mockedStep1.step);
-
-            clickListenerSpy.onClick(mock(View.class));
-
-            verify(stepperSpy).collapseOtherSteps(mockedStep1.step);
-            verify(stepperSpy).toggleStepExpandedState(mockedStep1.step);
-        }
-
-        @Test
-        public void continueButtonOnClickListener_ShouldCallCompleteStep() {
-            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
-            stepperSpy.initNavButtons(mockedStep1.step);
-            verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
-            View.OnClickListener clickListenerSpy = spy(captor.getValue());
-
-            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
-
-            clickListenerSpy.onClick(mock(View.class));
-
-            verify(stepperSpy).completeStep(mockedStep1.step);
-        }
-
-        @Test
-        public void completeStep_ShouldCollapseCompleteCurrentStep() {
-            mockActiveState(mockedStep1, true);
-
-            stepperSpy.completeStep(mockedStep1.step);
-
-            verify(mockedStep1.step).setComplete(true);
-            verifyActiveState(mockedStep1, false);
-        }
-
-        @Test
-        public void completeStep_ShouldExpandNextStep() {
-            mockActiveState(mockedStep1, true);
-            mockActiveState(mockedStep2, false);
-
-            stepperSpy.completeStep(mockedStep1.step);
-
-            verifyActiveState(mockedStep2, true);
-        }
-
-        @Test
-        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
-            mockActiveState(mockedStep2, true);
-
-            stepperSpy.completeStep(mockedStep2.step);
-
-            verify(stepperSpy).completeStep(mockedStep2.step);
-            verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
-            verifyActiveState(mockedStep2, false);
-            verifyNoMoreInteractions(stepperSpy);
-        }
-
+    public static class GivenStepperSpyWithExactlyTwoStepsAndMockCanvas
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
         @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
@@ -1513,6 +1452,70 @@ public class VerticalStepperTest {
             stepperSpy.drawConnector(canvas, yDistanceToNextStep);
 
             verify(canvas).drawLine(0, startY, 0, stopY, paint);
+        }
+    }
+
+    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
+        @Test
+        public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initTouchView(mockedStep1.step);
+            verify(mockedStep1.touchView).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            doNothing().when(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+        }
+
+        @Test
+        public void continueButtonOnClickListener_ShouldCallCompleteStep() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initNavButtons(mockedStep1.step);
+            verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).completeStep(mockedStep1.step);
+        }
+
+        @Test
+        public void completeStep_ShouldCollapseCompleteCurrentStep() {
+            mockActiveState(mockedStep1, true);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step).setComplete(true);
+            verifyActiveState(mockedStep1, false);
+        }
+
+        @Test
+        public void completeStep_ShouldExpandNextStep() {
+            mockActiveState(mockedStep1, true);
+            mockActiveState(mockedStep2, false);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verifyActiveState(mockedStep2, true);
+        }
+
+        @Test
+        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
+            mockActiveState(mockedStep2, true);
+
+            stepperSpy.completeStep(mockedStep2.step);
+
+            verify(stepperSpy).completeStep(mockedStep2.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
+            verifyActiveState(mockedStep2, false);
+            verifyNoMoreInteractions(stepperSpy);
         }
     }
 }
