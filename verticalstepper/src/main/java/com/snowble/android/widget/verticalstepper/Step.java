@@ -211,6 +211,16 @@ class Step {
         }
     }
 
+    int calculateHorizontalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
+        return common.calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
+    }
+
+    int calculateVerticalUsedSpace(View view) {
+        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
+        return lp.topMargin + lp.bottomMargin;
+    }
+
     int calculateStepDecoratorWidth() {
         return common.calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth();
     }

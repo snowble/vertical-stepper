@@ -281,12 +281,12 @@ public class VerticalStepper extends ViewGroup {
             currentHeight += step.getDecoratorHeight();
 
             View innerView = step.getInnerView();
-            measureActiveView(innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            measureActiveView(step, innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
             activeViewsHeight += calculateActiveHeight(step, innerView);
             currentHeight += activeViewsHeight;
 
             View continueButton = step.getContinueButton();
-            measureActiveView(continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
+            measureActiveView(step, continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
             activeViewsHeight += calculateActiveHeight(step, continueButton);
             currentHeight += step.getBottomMarginHeight();
 
@@ -294,12 +294,12 @@ public class VerticalStepper extends ViewGroup {
         }
     }
 
-    private void measureActiveView(View activeView, int parentWms, int parentHms, int currentHeight) {
+    private void measureActiveView(Step step, View activeView, int parentWms, int parentHms, int currentHeight) {
         LayoutParams lp = (LayoutParams) activeView.getLayoutParams();
-        int activeViewUsedWidth = calculateHorizontalPadding() + calculateHorizontalUsedSpace(activeView);
+        int activeViewUsedWidth = calculateHorizontalPadding() + step.calculateHorizontalUsedSpace(activeView);
         int activeViewWms = getChildMeasureSpec(parentWms, activeViewUsedWidth, lp.width);
 
-        int activeViewUsedHeight = calculateVerticalUsedSpace(activeView) + currentHeight;
+        int activeViewUsedHeight = step.calculateVerticalUsedSpace(activeView) + currentHeight;
         int activeViewHms = getChildMeasureSpec(parentHms, activeViewUsedHeight, lp.height);
 
         activeView.measure(activeViewWms, activeViewHms);
@@ -307,15 +307,9 @@ public class VerticalStepper extends ViewGroup {
 
     private int calculateActiveHeight(Step step, View activeView) {
         if (step.isActive()) {
-            return activeView.getMeasuredHeight() + calculateVerticalUsedSpace(activeView);
+            return activeView.getMeasuredHeight() + step.calculateVerticalUsedSpace(activeView);
         }
         return 0;
-    }
-
-    @VisibleForTesting
-    int calculateVerticalUsedSpace(View view) {
-        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
-        return lp.topMargin + lp.bottomMargin;
     }
 
     @VisibleForTesting
@@ -332,20 +326,14 @@ public class VerticalStepper extends ViewGroup {
             width = Math.max(width, step.calculateStepDecoratorWidth());
 
             View innerView = step.getInnerView();
-            int innerViewHorizontalPadding = calculateHorizontalUsedSpace(innerView);
+            int innerViewHorizontalPadding = step.calculateHorizontalUsedSpace(innerView);
             width = Math.max(width, innerView.getMeasuredWidth() + innerViewHorizontalPadding);
 
             AppCompatButton continueButton = step.getContinueButton();
-            int continueHorizontalPadding = calculateHorizontalUsedSpace(continueButton);
+            int continueHorizontalPadding = step.calculateHorizontalUsedSpace(continueButton);
             width = Math.max(width, continueButton.getMeasuredWidth() + continueHorizontalPadding);
         }
         return width;
-    }
-
-    @VisibleForTesting
-    int calculateHorizontalUsedSpace(View view) {
-        VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
-        return commonStepValues.calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
     }
 
     @VisibleForTesting
