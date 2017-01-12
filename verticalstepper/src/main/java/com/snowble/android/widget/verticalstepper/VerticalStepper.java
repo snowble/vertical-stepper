@@ -582,7 +582,7 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    static class ExpandCollapseListener implements OnClickListener {
+    class ExpandCollapseListener implements OnClickListener {
         private final Step step;
 
         ExpandCollapseListener(Step step) {
@@ -591,7 +591,17 @@ public class VerticalStepper extends ViewGroup {
 
         @Override
         public void onClick(View v) {
+            collapseOtherSteps();
             toggleStepExpandedState(step);
+        }
+
+        @VisibleForTesting
+        void collapseOtherSteps() {
+            for (Step s : steps) {
+                if (s.isActive()) {
+                    toggleStepExpandedState(s);
+                }
+            }
         }
 
         @VisibleForTesting
