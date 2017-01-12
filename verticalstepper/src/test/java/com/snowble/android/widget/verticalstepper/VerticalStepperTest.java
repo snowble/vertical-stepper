@@ -365,6 +365,20 @@ public class VerticalStepperTest {
             int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
             stepper.measureActiveViews(wms, hms);
         }
+
+        void mockActiveState(MockedStep step, boolean isActive) {
+            when(step.step.isActive()).thenReturn(isActive);
+            int visibility = isActive ? View.VISIBLE : View.GONE;
+            when(step.innerView.getVisibility()).thenReturn(visibility);
+            when(step.continueButton.getVisibility()).thenReturn(visibility);
+        }
+
+        void assertActiveState(MockedStep step, boolean expectedActiveState) {
+            verify(step.step).setActive(expectedActiveState);
+            int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
+            verify(step.innerView).setVisibility(visibility);
+            verify(step.continueButton).setVisibility(visibility);
+        }
     }
 
     public static class GivenExactlyOneStep extends GivenOneStep {
@@ -548,7 +562,14 @@ public class VerticalStepperTest {
 
         @Before
         public void givenExactlyOneActiveStep() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
+            mockActiveState(mockedStep1, true);
+        }
+
+        @Test
+        public void toggleStepExpandedState_ShouldBecomeInactiveAndCollapsed() {
+            stepper.toggleStepExpandedState(mockedStep1.step);
+
+            assertActiveState(mockedStep1, false);
         }
 
         @Test
@@ -587,7 +608,14 @@ public class VerticalStepperTest {
 
         @Before
         public void givenExactlyOneInactiveStep() {
-            when(mockedStep1.step.isActive()).thenReturn(false);
+            mockActiveState(mockedStep1, false);
+        }
+
+        @Test
+        public void toggleStepExpandedState_ShouldBecomeActiveAndExpanded() {
+            stepper.toggleStepExpandedState(mockedStep1.step);
+
+            assertActiveState(mockedStep1, true);
         }
 
         @Test
@@ -673,6 +701,26 @@ public class VerticalStepperTest {
     }
 
     public static class GivenExactlyTwoSteps extends GivenTwoSteps {
+        @Test
+        public void collapseOtherSteps_ShouldCollapseAnyOtherActiveSteps() {
+            mockActiveState(mockedStep2, true);
+
+            stepper.collapseOtherSteps(mockedStep1.step);
+
+            assertActiveState(mockedStep2, false);
+        }
+
+        @Test
+        public void collapseOtherSteps_ShouldNotCollapseListenerStep() {
+            mockActiveState(mockedStep1, true);
+
+            stepper.collapseOtherSteps(mockedStep1.step);
+
+            verify(mockedStep1.step, never()).setActive(false);
+            verify(mockedStep1.innerView, never()).setVisibility(View.GONE);
+            verify(mockedStep1.continueButton, never()).setVisibility(View.GONE);
+        }
+
         @Test
         public void initSteps_ShouldHaveInnerViewsWithTwoElements() {
             assertThat(stepper.steps)
@@ -1271,6 +1319,22 @@ public class VerticalStepperTest {
 
     public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoStepsAndMockCanvas {
         @Test
+        public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initTouchView(mockedStep1.step);
+            verify(mockedStep1.touchView).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            doNothing().when(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+        }
+
+        @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
             when(mockedStep1.step.getIconColor()).thenReturn(color);
@@ -1367,79 +1431,6 @@ public class VerticalStepperTest {
             stepperSpy.drawConnector(canvas, yDistanceToNextStep);
 
             verify(canvas).drawLine(0, startY, 0, stopY, paint);
-        }
-    }
-
-    public static class GivenAnExpandCollapseListener extends GivenTwoSteps {
-        private VerticalStepper.ExpandCollapseListener listener;
-
-        @Before
-        public void givenAnExpandCollapseListener() {
-            listener = stepper.new ExpandCollapseListener(mockedStep1.step);
-        }
-
-        private void mockActiveState(MockedStep step, boolean isActive) {
-            when(step.step.isActive()).thenReturn(isActive);
-            int visibility = isActive ? View.VISIBLE : View.GONE;
-            when(step.innerView.getVisibility()).thenReturn(visibility);
-            when(step.continueButton.getVisibility()).thenReturn(visibility);
-        }
-
-        private void assertActiveState(MockedStep step, boolean expectedActiveState) {
-            verify(step.step).setActive(expectedActiveState);
-            int visibility = expectedActiveState ? View.VISIBLE : View.GONE;
-            verify(step.innerView).setVisibility(visibility);
-            verify(step.continueButton).setVisibility(visibility);
-        }
-
-        @Test
-        public void toggleStepExpandedState_Active_ShouldBecomeInactiveAndCollapsed() {
-            mockActiveState(mockedStep1, true);
-
-            listener.toggleStepExpandedState(mockedStep1.step);
-
-            assertActiveState(mockedStep1, false);
-        }
-
-        @Test
-        public void toggleStepExpandedState_Inactive_ShouldBecomeActiveAndExpanded() {
-            mockActiveState(mockedStep1, false);
-
-            listener.toggleStepExpandedState(mockedStep1.step);
-
-            assertActiveState(mockedStep1, true);
-        }
-
-        @Test
-        public void collapseOtherSteps_ShouldCollapseAnyOtherActiveSteps() {
-            mockActiveState(mockedStep2, true);
-
-            listener.collapseOtherSteps();
-
-            assertActiveState(mockedStep2, false);
-        }
-
-        @Test
-        public void collapseOtherSteps_ShouldNotCollapseListenerStep() {
-            mockActiveState(mockedStep1, true);
-
-            listener.collapseOtherSteps();
-
-            verify(mockedStep1.step, never()).setActive(false);
-            verify(mockedStep1.innerView, never()).setVisibility(View.GONE);
-            verify(mockedStep1.continueButton, never()).setVisibility(View.GONE);
-        }
-
-        @Test
-        public void onClick_ShouldCallCollapseOtherStepsAndToggle() {
-            VerticalStepper.ExpandCollapseListener listenerSpy = spy(listener);
-            doNothing().when(listenerSpy).collapseOtherSteps();
-            doNothing().when(listenerSpy).toggleStepExpandedState(mockedStep1.step);
-
-            listenerSpy.onClick(mock(View.class));
-
-            verify(listenerSpy).collapseOtherSteps();
-            verify(listenerSpy).toggleStepExpandedState(mockedStep1.step);
         }
     }
 }
