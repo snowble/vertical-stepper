@@ -89,6 +89,7 @@ public class VerticalStepperTest {
 
             assertThat(stepper.iconActiveColor).isEqualTo(getColor(R.color.bg_active_icon));
             assertThat(stepper.iconInactiveColor).isEqualTo(getColor(R.color.bg_inactive_icon));
+            assertThat(stepper.iconCompleteColor).isEqualTo(stepper.iconActiveColor);
             assertThat(stepper.continueButtonStyle)
                     .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Colored);
         }
@@ -99,12 +100,14 @@ public class VerticalStepperTest {
             Robolectric.AttributeSetBuilder builder = Robolectric.buildAttributeSet();
             builder.addAttribute(R.attr.iconColorActive, "@android:color/black");
             builder.addAttribute(R.attr.iconColorInactive, "@android:color/darker_gray");
+            builder.addAttribute(R.attr.iconColorComplete, "@android:color/holo_orange_dark");
             builder.addAttribute(R.attr.continueButtonStyle, "@style/Widget.AppCompat.Button.Borderless");
 
             stepper.initPropertiesFromAttrs(builder.build(), 0, 0);
 
             assertThat(stepper.iconActiveColor).isEqualTo(getColor(android.R.color.black));
             assertThat(stepper.iconInactiveColor).isEqualTo(getColor(android.R.color.darker_gray));
+            assertThat(stepper.iconCompleteColor).isEqualTo(getColor(android.R.color.holo_orange_dark));
             assertThat(stepper.continueButtonStyle)
                     .isEqualTo(android.support.v7.appcompat.R.style.Widget_AppCompat_Button_Borderless);
         }

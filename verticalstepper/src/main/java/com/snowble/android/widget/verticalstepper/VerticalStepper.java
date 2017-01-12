@@ -42,6 +42,8 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     int iconActiveColor;
     @VisibleForTesting
+    int iconCompleteColor;
+    @VisibleForTesting
     int continueButtonStyle;
 
     public VerticalStepper(Context context) {
@@ -86,7 +88,7 @@ public class VerticalStepper extends ViewGroup {
         initPropertiesFromAttrs(attrs, defStyleAttr, defStyleRes);
         initPadding();
 
-        commonStepValues = new Step.Common(context, iconActiveColor, iconInactiveColor);
+        commonStepValues = new Step.Common(context, iconActiveColor, iconInactiveColor, iconCompleteColor);
         steps = new ArrayList<>();
     }
 
@@ -114,6 +116,8 @@ public class VerticalStepper extends ViewGroup {
                 ResourcesCompat.getColor(resources, defaultActiveColor, context.getTheme()));
         iconInactiveColor = a.getColor(R.styleable.VerticalStepper_iconColorInactive,
                 ResourcesCompat.getColor(resources, R.color.bg_inactive_icon, context.getTheme()));
+        iconCompleteColor = a.getColor(R.styleable.VerticalStepper_iconColorComplete,
+                iconActiveColor);
     }
 
     @SuppressLint("PrivateResource") // https://code.google.com/p/android/issues/detail?id=230985
