@@ -282,15 +282,19 @@ public class VerticalStepper extends ViewGroup {
 
             View innerView = step.getInnerView();
             measureActiveView(step, innerView, widthMeasureSpec, heightMeasureSpec, currentHeight);
-            activeViewsHeight += calculateActiveHeight(step, innerView);
-            currentHeight += activeViewsHeight;
+            int innerHeight = calculateActiveHeight(step, innerView);
+            activeViewsHeight += innerHeight;
+            currentHeight += innerHeight;
 
             View continueButton = step.getContinueButton();
             measureActiveView(step, continueButton, widthMeasureSpec, heightMeasureSpec, currentHeight);
-            activeViewsHeight += calculateActiveHeight(step, continueButton);
-            currentHeight += step.getBottomMarginHeight();
+            int continueHeight = calculateActiveHeight(step, continueButton);
+            activeViewsHeight += continueHeight;
+            currentHeight += continueHeight;
 
             step.setActiveViewsHeight(activeViewsHeight);
+
+            currentHeight += step.getBottomMarginHeight();
         }
     }
 
