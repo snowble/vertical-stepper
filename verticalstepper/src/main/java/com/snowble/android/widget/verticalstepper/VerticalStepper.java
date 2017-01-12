@@ -172,14 +172,15 @@ public class VerticalStepper extends ViewGroup {
         AppCompatButton continueButton = step.getContinueButton();
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
-        // TODO Add Margins
+        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, commonStepValues.getNavButtonHeight());
+        lp.topMargin = commonStepValues.getNavButtonTopMargin();
         continueButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO collapse current view and expand next view
             }
         });
-        addView(continueButton);
+        addView(continueButton, lp);
     }
 
     @VisibleForTesting
