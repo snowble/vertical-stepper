@@ -559,8 +559,8 @@ public class VerticalStepper extends ViewGroup {
 
         int iconDimension = step.getIconDimension();
         int iconMarginVertical = step.getIconMarginVertical();
-        int connectorWidth = commonStepValues.getConnectorWidth();
         Paint connectorPaint = commonStepValues.getConnectorPaint();
+        float connectorWidth = connectorPaint.getStrokeWidth();
 
         canvas.translate(ViewUtils.findCenterStartX(connectorWidth, iconDimension), 0);
         float startY = iconDimension + iconMarginVertical;
