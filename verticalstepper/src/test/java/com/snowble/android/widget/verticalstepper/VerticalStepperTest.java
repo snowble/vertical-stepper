@@ -1173,12 +1173,13 @@ public class VerticalStepperTest {
 
         @Test
         public void drawIconText_ShouldDrawStepNumber() {
+            TextPaint paint = mock(TextPaint.class);
+            when(mockedStep1.step.getIconTextPaint()).thenReturn(paint);
             int stepNumber = 4;
 
             stepperSpy.drawIconText(canvas, mockedStep1.step, stepNumber);
 
             String stepNumberString = String.valueOf(stepNumber);
-            TextPaint paint = stepperSpy.getCommonStepValues().getIconTextPaint();
             verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(paint));
         }
 

@@ -211,6 +211,10 @@ class Step {
         }
     }
 
+    TextPaint getIconTextPaint() {
+        return common.getIconTextPaint();
+    }
+
     int calculateHorizontalUsedSpace(View view) {
         VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
         return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
