@@ -21,12 +21,37 @@ public class StepTest {
     private static final Paint ICON_INACTIVE_PAINT = new Paint();
     private static final Paint ICON_COMPLETE_PAINT = new Paint();
 
-    public static abstract class GivenChildViews extends GivenAnActivity {
+    public static abstract class GivenCommonValues extends GivenAnActivity {
         View innerView;
         VerticalStepper.LayoutParams innerLayoutParams;
         VerticalStepper.InternalTouchView touchView;
         AppCompatButton continueButton;
         VerticalStepper.LayoutParams continueLayoutParams;
+
+        Step.Common common;
+
+        TextPaint titleInactivePaint;
+        TextPaint summaryPaint;
+        Rect titleRect;
+
+        @Before
+        public void givenCommonValues() {
+            common = mock(Step.Common.class);
+
+            when(common.getIconActiveBackgroundPaint()).thenReturn(ICON_ACTIVE_PAINT);
+            when(common.getIconInactiveBackgroundPaint()).thenReturn(ICON_INACTIVE_PAINT);
+            when(common.getIconCompleteBackgroundPaint()).thenReturn(ICON_COMPLETE_PAINT);
+
+            titleInactivePaint = mock(TextPaint.class);
+            titleRect = mock(Rect.class);
+            when(titleInactivePaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
+            when(common.getTitleInactiveTextPaint()).thenReturn(titleInactivePaint);
+            when(common.getTempRectForTitleTextBounds()).thenReturn(titleRect);
+
+            summaryPaint = mock(TextPaint.class);
+            when(summaryPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
+            when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
+        }
 
         @Before
         public void givenChildViews() {
@@ -43,19 +68,6 @@ public class StepTest {
 
         Step createStep(Step.Common common) {
             return new Step(innerView, touchView, continueButton, common);
-        }
-    }
-
-    public static abstract class GivenCommonValues extends GivenChildViews {
-        Step.Common common;
-
-        @Before
-        public void givenCommonValues() {
-            common = mock(Step.Common.class);
-
-            when(common.getIconActiveBackgroundPaint()).thenReturn(ICON_ACTIVE_PAINT);
-            when(common.getIconInactiveBackgroundPaint()).thenReturn(ICON_INACTIVE_PAINT);
-            when(common.getIconCompleteBackgroundPaint()).thenReturn(ICON_COMPLETE_PAINT);
         }
     }
 
@@ -365,86 +377,6 @@ public class StepTest {
 
             assertThat(margin).isEqualTo(inactiveBottomMargin);
         }
-    }
-
-    public static class GivenStepIsActive extends GivenAStep {
-        @Before
-        public void givenStepIsActive() {
-            step.setActive(true);
-        }
-
-        @Test
-        public void getIconBackground_ShouldReturnActiveStepPaint() {
-            Paint paint = step.getIconBackground();
-
-            assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
-        }
-
-        @Test
-        public void getIconBackground_CompleteStep_ShouldReturnActiveStepPaint() {
-            step.setComplete(true);
-
-            Paint paint = step.getIconBackground();
-
-            assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
-        }
-
-        @Test
-        public void getTitleTextPaint_ShouldReturnActiveStepPaint() {
-            TextPaint activePaint = mock(TextPaint.class);
-            when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
-
-            TextPaint paint = step.getTitleTextPaint();
-
-            assertThat(paint).isSameAs(activePaint);
-        }
-
-        @Test
-        public void getTitleTextPaint_CompleteStep_ShouldReturnActiveStepPaint() {
-            step.setComplete(true);
-            TextPaint activePaint = mock(TextPaint.class);
-            when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
-
-            TextPaint paint = step.getTitleTextPaint();
-
-            assertThat(paint).isSameAs(activePaint);
-        }
-
-        @Test
-        public void getBottomMarginToNextStep_ShouldReturnActiveMargin() {
-            int activeBottomMargin = 40;
-            when(common.getActiveBottomMarginToNextStep()).thenReturn(activeBottomMargin);
-
-            int margin = step.getBottomMarginToNextStep();
-
-            assertThat(margin).isEqualTo(activeBottomMargin);
-        }
-    }
-
-    public static class GivenMockedCommon extends GivenChildViews {
-        private TextPaint titleInactivePaint;
-        private TextPaint summaryPaint;
-        private Rect titleRect;
-
-        private Step step;
-        private Step.Common common;
-
-        @Before
-        public void givenMockedCommon() {
-            common = mock(Step.Common.class);
-
-            titleInactivePaint = mock(TextPaint.class);
-            titleRect = mock(Rect.class);
-            when(titleInactivePaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
-            when(common.getTitleInactiveTextPaint()).thenReturn(titleInactivePaint);
-            when(common.getTempRectForTitleTextBounds()).thenReturn(titleRect);
-
-            summaryPaint = mock(TextPaint.class);
-            when(summaryPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
-            when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
-
-            step = createStep(common);
-        }
 
         @Test
         public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
@@ -501,6 +433,60 @@ public class StepTest {
 
             assertThat(startY)
                     .isEqualTo(yDistance - iconMarginVertical);
+        }
+    }
+
+    public static class GivenStepIsActive extends GivenAStep {
+        @Before
+        public void givenStepIsActive() {
+            step.setActive(true);
+        }
+
+        @Test
+        public void getIconBackground_ShouldReturnActiveStepPaint() {
+            Paint paint = step.getIconBackground();
+
+            assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
+        }
+
+        @Test
+        public void getIconBackground_CompleteStep_ShouldReturnActiveStepPaint() {
+            step.setComplete(true);
+
+            Paint paint = step.getIconBackground();
+
+            assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
+        }
+
+        @Test
+        public void getTitleTextPaint_ShouldReturnActiveStepPaint() {
+            TextPaint activePaint = mock(TextPaint.class);
+            when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
+
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(activePaint);
+        }
+
+        @Test
+        public void getTitleTextPaint_CompleteStep_ShouldReturnActiveStepPaint() {
+            step.setComplete(true);
+            TextPaint activePaint = mock(TextPaint.class);
+            when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
+
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(activePaint);
+        }
+
+        @Test
+        public void getBottomMarginToNextStep_ShouldReturnActiveMargin() {
+            int activeBottomMargin = 40;
+            when(common.getActiveBottomMarginToNextStep()).thenReturn(activeBottomMargin);
+
+            int margin = step.getBottomMarginToNextStep();
+
+            assertThat(margin).isEqualTo(activeBottomMargin);
         }
     }
 }
