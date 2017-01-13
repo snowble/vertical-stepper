@@ -257,6 +257,14 @@ class Step {
         return common.getTouchViewBackgroundResource();
     }
 
+    int getNavButtonHeight() {
+        return common.getNavButtonHeight();
+    }
+
+    int getNavButtonTopMargin() {
+        return common.getNavButtonTopMargin();
+    }
+
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
         measureSummaryHorizontalDimensions();

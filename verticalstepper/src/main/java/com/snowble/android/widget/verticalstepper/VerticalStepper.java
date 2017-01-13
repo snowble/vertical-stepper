@@ -177,8 +177,8 @@ public class VerticalStepper extends ViewGroup {
         AppCompatButton continueButton = step.getContinueButton();
         continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
-        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, commonStepValues.getNavButtonHeight());
-        lp.topMargin = commonStepValues.getNavButtonTopMargin();
+        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, step.getNavButtonHeight());
+        lp.topMargin = step.getNavButtonTopMargin();
         continueButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
