@@ -1242,11 +1242,12 @@ public class VerticalStepperTest {
             when(mockedStep1.step.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
             float summaryBaseline = 20f;
             when(mockedStep1.step.getSummaryBaselineRelativeToTitleBottom()).thenReturn(summaryBaseline);
+            TextPaint paint = mock(TextPaint.class);
+            when(mockedStep1.step.getSummaryTextPaint()).thenReturn(paint);
 
             stepperSpy.drawSummary(canvas, mockedStep1.step);
 
             order.verify(canvas).translate(0, titleBottom);
-            TextPaint paint = stepperSpy.getCommonStepValues().getSummaryTextPaint();
             order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
         }
 

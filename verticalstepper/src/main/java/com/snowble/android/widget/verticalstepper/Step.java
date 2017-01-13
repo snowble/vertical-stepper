@@ -162,7 +162,7 @@ class Step {
     void measureSummaryHorizontalDimensions() {
         float width = 0f;
         if (!TextUtils.isEmpty(summary)) {
-            width = common.getSummaryTextPaint().measureText(summary);
+            width = getSummaryTextPaint().measureText(summary);
         }
         summaryWidth = width;
     }
@@ -180,11 +180,11 @@ class Step {
     void measureSummaryVerticalDimensions() {
         measureSummaryBaseline();
         summaryBottomRelativeToTitleBottom =
-                summaryBaselineRelativeToTitleBottom + common.getSummaryTextPaint().getFontMetrics().bottom;
+                summaryBaselineRelativeToTitleBottom + getSummaryTextPaint().getFontMetrics().bottom;
     }
 
     private void measureSummaryBaseline() {
-        summaryBaselineRelativeToTitleBottom = -common.getSummaryTextPaint().getFontMetrics().ascent;
+        summaryBaselineRelativeToTitleBottom = -getSummaryTextPaint().getFontMetrics().ascent;
     }
 
     TextPaint getTitleTextPaint() {
@@ -193,6 +193,10 @@ class Step {
         } else  {
             return complete ? common.getTitleCompleteTextPaint() : common.getTitleInactiveTextPaint();
         }
+    }
+
+    TextPaint getSummaryTextPaint() {
+        return common.getSummaryTextPaint();
     }
 
     void measureBottomMarginToNextStep() {
