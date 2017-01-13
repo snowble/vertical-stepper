@@ -1164,7 +1164,7 @@ public class VerticalStepperTest {
         @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
-            when(mockedStep1.step.getIconColor()).thenReturn(color);
+            when(mockedStep1.step.getIconBackground()).thenReturn(color);
 
             stepperSpy.drawIconBackground(canvas, mockedStep1.step);
 

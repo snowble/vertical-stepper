@@ -203,7 +203,7 @@ class Step {
         return active ? common.getActiveBottomMarginToNextStep() : common.getInactiveBottomMarginToNextStep();
     }
 
-    Paint getIconColor() {
+    Paint getIconBackground() {
         if (active) {
             return common.getIconActiveBackgroundPaint();
         } else  {
