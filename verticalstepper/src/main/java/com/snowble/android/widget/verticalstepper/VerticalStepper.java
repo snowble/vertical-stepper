@@ -93,11 +93,6 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    Step.Common getCommonStepValues() {
-        return commonStepValues;
-    }
-
-    @VisibleForTesting
     void initPropertiesFromAttrs(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.VerticalStepper,
                     defStyleAttr, defStyleRes);
