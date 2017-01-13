@@ -3,6 +3,7 @@ package com.snowble.android.widget.verticalstepper;
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.v4.content.res.ResourcesCompat;
@@ -803,6 +804,8 @@ public class VerticalStepperTest {
             doNothing().when(stepperSpy).layoutTouchView(any(Rect.class), any(VerticalStepper.InternalTouchView.class));
             doNothing().when(stepperSpy).layoutInnerView(any(Rect.class), any(Step.class));
             doNothing().when(stepperSpy).layoutNavButtons(any(Rect.class), any(Step.class));
+
+            when(mockedStep1.step.getTempRectForLayout()).thenReturn(new Rect());
         }
     }
 
@@ -929,7 +932,6 @@ public class VerticalStepperTest {
 
         @Test
         public void onLayout_ShouldAdjustInnerViewForPaddingAndStepDecorators() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
             int distanceToTextBottom = 80;
             when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
             int iconWidth = 40;
@@ -1170,17 +1172,23 @@ public class VerticalStepperTest {
         @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);
+            RectF rect = mock(RectF.class);
             when(mockedStep1.step.getIconBackground()).thenReturn(color);
+            when(mockedStep1.step.getTempRectForIconBackground()).thenReturn(rect);
 
             stepperSpy.drawIconBackground(canvas, mockedStep1.step);
 
-            verify(canvas).drawArc(any(RectF.class), eq(0f), eq(360f), eq(true), same(color));
+            verify(canvas).drawArc(rect, 0f, 360f, true, color);
         }
 
         @Test
         public void drawIconText_ShouldDrawStepNumber() {
             TextPaint paint = mock(TextPaint.class);
+            Rect rect = mock(Rect.class);
+            PointF point = mock(PointF.class);
             when(mockedStep1.step.getIconTextPaint()).thenReturn(paint);
+            when(mockedStep1.step.getTempRectForIconTextBounds()).thenReturn(rect);
+            when(mockedStep1.step.getTempPointForIconTextCenter()).thenReturn(point);
             int stepNumber = 4;
 
             stepperSpy.drawIconText(canvas, mockedStep1.step, stepNumber);
