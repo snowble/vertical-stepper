@@ -399,10 +399,11 @@ public class StepTest {
         private Rect titleRect;
 
         private Step step;
+        private Step.Common common;
 
         @Before
         public void givenMockedCommon() {
-            Step.Common common = mock(Step.Common.class);
+            common = mock(Step.Common.class);
 
             titlePaint = mock(TextPaint.class);
             titleRect = mock(Rect.class);
@@ -447,6 +448,31 @@ public class StepTest {
 
             // verify that the baseline and bottom are measured using the font metrics
             verify(summaryPaint, times(2)).getFontMetrics();
+        }
+
+        @Test
+        public void calculateConnectorStartY_ShouldAccountForIcon() {
+            int iconDimension = 24;
+            int iconMarginVertical = 8;
+            when(common.getIconDimension()).thenReturn(iconDimension);
+            when(common.getIconMarginVertical()).thenReturn(iconMarginVertical);
+
+            int startY = step.calculateConnectorStartY();
+
+            assertThat(startY)
+                    .isEqualTo(iconDimension + iconMarginVertical);
+        }
+
+        @Test
+        public void calculateConnectorStopY_ShouldStopAtIconMargin() {
+            int yDistance = 300;
+            int iconMarginVertical = 8;
+            when(common.getIconMarginVertical()).thenReturn(iconMarginVertical);
+
+            int startY = step.calculateConnectorStopY(yDistance);
+
+            assertThat(startY)
+                    .isEqualTo(yDistance - iconMarginVertical);
         }
     }
 }

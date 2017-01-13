@@ -560,14 +560,11 @@ public class VerticalStepper extends ViewGroup {
     void drawConnector(Canvas canvas, Step step, int yDistanceToNextStep) {
         canvas.save();
 
-        int iconDimension = step.getIconDimension();
-        int iconMarginVertical = step.getIconMarginVertical();
         Paint connectorPaint = step.getConnectorPaint();
         float connectorWidth = connectorPaint.getStrokeWidth();
-
-        canvas.translate(ViewUtils.findCenterStartX(connectorWidth, iconDimension), 0);
-        float startY = iconDimension + iconMarginVertical;
-        float stopY = yDistanceToNextStep - iconMarginVertical;
+        canvas.translate(ViewUtils.findCenterStartX(connectorWidth, step.getIconDimension()), 0);
+        float startY = step.calculateConnectorStartY();
+        float stopY = step.calculateConnectorStopY(yDistanceToNextStep);
         canvas.drawLine(0, startY, 0, stopY, connectorPaint);
 
         canvas.restore();

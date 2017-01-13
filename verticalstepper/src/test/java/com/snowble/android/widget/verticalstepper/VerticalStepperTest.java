@@ -1280,23 +1280,6 @@ public class VerticalStepperTest {
             order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), same(paint));
             order.verify(canvas).restore();
         }
-
-        @Test
-        public void drawConnector_ShouldDrawLineAccountingForIconVerticalMargin() {
-            Paint paint = mock(Paint.class);
-            int iconDimension = 24;
-            int iconMarginVertical = 8;
-            int yDistanceToNextStep = 300;
-            when(mockedStep1.step.getConnectorPaint()).thenReturn(paint);
-            when(mockedStep1.step.getIconDimension()).thenReturn(iconDimension);
-            when(mockedStep1.step.getIconMarginVertical()).thenReturn(iconMarginVertical);
-            float startY = iconDimension + iconMarginVertical;
-            float stopY = yDistanceToNextStep - iconMarginVertical;
-
-            stepperSpy.drawConnector(canvas, mockedStep1.step, yDistanceToNextStep);
-
-            verify(canvas).drawLine(0, startY, 0, stopY, paint);
-        }
     }
 
     public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
