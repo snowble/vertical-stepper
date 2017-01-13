@@ -515,7 +515,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void drawIconText(Canvas canvas, Step step, int stepNumber) {
         String stepNumberString = String.format(Locale.getDefault(), "%d", stepNumber);
-        TextPaint iconTextPaint = commonStepValues.getIconTextPaint();
+        TextPaint iconTextPaint = step.getIconTextPaint();
         int iconDimension = step.getIconDimension();
 
         PointF center = commonStepValues.getTempPointForIconTextCenter();
