@@ -389,8 +389,7 @@ class Step {
             summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
 
             touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
-            touchViewBackground =
-                    ThemeUtils.getResolvedAttributeData(context.getTheme(), R.attr.selectableItemBackground, 0);
+            touchViewBackground = ThemeUtils.getResolvedAttributeData(theme, R.attr.selectableItemBackground, 0);
 
             navButtonHeight = resources.getDimensionPixelSize(R.dimen.nav_btn_height);
             navButtonTopMargin = resources.getDimensionPixelSize(R.dimen.nav_btn_margin_top);
