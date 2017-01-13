@@ -428,99 +428,112 @@ class Step {
             return ResourcesCompat.getColor(resources, colorRes, theme);
         }
 
+        @VisibleForTesting
         int getIconDimension() {
             return iconDimension;
         }
 
-        int getIconMarginRight() {
+        private int getIconMarginRight() {
             return iconMarginRight;
         }
 
+        @VisibleForTesting
         int getIconMarginVertical() {
             return iconMarginVertical;
         }
 
+        @VisibleForTesting
         Paint getIconActiveBackgroundPaint() {
             return iconActiveBackgroundPaint;
         }
 
+        @VisibleForTesting
         Paint getIconInactiveBackgroundPaint() {
             return iconInactiveBackgroundPaint;
         }
 
+        @VisibleForTesting
         Paint getIconCompleteBackgroundPaint() {
             return iconCompleteBackgroundPaint;
         }
 
-        TextPaint getIconTextPaint() {
+        private TextPaint getIconTextPaint() {
             return iconTextPaint;
         }
 
+        @VisibleForTesting
         TextPaint getTitleActiveTextPaint() {
             return titleActiveTextPaint;
         }
 
+        @VisibleForTesting
         TextPaint getTitleInactiveTextPaint() {
             return titleInactiveTextPaint;
         }
 
+        @VisibleForTesting
         TextPaint getTitleCompleteTextPaint() {
             return titleCompleteTextPaint;
         }
 
+        @VisibleForTesting
         int getTitleMarginBottomToInnerView() {
             return titleMarginBottomToInnerView;
         }
 
+        @VisibleForTesting
         TextPaint getSummaryTextPaint() {
             return summaryTextPaint;
         }
 
-        int getTouchViewHeight() {
+        private int getTouchViewHeight() {
             return touchViewHeight;
         }
 
-        int getTouchViewBackgroundResource() {
+        private int getTouchViewBackgroundResource() {
             return touchViewBackground;
         }
 
-        int getNavButtonHeight() {
+        private int getNavButtonHeight() {
             return navButtonHeight;
         }
 
-        int getNavButtonTopMargin() {
+        private int getNavButtonTopMargin() {
             return navButtonTopMargin;
         }
 
+        @VisibleForTesting
         int getActiveBottomMarginToNextStep() {
             return activeBottomMargin;
         }
 
+        @VisibleForTesting
         int getInactiveBottomMarginToNextStep() {
             return inactiveBottomMargin;
         }
 
-        Paint getConnectorPaint() {
+        private Paint getConnectorPaint() {
             return connectorPaint;
         }
 
-        RectF getTempRectForIconBackground() {
+        private RectF getTempRectForIconBackground() {
             return tempRectForIconBackground;
         }
 
-        Rect getTempRectForIconTextBounds() {
+        private Rect getTempRectForIconTextBounds() {
             return tempRectForIconTextBounds;
         }
 
-        PointF getTempPointForIconTextCenter() {
+        private PointF getTempPointForIconTextCenter() {
             return tempPointForIconTextCenter;
         }
 
+        @VisibleForTesting
         Rect getTempRectForTitleTextBounds() {
             return tempRectForTitleTextBounds;
         }
 
-        Rect getTempRectForLayout() {
+        private Rect getTempRectForLayout() {
             return tempRectForLayout;
         }
     }
