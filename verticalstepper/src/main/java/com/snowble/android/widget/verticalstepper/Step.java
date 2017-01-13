@@ -432,7 +432,8 @@ class Step {
             return iconDimension;
         }
 
-        private int getIconMarginRight() {
+        @VisibleForTesting
+        int getIconMarginRight() {
             return iconMarginRight;
         }
 
