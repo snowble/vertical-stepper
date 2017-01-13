@@ -174,7 +174,7 @@ class Step {
 
     private void measureTitleBaseline(int heightToCenterIn) {
         titleBaselineRelativeToStepTop = ViewUtils.findTextCenterStartY(
-                title, heightToCenterIn, getTitleTextPaint(), common.getTempRectForTitleTextBounds());
+                title, heightToCenterIn, getTitleTextPaint(), getTempRectForTitleTextBounds());
     }
 
     void measureSummaryVerticalDimensions() {
@@ -301,6 +301,26 @@ class Step {
             dyToTextBottom += common.getTitleMarginBottomToInnerView();
         }
         return dyToTextBottom;
+    }
+
+    RectF getTempRectForIconBackground() {
+        return common.getTempRectForIconBackground();
+    }
+
+    Rect getTempRectForIconTextBounds() {
+        return common.getTempRectForIconTextBounds();
+    }
+
+    PointF getTempPointForIconTextCenter() {
+        return common.getTempPointForIconTextCenter();
+    }
+
+    Rect getTempRectForTitleTextBounds() {
+        return common.getTempRectForTitleTextBounds();
+    }
+
+    Rect getTempRectForLayout() {
+        return common.getTempRectForLayout();
     }
 
     static class Common {

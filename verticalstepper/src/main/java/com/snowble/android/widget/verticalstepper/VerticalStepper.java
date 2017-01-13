@@ -386,7 +386,10 @@ public class VerticalStepper extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        Rect rect = commonStepValues.getTempRectForLayout();
+        if (steps.isEmpty()) {
+            return;
+        }
+        Rect rect = steps.get(0).getTempRectForLayout();
         rect.set(getPaddingLeft() + outerHorizontalPadding,
                 getPaddingTop() + outerVerticalPadding,
                 right - left - getPaddingRight() - outerHorizontalPadding,
@@ -509,7 +512,7 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void drawIconBackground(Canvas canvas, Step step) {
-        canvas.drawArc(commonStepValues.getTempRectForIconBackground(), 0f, 360f, true, step.getIconBackground());
+        canvas.drawArc(step.getTempRectForIconBackground(), 0f, 360f, true, step.getIconBackground());
     }
 
     @VisibleForTesting
@@ -518,9 +521,9 @@ public class VerticalStepper extends ViewGroup {
         TextPaint iconTextPaint = step.getIconTextPaint();
         int iconDimension = step.getIconDimension();
 
-        PointF center = commonStepValues.getTempPointForIconTextCenter();
+        PointF center = step.getTempPointForIconTextCenter();
         ViewUtils.findTextCenterStartPoint(stepNumberString, iconDimension, iconDimension, iconTextPaint,
-                commonStepValues.getTempRectForIconTextBounds(), center);
+                step.getTempRectForIconTextBounds(), center);
 
         canvas.drawText(stepNumberString, center.x, center.y, iconTextPaint);
     }
