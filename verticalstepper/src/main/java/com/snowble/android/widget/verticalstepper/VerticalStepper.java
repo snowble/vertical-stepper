@@ -161,7 +161,7 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void initTouchView(final Step step) {
         InternalTouchView touchView = step.getTouchView();
-        touchView.setBackgroundResource(commonStepValues.getTouchViewBackground());
+        touchView.setBackgroundResource(step.getTouchViewBackgroundResource());
         touchView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
