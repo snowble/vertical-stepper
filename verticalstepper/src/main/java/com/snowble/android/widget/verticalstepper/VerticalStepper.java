@@ -252,7 +252,7 @@ public class VerticalStepper extends ViewGroup {
         width = resolveSize(width, widthMeasureSpec);
         height = resolveSize(height, heightMeasureSpec);
 
-        measureTouchViews(width, commonStepValues.getTouchViewHeight());
+        measureTouchViews(width);
 
         setMeasuredDimension(width, height);
     }
@@ -362,9 +362,9 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @VisibleForTesting
-    void measureTouchViews(int width, int height) {
-        for (Step v : steps) {
-            measureTouchView(width, height, v.getTouchView());
+    void measureTouchViews(int width) {
+        for (Step s : steps) {
+            measureTouchView(width, s.getTouchViewHeight(), s.getTouchView());
         }
     }
 
