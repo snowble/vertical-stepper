@@ -253,6 +253,10 @@ class Step {
         return common.getTouchViewHeight();
     }
 
+    int getTouchViewBackgroundResource() {
+        return common.getTouchViewBackgroundResource();
+    }
+
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
         measureSummaryHorizontalDimensions();
@@ -436,7 +440,7 @@ class Step {
             return touchViewHeight;
         }
 
-        int getTouchViewBackground() {
+        int getTouchViewBackgroundResource() {
             return touchViewBackground;
         }
 
