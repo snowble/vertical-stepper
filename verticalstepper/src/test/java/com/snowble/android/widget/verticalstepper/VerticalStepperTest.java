@@ -1260,21 +1260,26 @@ public class VerticalStepperTest {
         @Test
         public void drawConnector_ShouldSaveTranslateDrawAndRestore() {
             InOrder order = inOrder(canvas);
+            Paint paint = mock(Paint.class);
+            float strokeWidth = 3f;
+            when(paint.getStrokeWidth()).thenReturn(strokeWidth);
+            when(mockedStep1.step.getConnectorPaint()).thenReturn(paint);
 
-            stepperSpy.drawConnector(canvas, mock(Step.class), 0);
+            stepperSpy.drawConnector(canvas, mockedStep1.step, 0);
 
             order.verify(canvas).save();
             order.verify(canvas).translate(anyFloat(), anyFloat());
-            order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), any(Paint.class));
+            order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), same(paint));
             order.verify(canvas).restore();
         }
 
         @Test
         public void drawConnector_ShouldDrawLineAccountingForIconVerticalMargin() {
-            Paint paint = stepperSpy.getCommonStepValues().getConnectorPaint();
+            Paint paint = mock(Paint.class);
             int iconDimension = 24;
             int iconMarginVertical = 8;
             int yDistanceToNextStep = 300;
+            when(mockedStep1.step.getConnectorPaint()).thenReturn(paint);
             when(mockedStep1.step.getIconDimension()).thenReturn(iconDimension);
             when(mockedStep1.step.getIconMarginVertical()).thenReturn(iconMarginVertical);
             float startY = iconDimension + iconMarginVertical;
