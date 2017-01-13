@@ -213,7 +213,7 @@ class Step {
 
     int calculateHorizontalUsedSpace(View view) {
         VerticalStepper.LayoutParams lp = (VerticalStepper.LayoutParams) view.getLayoutParams();
-        return common.calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
+        return calculateStepDecoratorIconWidth() + lp.leftMargin + lp.rightMargin;
     }
 
     int calculateVerticalUsedSpace(View view) {
@@ -222,7 +222,23 @@ class Step {
     }
 
     int calculateStepDecoratorWidth() {
-        return common.calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth();
+        return calculateStepDecoratorIconWidth() + (int) calculateStepDecoratorTextWidth();
+    }
+
+    int calculateStepDecoratorIconWidth() {
+        return getIconDimension() + getIconMarginRight();
+    }
+
+    int getIconDimension() {
+        return common.getIconDimension();
+    }
+
+    int getIconMarginRight() {
+        return common.getIconMarginRight();
+    }
+
+    int getIconMarginVertical() {
+        return common.getIconMarginVertical();
     }
 
     float calculateStepDecoratorTextWidth() {
@@ -232,7 +248,7 @@ class Step {
     }
 
     void measureStepDecoratorHeight() {
-        int iconDimension = common.getIconDimension();
+        int iconDimension = getIconDimension();
         measureTitleVerticalDimensions(iconDimension);
         measureSummaryVerticalDimensions();
         int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
@@ -329,7 +345,7 @@ class Step {
             connectorPaint = createPaint(getColor(R.color.connector_color));
             connectorPaint.setStrokeWidth(getConnectorWidth());
 
-            tempRectForIconBackground = new RectF(0, 0, getIconDimension(), getIconDimension());
+            tempRectForIconBackground = new RectF(0, 0, iconDimension, iconDimension);
             tempRectForIconTextBounds = new Rect();
             tempPointForIconTextCenter = new PointF();
             tempRectForTitleTextBounds = new Rect();
@@ -354,10 +370,6 @@ class Step {
 
         private int getColor(int colorRes) {
             return ResourcesCompat.getColor(resources, colorRes, theme);
-        }
-
-        int calculateStepDecoratorIconWidth() {
-            return iconDimension + iconMarginRight;
         }
 
         int getIconDimension() {
@@ -416,11 +428,11 @@ class Step {
             return touchViewBackground;
         }
 
-        public int getNavButtonHeight() {
+        int getNavButtonHeight() {
             return navButtonHeight;
         }
 
-        public int getNavButtonTopMargin() {
+        int getNavButtonTopMargin() {
             return navButtonTopMargin;
         }
 
@@ -448,7 +460,7 @@ class Step {
             return tempRectForIconTextBounds;
         }
 
-        public PointF getTempPointForIconTextCenter() {
+        PointF getTempPointForIconTextCenter() {
             return tempPointForIconTextCenter;
         }
 
