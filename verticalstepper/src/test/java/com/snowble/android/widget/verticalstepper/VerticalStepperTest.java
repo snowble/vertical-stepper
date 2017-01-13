@@ -389,6 +389,10 @@ public class VerticalStepperTest {
 
         @Test
         public void initNavButtons_ShouldSetLayoutParamsWithTopMarginAndHeight() {
+            int height = 80;
+            int topMargin = 20;
+            when(mockedStep1.step.getNavButtonHeight()).thenReturn(height);
+            when(mockedStep1.step.getNavButtonTopMargin()).thenReturn(topMargin);
             stepper.initNavButtons(mockedStep1.step);
 
             ArgumentCaptor<VerticalStepper.LayoutParams> lpCaptor =
@@ -396,8 +400,8 @@ public class VerticalStepperTest {
             verify(mockedStep1.continueButton).setLayoutParams(lpCaptor.capture());
 
             VerticalStepper.LayoutParams lp = lpCaptor.getValue();
-            assertThat(lp.topMargin).isEqualTo(stepper.getCommonStepValues().getNavButtonTopMargin());
-            assertThat(lp.height).isEqualTo(stepper.getCommonStepValues().getNavButtonHeight());
+            assertThat(lp.topMargin).isEqualTo(topMargin);
+            assertThat(lp.height).isEqualTo(height);
         }
 
         @Test
