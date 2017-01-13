@@ -269,6 +269,14 @@ class Step {
         return common.getConnectorPaint();
     }
 
+    int calculateConnectorStartY() {
+        return getIconDimension() + getIconMarginVertical();
+    }
+
+    int calculateConnectorStopY(int yDistanceToNextStep) {
+        return yDistanceToNextStep - getIconMarginVertical();
+    }
+
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
         measureSummaryHorizontalDimensions();
