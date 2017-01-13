@@ -926,6 +926,8 @@ public class VerticalStepperTest {
             when(mockedStep1.step.isActive()).thenReturn(true);
             int distanceToTextBottom = 80;
             when(mockedStep1.step.calculateYDistanceToTextBottom()).thenReturn(distanceToTextBottom);
+            int iconWidth = 40;
+            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(iconWidth);
 
             int leftPadding = 8;
             int topPadding = 20;
@@ -947,8 +949,7 @@ public class VerticalStepperTest {
             verify(stepperSpy).layoutInnerView(any(Rect.class), same(mockedStep1.step));
 
             assertThat(innerRect.left)
-                    .isEqualTo(leftPadding + stepperSpy.outerHorizontalPadding
-                            + stepperSpy.getCommonStepValues().calculateStepDecoratorIconWidth());
+                    .isEqualTo(leftPadding + stepperSpy.outerHorizontalPadding + iconWidth);
             assertThat(innerRect.top)
                     .isEqualTo(stepperSpy.outerVerticalPadding + topPadding + distanceToTextBottom);
             assertThat(innerRect.right)
@@ -1014,7 +1015,7 @@ public class VerticalStepperTest {
         public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
             doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
             doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawConnector(same(canvas), anyInt());
+            doNothing().when(stepperSpy).drawConnector(same(canvas), any(Step.class), anyInt());
         }
 
         @Test
@@ -1044,7 +1045,7 @@ public class VerticalStepperTest {
 
             stepperSpy.doDraw(canvas);
 
-            verify(stepperSpy).drawConnector(canvas, distanceToNextStep);
+            verify(stepperSpy).drawConnector(canvas, mockedStep1.step, distanceToNextStep);
         }
 
         @Test
@@ -1105,7 +1106,7 @@ public class VerticalStepperTest {
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
             doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawIconText(same(canvas), anyInt());
+            doNothing().when(stepperSpy).drawIconText(same(canvas), any(Step.class), anyInt());
         }
 
         @Test
@@ -1113,7 +1114,7 @@ public class VerticalStepperTest {
             stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
 
             verify(stepperSpy).drawIconBackground(canvas, mockedStep1.step);
-            verify(stepperSpy).drawIconText(canvas, 1);
+            verify(stepperSpy).drawIconText(canvas, mockedStep1.step, 1);
         }
 
         @Test
@@ -1147,11 +1148,13 @@ public class VerticalStepperTest {
         @Test
         public void drawText_ShouldSaveTranslateByIconWidthAndRestoreCanvas() {
             InOrder order = inOrder(canvas);
+            int iconWidth = 40;
+            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(iconWidth);
 
             stepperSpy.drawText(canvas, mockedStep1.step);
 
             order.verify(canvas).save();
-            order.verify(canvas).translate(stepperSpy.getCommonStepValues().calculateStepDecoratorIconWidth(), 0);
+            order.verify(canvas).translate(iconWidth, 0);
             order.verify(canvas).restore();
         }
     }
@@ -1172,7 +1175,7 @@ public class VerticalStepperTest {
         public void drawIconText_ShouldDrawStepNumber() {
             int stepNumber = 4;
 
-            stepperSpy.drawIconText(canvas, stepNumber);
+            stepperSpy.drawIconText(canvas, mockedStep1.step, stepNumber);
 
             String stepNumberString = String.valueOf(stepNumber);
             TextPaint paint = stepperSpy.getCommonStepValues().getIconTextPaint();
@@ -1250,7 +1253,7 @@ public class VerticalStepperTest {
         public void drawConnector_ShouldSaveTranslateDrawAndRestore() {
             InOrder order = inOrder(canvas);
 
-            stepperSpy.drawConnector(canvas, 0);
+            stepperSpy.drawConnector(canvas, mock(Step.class), 0);
 
             order.verify(canvas).save();
             order.verify(canvas).translate(anyFloat(), anyFloat());
@@ -1260,13 +1263,16 @@ public class VerticalStepperTest {
 
         @Test
         public void drawConnector_ShouldDrawLineAccountingForIconVerticalMargin() {
-            Step.Common common = stepperSpy.getCommonStepValues();
-            Paint paint = common.getConnectorPaint();
-            float startY = common.getIconDimension() + common.getIconMarginVertical();
+            Paint paint = stepperSpy.getCommonStepValues().getConnectorPaint();
+            int iconDimension = 24;
+            int iconMarginVertical = 8;
             int yDistanceToNextStep = 300;
-            float stopY = yDistanceToNextStep - common.getIconMarginVertical();
+            when(mockedStep1.step.getIconDimension()).thenReturn(iconDimension);
+            when(mockedStep1.step.getIconMarginVertical()).thenReturn(iconMarginVertical);
+            float startY = iconDimension + iconMarginVertical;
+            float stopY = yDistanceToNextStep - iconMarginVertical;
 
-            stepperSpy.drawConnector(canvas, yDistanceToNextStep);
+            stepperSpy.drawConnector(canvas, mockedStep1.step, yDistanceToNextStep);
 
             verify(canvas).drawLine(0, startY, 0, stopY, paint);
         }

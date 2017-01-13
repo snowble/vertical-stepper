@@ -156,7 +156,7 @@ public class StepTest {
             int horizontalPadding = step.calculateHorizontalUsedSpace(innerView);
 
             assertThat(horizontalPadding)
-                    .isEqualTo(leftMargin + rightMargin + common.calculateStepDecoratorIconWidth());
+                    .isEqualTo(leftMargin + rightMargin + step.calculateStepDecoratorIconWidth());
         }
 
         @Test
@@ -173,7 +173,7 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorWidth_ShouldReturnIconSumPlusMaxTextWidth() {
-            int iconWidth = common.getIconDimension() + common.getIconMarginRight();
+            int iconWidth = step.getIconDimension() + step.getIconMarginRight();
             final float textWidth = 10f;
             step.setTestStepTitleWidth(textWidth)
                     .setTestStepSummaryWidth(textWidth);
@@ -186,10 +186,10 @@ public class StepTest {
 
         @Test
         public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthPlusMarginSum() {
-            int iconWidth = common.calculateStepDecoratorIconWidth();
+            int iconWidth = step.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
-                    .isEqualTo(common.getIconDimension() + common.getIconMarginRight());
+                    .isEqualTo(step.getIconDimension() + step.getIconMarginRight());
         }
 
         @Test
@@ -218,7 +218,7 @@ public class StepTest {
 
         @Test
         public void measureStepDecoratorHeight_TallerIcon_ShouldReturnIconHeight() {
-            int iconDimension = common.getIconDimension();
+            int iconDimension = step.getIconDimension();
             float lessThanHalfIconHeight = (iconDimension - 2) / 2;
             step.setTestStepTitleHeight(lessThanHalfIconHeight)
                     .setTestStepSummaryHeight(lessThanHalfIconHeight);
@@ -231,7 +231,7 @@ public class StepTest {
 
         @Test
         public void measureStepDecoratorHeight_TallerText_ShouldReturnTextHeight() {
-            float twiceIconHeight = common.getIconDimension() * 2;
+            float twiceIconHeight = step.getIconDimension() * 2;
             step.setTestStepTitleHeight(twiceIconHeight)
                     .setTestStepSummaryHeight(twiceIconHeight);
 
