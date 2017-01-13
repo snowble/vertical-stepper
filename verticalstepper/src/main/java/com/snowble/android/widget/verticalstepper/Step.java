@@ -367,7 +367,7 @@ class Step {
 
             connectorWidth = resources.getDimensionPixelSize(R.dimen.connector_width);
             connectorPaint = createPaint(getColor(R.color.connector_color));
-            connectorPaint.setStrokeWidth(getConnectorWidth());
+            connectorPaint.setStrokeWidth(connectorWidth);
 
             tempRectForIconBackground = new RectF(0, 0, iconDimension, iconDimension);
             tempRectForIconTextBounds = new Rect();
@@ -466,10 +466,6 @@ class Step {
 
         int getInactiveBottomMarginToNextStep() {
             return inactiveBottomMargin;
-        }
-
-        int getConnectorWidth() {
-            return connectorWidth;
         }
 
         Paint getConnectorPaint() {
