@@ -265,6 +265,10 @@ class Step {
         return common.getNavButtonTopMargin();
     }
 
+    Paint getConnectorPaint() {
+        return common.getConnectorPaint();
+    }
+
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
         measureSummaryHorizontalDimensions();
