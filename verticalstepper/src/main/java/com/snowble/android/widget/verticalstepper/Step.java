@@ -249,6 +249,10 @@ class Step {
         return common.getIconMarginVertical();
     }
 
+    int getTouchViewHeight() {
+        return common.getTouchViewHeight();
+    }
+
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
         measureSummaryHorizontalDimensions();

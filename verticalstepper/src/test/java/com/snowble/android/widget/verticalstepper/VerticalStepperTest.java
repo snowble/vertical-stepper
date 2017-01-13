@@ -667,8 +667,10 @@ public class VerticalStepperTest {
         public void measureTouchViews_ShouldMeasureAllWidthsAndHeightsExactly() {
             int width = 20;
             int height = 80;
+            when(mockedStep1.step.getTouchViewHeight()).thenReturn(height);
+            when(mockedStep2.step.getTouchViewHeight()).thenReturn(height);
 
-            stepper.measureTouchViews(width, height);
+            stepper.measureTouchViews(width);
 
             ArgumentCaptor<Integer> wmsCaptor = ArgumentCaptor.forClass(Integer.class);
             ArgumentCaptor<Integer> hmsCaptor = ArgumentCaptor.forClass(Integer.class);
