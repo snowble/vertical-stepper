@@ -308,17 +308,17 @@ public class StepTest {
         }
 
         @Test
-        public void getIconColor_ShouldReturnInactiveStepPaint() {
-            Paint paint = step.getIconColor();
+        public void getIconBackground_ShouldReturnInactiveStepPaint() {
+            Paint paint = step.getIconBackground();
 
             assertThat(paint).isSameAs(common.getIconInactiveBackgroundPaint());
         }
 
         @Test
-        public void getIconColor_CompleteStep_ShouldReturnCompleteStepPaint() {
+        public void getIconBackground_CompleteStep_ShouldReturnCompleteStepPaint() {
             step.setComplete(true);
 
-            Paint paint = step.getIconColor();
+            Paint paint = step.getIconBackground();
 
             assertThat(paint).isSameAs(common.getIconCompleteBackgroundPaint());
         }
@@ -354,17 +354,17 @@ public class StepTest {
         }
 
         @Test
-        public void getIconColor_ShouldReturnActiveStepPaint() {
-            Paint paint = step.getIconColor();
+        public void getIconBackground_ShouldReturnActiveStepPaint() {
+            Paint paint = step.getIconBackground();
 
             assertThat(paint).isSameAs(common.getIconActiveBackgroundPaint());
         }
 
         @Test
-        public void getIconColor_CompleteStep_ShouldReturnActiveStepPaint() {
+        public void getIconBackground_CompleteStep_ShouldReturnActiveStepPaint() {
             step.setComplete(true);
 
-            Paint paint = step.getIconColor();
+            Paint paint = step.getIconBackground();
 
             assertThat(paint).isSameAs(common.getIconActiveBackgroundPaint());
         }

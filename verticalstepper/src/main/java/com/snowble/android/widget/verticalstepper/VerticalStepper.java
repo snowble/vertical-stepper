@@ -509,7 +509,7 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void drawIconBackground(Canvas canvas, Step step) {
-        canvas.drawArc(commonStepValues.getTempRectForIconBackground(), 0f, 360f, true, step.getIconColor());
+        canvas.drawArc(commonStepValues.getTempRectForIconBackground(), 0f, 360f, true, step.getIconBackground());
     }
 
     @VisibleForTesting
