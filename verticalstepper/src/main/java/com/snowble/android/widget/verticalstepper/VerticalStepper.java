@@ -146,6 +146,23 @@ public class VerticalStepper extends ViewGroup {
         this.validator = alwaysValidValidator;
     }
 
+    /**
+     * Set the summary for a given step.
+     *
+     * @param stepViewId the id of the step's view whose summary should be set.
+     * @param summary the summary to set for the step
+     */
+    public void setStepSummary(int stepViewId, @NonNull String summary) {
+        // TODO Add tests
+        for (Step s : steps) {
+            if (s.getInnerView().getId() == stepViewId) {
+                s.setSummary(summary);
+                invalidate();
+                break;
+            }
+        }
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();

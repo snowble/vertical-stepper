@@ -1330,6 +1330,38 @@ public class VerticalStepperTest {
         }
     }
 
+    public static class GivenStepperSpyWithTwoStepsAndInnerViewIds extends GivenStepperSpyWithTwoSteps {
+        private int innerViewId1;
+        private int innerViewId2;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndInnerViewIds() {
+            innerViewId1 = 21;
+            innerViewId2 = 22;
+            when(mockedStep1.innerView.getId()).thenReturn(innerViewId1);
+            when(mockedStep2.innerView.getId()).thenReturn(innerViewId2);
+
+            doNothing().when(stepperSpy).invalidate();
+        }
+
+        @Test
+        public void setStepSummary_UnrecognizedViewId_ShouldDoNothing() {
+            stepperSpy.setStepSummary(-1, "summary");
+
+            verify(mockedStep1.step, never()).setSummary(anyString());
+            verify(stepperSpy, never()).invalidate();
+        }
+
+        @Test
+        public void setStepSummary_ShouldSetStepSummaryAndInvalidate() {
+            String summary = "summary";
+            stepperSpy.setStepSummary(innerViewId1, summary);
+
+            verify(mockedStep1.step).setSummary(summary);
+            verify(stepperSpy).invalidate();
+        }
+    }
+
     public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
         @Test
         public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {

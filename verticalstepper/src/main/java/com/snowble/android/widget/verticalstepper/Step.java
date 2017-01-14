@@ -131,6 +131,10 @@ class Step {
         return titleWidth;
     }
 
+    void setSummary(@NonNull String summary) {
+        this.summary = summary;
+    }
+
     @Nullable
     String getSummary() {
         return summary;
