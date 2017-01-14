@@ -1,6 +1,7 @@
 package com.snowble.android.widget.verticalstepper;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
@@ -1125,7 +1126,17 @@ public class VerticalStepperTest {
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
             doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawIconError(same(canvas), any(Step.class));
             doNothing().when(stepperSpy).drawIconText(same(canvas), any(Step.class), anyInt());
+        }
+
+        @Test
+        public void doDraw_HasError_ShouldCallDrawIconError() {
+            when(mockedStep1.step.hasError()).thenReturn(true);
+
+            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
+
+            verify(stepperSpy).drawIconError(canvas, mockedStep1.step);
         }
 
         @Test
@@ -1189,6 +1200,17 @@ public class VerticalStepperTest {
 
     public static class GivenStepperSpyWithExactlyTwoStepsAndMockCanvas
             extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+        @Test
+        public void drawIconError_ShouldDrawErrorBitmap() {
+            when(mockedStep1.step.hasError()).thenReturn(true);
+            Bitmap bitmap = mock(Bitmap.class);
+            when(mockedStep1.step.getIconErrorBitmap()).thenReturn(bitmap);
+
+            stepperSpy.drawIconError(canvas, mockedStep1.step);
+
+            verify(canvas).drawBitmap(bitmap, 0, 0, null);
+        }
+
         @Test
         public void drawIconBackground_ShouldDrawCircleWithIconColor() {
             Paint color = mock(Paint.class);

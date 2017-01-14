@@ -539,10 +539,19 @@ public class VerticalStepper extends ViewGroup {
     void drawIcon(Canvas canvas, Step step, int stepNumber) {
         canvas.save();
 
-        drawIconBackground(canvas, step);
-        drawIconText(canvas, step, stepNumber);
+        if (step.hasError()) {
+            drawIconError(canvas, step);
+        } else {
+            drawIconBackground(canvas, step);
+            drawIconText(canvas, step, stepNumber);
+        }
 
         canvas.restore();
+    }
+
+    @VisibleForTesting
+    void drawIconError(Canvas canvas, Step step) {
+        canvas.drawBitmap(step.getIconErrorBitmap(), 0, 0, null);
     }
 
     @VisibleForTesting
