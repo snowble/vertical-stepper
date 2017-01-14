@@ -2,6 +2,7 @@ package com.snowble.android.widget.verticalstepper.sample;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -25,8 +26,12 @@ public class MainActivity extends AppCompatActivity {
         stepper.setStepValidator(new VerticalStepper.StepValidator() {
             @Override
             public String validate(View v) {
-                if (v.getId() == R.id.step_with_requirement && TextUtils.isEmpty(editText.getText())) {
-                    return "Text cannot be empty";
+                if (v.getId() == R.id.step_with_requirement) {
+                    Editable text = editText.getText();
+                    if (TextUtils.isEmpty(text)) {
+                        return "Text cannot be empty";
+                    }
+                    stepper.setStepSummary(R.id.step_with_requirement, "Satisfied requirement: " + text);
                 }
                 return null;
             }
