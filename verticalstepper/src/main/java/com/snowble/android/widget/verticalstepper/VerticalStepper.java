@@ -224,7 +224,7 @@ public class VerticalStepper extends ViewGroup {
         String error = validator.validate(step.getInnerView());
         if (!TextUtils.isEmpty(error)) {
             step.setError(error);
-            // TODO Update step subtitle to indicate error
+            requestLayout();
         } else {
             step.markComplete();
             toggleStepExpandedState(step);
@@ -583,12 +583,11 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void drawSubtitle(Canvas canvas, Step step) {
-        if (!TextUtils.isEmpty(step.getSubtitle()) && !step.isActive() && step.isComplete()) {
+        if (!TextUtils.isEmpty(step.getSubtitle())) {
             canvas.translate(0, step.getTitleBottomRelativeToStepTop());
             canvas.drawText(step.getSubtitle(), 0,
                     step.getSubtitleBaselineRelativeToTitleBottom(), step.getSubtitleTextPaint());
         }
-        // TODO Handle optional case
     }
 
     @VisibleForTesting

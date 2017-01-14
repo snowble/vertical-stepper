@@ -100,10 +100,16 @@ class Step {
     }
 
     public void markComplete() {
-        this.complete = true;
+        error = "";
+        complete = true;
     }
 
-    void setError(String error) {
+    boolean hasError() {
+        return !TextUtils.isEmpty(error);
+    }
+
+    void setError(@Nullable String error) {
+        complete = false;
         this.error = error;
     }
 
@@ -138,8 +144,13 @@ class Step {
 
     @Nullable
     String getSubtitle() {
-        // TODO Add logic depending on the state of the step
-        return summary;
+        if (hasError()) {
+            return error;
+        } else if (!active && complete) {
+            return summary;
+        } else {
+            return "";
+        }
     }
 
     float getSubtitleWidth() {
@@ -200,7 +211,9 @@ class Step {
     }
 
     TextPaint getTitleTextPaint() {
-        if (active) {
+        if (hasError()) {
+            return common.getTitleErrorTextPaint();
+        } else if (active) {
             return common.getTitleActiveTextPaint();
         } else  {
             return complete ? common.getTitleCompleteTextPaint() : common.getTitleInactiveTextPaint();
@@ -208,8 +221,11 @@ class Step {
     }
 
     TextPaint getSubtitleTextPaint() {
-        // TODO Add logic depending on the state of the step
-        return common.getSummaryTextPaint();
+        if (hasError()) {
+            return common.getSubtitleErrorTextPaint();
+        } else {
+            return common.getSummaryTextPaint();
+        }
     }
 
     void measureBottomMarginToNextStep() {
@@ -359,9 +375,11 @@ class Step {
         private final TextPaint titleActiveTextPaint;
         private final TextPaint titleInactiveTextPaint;
         private final TextPaint titleCompleteTextPaint;
+        private final TextPaint titleErrorTextPaint;
         private final int titleMarginBottomToInnerView;
 
         private final TextPaint summaryTextPaint;
+        private final TextPaint subtitleErrorTextPaint;
 
         private final int touchViewHeight;
         private final int touchViewBackground;
@@ -398,8 +416,11 @@ class Step {
             titleActiveTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
             titleCompleteTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
+            titleErrorTextPaint = createTextPaint(R.color.error_color, R.dimen.title_font_size);
+            titleErrorTextPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
-            summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.subtitle_font_size);
+            summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
+            subtitleErrorTextPaint = createTextPaint(R.color.error_color, R.dimen.subtitle_font_size);
 
             touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
             touchViewBackground = ThemeUtils.getResolvedAttributeData(theme, R.attr.selectableItemBackground, 0);
@@ -490,6 +511,11 @@ class Step {
         }
 
         @VisibleForTesting
+        TextPaint getTitleErrorTextPaint() {
+            return titleErrorTextPaint;
+        }
+
+        @VisibleForTesting
         int getTitleMarginBottomToInnerView() {
             return titleMarginBottomToInnerView;
         }
@@ -497,6 +523,11 @@ class Step {
         @VisibleForTesting
         TextPaint getSummaryTextPaint() {
             return summaryTextPaint;
+        }
+
+        @VisibleForTesting
+        TextPaint getSubtitleErrorTextPaint() {
+            return subtitleErrorTextPaint;
         }
 
         private int getTouchViewHeight() {

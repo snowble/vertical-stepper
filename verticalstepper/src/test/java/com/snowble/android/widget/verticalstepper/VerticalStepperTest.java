@@ -538,16 +538,6 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void completeStep_HasValidator_ShouldNotCompleteIfStepInvalid() {
-            String error = "error";
-            when(validator.validate(mockedStep1.innerView)).thenReturn(error);
-
-            stepper.completeStep(mockedStep1.step);
-
-            verify(mockedStep1.step).setError(error);
-        }
-
-        @Test
         public void completeStep_removeStepValidator_ShouldComplete() {
             String error = "error";
             when(validator.validate(mockedStep1.innerView)).thenReturn(error);
@@ -822,6 +812,19 @@ public class VerticalStepperTest {
     }
 
     public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
+        @Test
+        public void completeStep_HasValidator_ShouldSetErrorAndRelayout() {
+            VerticalStepper.StepValidator validator = mock(VerticalStepper.StepValidator.class);
+            String error = "error";
+            when(validator.validate(mockedStep1.innerView)).thenReturn(error);
+            stepperSpy.setStepValidator(validator);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step).setError(error);
+            verify(stepperSpy).requestLayout();
+        }
+
         @Test
         public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
             ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);

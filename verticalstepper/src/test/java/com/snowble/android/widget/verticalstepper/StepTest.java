@@ -281,6 +281,66 @@ public class StepTest {
         }
 
         @Test
+        public void markComplete_ShouldClearError() {
+            step.setError("some error");
+
+            step.markComplete();
+
+            assertThat(step.isComplete()).isTrue();
+            assertThat(step.hasError()).isFalse();
+        }
+
+        @Test
+        public void setError_ShouldMarkIncomplete() {
+            step.markComplete();
+
+            step.setError("some error");
+
+            assertThat(step.hasError()).isTrue();
+            assertThat(step.isComplete()).isFalse();
+        }
+
+        @Test
+        public void hasError_ShouldReturnFalseByDefault() {
+            assertThat(step.hasError()).isFalse();
+        }
+
+        @Test
+        public void hasError_ShouldReturnTrueWhenThereIsAnError() {
+            step.setError("some error");
+
+            assertThat(step.hasError()).isTrue();
+        }
+
+        @Test
+        public void getSubtitle_ShouldReturnEmptyByDefault() {
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo("");
+        }
+
+        @Test
+        public void getSubtitle_CompleteStep_ShouldReturnSummary() {
+            String summary = "summary";
+            step.setSummary(summary);
+            step.markComplete();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(summary);
+        }
+
+        @Test
+        public void getSubtitle_HasError_ShouldReturnError() {
+            String error = "some error";
+            step.setError(error);
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(error);
+        }
+
+        @Test
         public void getTitleTextPaint_ShouldReturnInactiveStepPaint() {
             TextPaint inactivePaint = mock(TextPaint.class);
             when(common.getTitleInactiveTextPaint()).thenReturn(inactivePaint);
@@ -288,6 +348,17 @@ public class StepTest {
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(inactivePaint);
+        }
+
+        @Test
+        public void getTitleTextPaint_HasError_ShouldReturnErrorStepPaint() {
+            step.setError("error");
+            TextPaint errorPaint = mock(TextPaint.class);
+            when(common.getTitleErrorTextPaint()).thenReturn(errorPaint);
+
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(errorPaint);
         }
 
         @Test
@@ -299,6 +370,28 @@ public class StepTest {
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(completePaint);
+        }
+
+        @Test
+        public void getSubtitleTextPaint_CompleteStep_ShouldReturnSummaryPaint() {
+            step.markComplete();
+            TextPaint summaryPaint = mock(TextPaint.class);
+            when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
+
+            TextPaint paint = step.getSubtitleTextPaint();
+
+            assertThat(paint).isSameAs(summaryPaint);
+        }
+
+        @Test
+        public void getSubtitleTextPaint_HasError_ShouldReturnErrorPaint() {
+            step.setError("error");
+            TextPaint errorPaint = mock(TextPaint.class);
+            when(common.getSubtitleErrorTextPaint()).thenReturn(errorPaint);
+
+            TextPaint paint = step.getSubtitleTextPaint();
+
+            assertThat(paint).isSameAs(errorPaint);
         }
 
         @Test
@@ -320,6 +413,9 @@ public class StepTest {
 
         @Test
         public void measureSubtitleHorizontalDimensions_MeasuresUsingSummaryPaint() {
+            step.setSummary("summary");
+            step.markComplete();
+
             step.measureSubtitleHorizontalDimensions();
 
             // TODO Should use subtitle paint
@@ -338,6 +434,9 @@ public class StepTest {
 
         @Test
         public void measureSubtitleVerticalDimensions_MeasuresUsingSummaryPaint() {
+            step.setSummary("summary");
+            step.markComplete();
+
             step.measureSubtitleVerticalDimensions();
 
             // TODO Should use subtitle paint
@@ -394,7 +493,7 @@ public class StepTest {
         }
 
         @Test
-        public void getTitleTextPaint_ShouldReturnActiveStepPaint() {
+        public void getTitleTextPaint_ShouldReturnActiveStepPaintByDefault() {
             TextPaint activePaint = mock(TextPaint.class);
             when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
 
@@ -412,6 +511,17 @@ public class StepTest {
             TextPaint paint = step.getTitleTextPaint();
 
             assertThat(paint).isSameAs(activePaint);
+        }
+
+        @Test
+        public void getTitleTextPaint_HasError_ShouldReturnErrorStepPaint() {
+            step.setError("some error");
+            TextPaint errorPaint = mock(TextPaint.class);
+            when(common.getTitleErrorTextPaint()).thenReturn(errorPaint);
+
+            TextPaint paint = step.getTitleTextPaint();
+
+            assertThat(paint).isSameAs(errorPaint);
         }
 
         @Test

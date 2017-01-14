@@ -9,4 +9,5 @@
     <color name="summary_color">#61000000</color>
 
     <color name="connector_color">#BDBDBD</color>
+    <color name="error_color">#F44336</color>
 </resources>
