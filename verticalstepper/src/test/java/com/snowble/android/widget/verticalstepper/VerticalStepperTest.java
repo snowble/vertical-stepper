@@ -539,20 +539,23 @@ public class VerticalStepperTest {
 
         @Test
         public void completeStep_HasValidator_ShouldNotCompleteIfStepInvalid() {
-            when(validator.validate(mockedStep1.innerView)).thenReturn("error");
+            String error = "error";
+            when(validator.validate(mockedStep1.innerView)).thenReturn(error);
 
             stepper.completeStep(mockedStep1.step);
 
-            verify(mockedStep1.step, never()).markComplete();
+            verify(mockedStep1.step).setError(error);
         }
 
         @Test
         public void completeStep_removeStepValidator_ShouldComplete() {
-            when(validator.validate(mockedStep1.innerView)).thenReturn("error");
+            String error = "error";
+            when(validator.validate(mockedStep1.innerView)).thenReturn(error);
             stepper.removeStepValidator();
 
             stepper.completeStep(mockedStep1.step);
 
+            verify(mockedStep1.step, never()).setError(error);
             verify(mockedStep1.step).markComplete();
         }
     }
