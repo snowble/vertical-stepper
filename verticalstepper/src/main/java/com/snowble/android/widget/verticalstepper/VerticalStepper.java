@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.ResourcesCompat;
@@ -29,6 +30,9 @@ public class VerticalStepper extends ViewGroup {
     private Context context;
     private Resources resources;
     private Step.Common commonStepValues;
+    private AlwaysValidValidator alwaysValidValidator = new AlwaysValidValidator();
+    @NonNull
+    private StepValidator validator = alwaysValidValidator;
 
     @VisibleForTesting
     List<Step> steps;
@@ -178,7 +182,6 @@ public class VerticalStepper extends ViewGroup {
             @Override
             public void onClick(View v) {
                 completeStep(step);
-
             }
         });
         addView(continueButton, lp);
@@ -186,16 +189,20 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void completeStep(Step step) {
-        // TODO Add step validation
-        step.setComplete(true);
-        toggleStepExpandedState(step);
-
-        int nextIndex = steps.indexOf(step) + 1;
-        if (nextIndex < steps.size()) {
-            toggleStepExpandedState(steps.get(nextIndex));
+        String error = validator.validate(step.getInnerView());
+        if (!TextUtils.isEmpty(error)) {
+            // TODO Update step state and summary to indicate error
         } else {
-            // TODO this is the last step. Complete the form
-            // TODO Add listener for entire stepper validation
+            step.setComplete(true);
+            toggleStepExpandedState(step);
+
+            int nextIndex = steps.indexOf(step) + 1;
+            if (nextIndex < steps.size()) {
+                toggleStepExpandedState(steps.get(nextIndex));
+            } else {
+                // TODO this is the last step. Complete the form
+                // TODO Add listener for entire stepper validation
+            }
         }
     }
 
@@ -226,6 +233,22 @@ public class VerticalStepper extends ViewGroup {
         } else {
             view.setVisibility(VISIBLE);
         }
+    }
+
+    /**
+     * Set a validator that can indicate a step has an invalid state when the user attempts to move to the next step.
+     *
+     * @param validator the validator
+     */
+    public void setStepValidator(@NonNull StepValidator validator) {
+        this.validator = validator;
+    }
+
+    /**
+     * Removes the validator
+     */
+    public void removeStepValidator() {
+        this.validator = alwaysValidValidator;
     }
 
     @Override
@@ -630,6 +653,25 @@ public class VerticalStepper extends ViewGroup {
     static class InternalTouchView extends View {
         public InternalTouchView(Context context) {
             super(context);
+        }
+    }
+
+    public interface StepValidator {
+        /**
+         * Validates the step on completion
+         *
+         * @param v the view of the step being completed.
+         *
+         * @return An error to be shown for this step if the step is invalid. Otherwise, null, or an empty string
+         *         indicates the step is valid.
+         */
+        String validate(View v);
+    }
+
+    private static class AlwaysValidValidator implements StepValidator {
+        @Override
+        public String validate(View v) {
+            return null;
         }
     }
 }
