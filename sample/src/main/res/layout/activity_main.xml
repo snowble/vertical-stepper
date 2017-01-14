@@ -15,17 +15,18 @@
         <LinearLayout
             app:step_title="Select an app"
             app:step_summary="Summary if needed"
+            android:id="@+id/step_with_requirement"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
-                android:text="Here's some text"
+                android:text="Enter some text. It's required."
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-            <Button
-                android:text="Click me"
+            <EditText
+                android:id="@+id/required_text"
                 android:layout_margin="20dp"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <ImageView
                 android:background="@android:drawable/btn_star_big_on"

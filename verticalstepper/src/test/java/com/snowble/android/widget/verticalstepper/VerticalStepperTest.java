@@ -512,6 +512,51 @@ public class VerticalStepperTest {
 
     }
 
+    public static class GivenOneStepAndAStepValidator extends GivenOneStep {
+        private VerticalStepper.StepValidator validator;
+
+        @Before
+        public void givenStepperSpyWithExactlyTwoStepsAndAStepValidator() {
+            validator = mock(VerticalStepper.StepValidator.class);
+            stepper.setStepValidator(validator);
+        }
+
+        @Test
+        public void completeStep_HasValidator_ShouldCallListenerWithInnerView() {
+            stepper.completeStep(mockedStep1.step);
+
+            verify(validator).validate(mockedStep1.innerView);
+        }
+
+        @Test
+        public void completeStep_HasValidator_ShouldCompleteIfStepValid() {
+            when(validator.validate(mockedStep1.innerView)).thenReturn("");
+
+            stepper.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step).setComplete(true);
+        }
+
+        @Test
+        public void completeStep_HasValidator_ShouldNotCompleteIfStepInvalid() {
+            when(validator.validate(mockedStep1.innerView)).thenReturn("error");
+
+            stepper.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step, never()).setComplete(true);
+        }
+
+        @Test
+        public void completeStep_removeStepValidator_ShouldComplete() {
+            when(validator.validate(mockedStep1.innerView)).thenReturn("error");
+            stepper.removeStepValidator();
+
+            stepper.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step).setComplete(true);
+        }
+    }
+
     public static class GivenExactlyOneActiveStep extends GivenOneStep {
 
         @Before
