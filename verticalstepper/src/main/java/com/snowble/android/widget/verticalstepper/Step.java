@@ -97,8 +97,8 @@ class Step {
         return complete;
     }
 
-    public void setComplete(boolean complete) {
-        this.complete = complete;
+    public void markComplete() {
+        this.complete = true;
     }
 
     int getDecoratorHeight() {

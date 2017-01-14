@@ -534,7 +534,7 @@ public class VerticalStepperTest {
 
             stepper.completeStep(mockedStep1.step);
 
-            verify(mockedStep1.step).setComplete(true);
+            verify(mockedStep1.step).markComplete();
         }
 
         @Test
@@ -543,7 +543,7 @@ public class VerticalStepperTest {
 
             stepper.completeStep(mockedStep1.step);
 
-            verify(mockedStep1.step, never()).setComplete(true);
+            verify(mockedStep1.step, never()).markComplete();
         }
 
         @Test
@@ -553,7 +553,7 @@ public class VerticalStepperTest {
 
             stepper.completeStep(mockedStep1.step);
 
-            verify(mockedStep1.step).setComplete(true);
+            verify(mockedStep1.step).markComplete();
         }
     }
 
@@ -1364,7 +1364,7 @@ public class VerticalStepperTest {
 
             stepperSpy.completeStep(mockedStep1.step);
 
-            verify(mockedStep1.step).setComplete(true);
+            verify(mockedStep1.step).markComplete();
             verifyActiveState(mockedStep1, false);
         }
 

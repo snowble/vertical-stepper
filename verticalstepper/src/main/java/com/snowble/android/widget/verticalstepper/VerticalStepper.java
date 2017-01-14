@@ -193,7 +193,7 @@ public class VerticalStepper extends ViewGroup {
         if (!TextUtils.isEmpty(error)) {
             // TODO Update step state and summary to indicate error
         } else {
-            step.setComplete(true);
+            step.markComplete();
             toggleStepExpandedState(step);
 
             int nextIndex = steps.indexOf(step) + 1;

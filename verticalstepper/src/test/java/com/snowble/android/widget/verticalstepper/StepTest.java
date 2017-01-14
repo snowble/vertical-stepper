@@ -273,7 +273,7 @@ public class StepTest {
 
         @Test
         public void getIconBackground_CompleteStep_ShouldReturnCompleteStepPaint() {
-            step.setComplete(true);
+            step.markComplete();
 
             Paint paint = step.getIconBackground();
 
@@ -292,7 +292,7 @@ public class StepTest {
 
         @Test
         public void getTitleTextPaint_CompleteStep_ShouldReturnCompleteStepPaint() {
-            step.setComplete(true);
+            step.markComplete();
             TextPaint completePaint = mock(TextPaint.class);
             when(common.getTitleCompleteTextPaint()).thenReturn(completePaint);
 
@@ -384,7 +384,7 @@ public class StepTest {
 
         @Test
         public void getIconBackground_CompleteStep_ShouldReturnActiveStepPaint() {
-            step.setComplete(true);
+            step.markComplete();
 
             Paint paint = step.getIconBackground();
 
@@ -403,7 +403,7 @@ public class StepTest {
 
         @Test
         public void getTitleTextPaint_CompleteStep_ShouldReturnActiveStepPaint() {
-            step.setComplete(true);
+            step.markComplete();
             TextPaint activePaint = mock(TextPaint.class);
             when(common.getTitleActiveTextPaint()).thenReturn(activePaint);
 
