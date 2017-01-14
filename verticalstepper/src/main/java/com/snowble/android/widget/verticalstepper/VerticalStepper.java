@@ -130,6 +130,22 @@ public class VerticalStepper extends ViewGroup {
         outerVerticalPadding = resources.getDimensionPixelSize(R.dimen.outer_padding_vertical);
     }
 
+    /**
+     * Set a validator that can indicate a step has an invalid state when the user attempts to move to the next step.
+     *
+     * @param validator the validator
+     */
+    public void setStepValidator(@NonNull StepValidator validator) {
+        this.validator = validator;
+    }
+
+    /**
+     * Removes the validator
+     */
+    public void removeStepValidator() {
+        this.validator = alwaysValidValidator;
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -234,22 +250,6 @@ public class VerticalStepper extends ViewGroup {
         } else {
             view.setVisibility(VISIBLE);
         }
-    }
-
-    /**
-     * Set a validator that can indicate a step has an invalid state when the user attempts to move to the next step.
-     *
-     * @param validator the validator
-     */
-    public void setStepValidator(@NonNull StepValidator validator) {
-        this.validator = validator;
-    }
-
-    /**
-     * Removes the validator
-     */
-    public void removeStepValidator() {
-        this.validator = alwaysValidValidator;
     }
 
     @Override
