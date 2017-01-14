@@ -29,6 +29,7 @@ class Step {
     @Nullable
     private String summary;
     private boolean active;
+    private boolean complete;
 
     @NonNull
     private final Common common;
@@ -44,7 +45,6 @@ class Step {
     private float summaryWidth;
     private float summaryBaselineRelativeToTitleBottom;
     private float summaryBottomRelativeToTitleBottom;
-    private boolean complete;
 
     Step(@NonNull View innerView, @NonNull VerticalStepper.InternalTouchView touchView,
          @NonNull AppCompatButton continueButton, @NonNull Common common) {
