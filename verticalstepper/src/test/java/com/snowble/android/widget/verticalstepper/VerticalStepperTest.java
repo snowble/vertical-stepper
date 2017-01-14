@@ -1232,44 +1232,20 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void drawSubtitle_WhenActive_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
-            when(mockedStep1.step.getSubtitle()).thenReturn("subtitle");
-
-            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
-
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
-        }
-
-        @Test
-        public void drawSubtitle_WhenIncomplete_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(false);
-            when(mockedStep1.step.getSubtitle()).thenReturn("subtitle");
-
-            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
-
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
-        }
-
-        @Test
         public void drawSubtitle_WhenEmpty_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
+            TextPaint paint = mock(TextPaint.class);
+            when(mockedStep1.step.getSubtitleTextPaint()).thenReturn(paint);
             when(mockedStep1.step.getSubtitle()).thenReturn("");
 
             stepperSpy.drawSubtitle(canvas, mockedStep1.step);
 
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), eq(paint));
         }
 
         @Test
-        public void drawSubtitle_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
+        public void drawSubtitle_NotEmpty_ShouldTranslateAndDraw() {
             InOrder order = inOrder(canvas);
 
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
             String subtitle = "subtitle";
             when(mockedStep1.step.getSubtitle()).thenReturn(subtitle);
             float titleBottom = 15f;

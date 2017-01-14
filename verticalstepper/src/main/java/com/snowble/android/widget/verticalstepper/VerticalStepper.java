@@ -583,10 +583,10 @@ public class VerticalStepper extends ViewGroup {
 
     @VisibleForTesting
     void drawSubtitle(Canvas canvas, Step step) {
-        if (!TextUtils.isEmpty(step.getSubtitle())) {
+        String subtitle = step.getSubtitle();
+        if (!TextUtils.isEmpty(subtitle)) {
             canvas.translate(0, step.getTitleBottomRelativeToStepTop());
-            canvas.drawText(step.getSubtitle(), 0,
-                    step.getSubtitleBaselineRelativeToTitleBottom(), step.getSubtitleTextPaint());
+            canvas.drawText(subtitle, 0, step.getSubtitleBaselineRelativeToTitleBottom(), step.getSubtitleTextPaint());
         }
     }
 

@@ -316,7 +316,7 @@ public class StepTest {
         public void getSubtitle_ShouldReturnEmptyByDefault() {
             String subtitle = step.getSubtitle();
 
-            assertThat(subtitle).isEqualTo("");
+            assertThat(subtitle).isEmpty();
         }
 
         @Test
@@ -490,6 +490,17 @@ public class StepTest {
             Paint paint = step.getIconBackground();
 
             assertThat(paint).isSameAs(ICON_ACTIVE_PAINT);
+        }
+
+        @Test
+        public void getSubtitle_CompleteStep_ShouldReturnEmpty() {
+            String summary = "summary";
+            step.setSummary(summary);
+            step.markComplete();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEmpty();
         }
 
         @Test
