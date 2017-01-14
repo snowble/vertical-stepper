@@ -1150,15 +1150,15 @@ public class VerticalStepperTest {
         @Before
         public void givenStepperSpyWithTwoStepsAndStubbedDrawTextMethods() {
             doNothing().when(stepperSpy).drawTitle(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawSummary(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawSubtitle(same(canvas), any(Step.class));
         }
 
         @Test
-        public void drawText_ShouldCallDrawTitleAndDrawSummary() {
+        public void drawText_ShouldCallDrawTitleAndDrawSubtitle() {
             stepperSpy.drawText(canvas, mockedStep1.step);
 
             verify(stepperSpy).drawTitle(canvas, mockedStep1.step);
-            verify(stepperSpy).drawSummary(canvas, mockedStep1.step);
+            verify(stepperSpy).drawSubtitle(canvas, mockedStep1.step);
         }
 
         @Test
@@ -1229,57 +1229,57 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void drawSummary_WhenActive_ShouldNotDraw() {
+        public void drawSubtitle_WhenActive_ShouldNotDraw() {
             when(mockedStep1.step.isActive()).thenReturn(true);
             when(mockedStep1.step.isComplete()).thenReturn(true);
-            when(mockedStep1.step.getSummary()).thenReturn("summary");
+            when(mockedStep1.step.getSubtitle()).thenReturn("subtitle");
 
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
+            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
 
             verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
         }
 
         @Test
-        public void drawSummary_WhenIncomplete_ShouldNotDraw() {
+        public void drawSubtitle_WhenIncomplete_ShouldNotDraw() {
             when(mockedStep1.step.isActive()).thenReturn(false);
             when(mockedStep1.step.isComplete()).thenReturn(false);
-            when(mockedStep1.step.getSummary()).thenReturn("summary");
+            when(mockedStep1.step.getSubtitle()).thenReturn("subtitle");
 
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
+            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
 
             verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
         }
 
         @Test
-        public void drawSummary_WhenEmpty_ShouldNotDraw() {
+        public void drawSubtitle_WhenEmpty_ShouldNotDraw() {
             when(mockedStep1.step.isActive()).thenReturn(false);
             when(mockedStep1.step.isComplete()).thenReturn(true);
-            when(mockedStep1.step.getSummary()).thenReturn("");
+            when(mockedStep1.step.getSubtitle()).thenReturn("");
 
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
+            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
 
             verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
         }
 
         @Test
-        public void drawSummary_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
+        public void drawSubtitle_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
             InOrder order = inOrder(canvas);
 
             when(mockedStep1.step.isActive()).thenReturn(false);
             when(mockedStep1.step.isComplete()).thenReturn(true);
-            String summary = "summary";
-            when(mockedStep1.step.getSummary()).thenReturn(summary);
+            String subtitle = "subtitle";
+            when(mockedStep1.step.getSubtitle()).thenReturn(subtitle);
             float titleBottom = 15f;
             when(mockedStep1.step.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
-            float summaryBaseline = 20f;
-            when(mockedStep1.step.getSummaryBaselineRelativeToTitleBottom()).thenReturn(summaryBaseline);
+            float subtitleBaseline = 20f;
+            when(mockedStep1.step.getSubtitleBaselineRelativeToTitleBottom()).thenReturn(subtitleBaseline);
             TextPaint paint = mock(TextPaint.class);
-            when(mockedStep1.step.getSummaryTextPaint()).thenReturn(paint);
+            when(mockedStep1.step.getSubtitleTextPaint()).thenReturn(paint);
 
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
+            stepperSpy.drawSubtitle(canvas, mockedStep1.step);
 
             order.verify(canvas).translate(0, titleBottom);
-            order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
+            order.verify(canvas).drawText(subtitle, 0, subtitleBaseline, paint);
         }
 
         @Test

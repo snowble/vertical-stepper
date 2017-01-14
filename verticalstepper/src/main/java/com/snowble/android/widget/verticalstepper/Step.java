@@ -27,7 +27,7 @@ class Step {
     @NonNull
     private String title;
     @Nullable
-    private String summary;
+    private String subtitle;
     private boolean active;
     private boolean complete;
     private String error;
@@ -43,9 +43,9 @@ class Step {
     private float titleBaselineRelativeToStepTop;
     private float titleBottomRelativeToStepTop;
 
-    private float summaryWidth;
-    private float summaryBaselineRelativeToTitleBottom;
-    private float summaryBottomRelativeToTitleBottom;
+    private float subtitleWidth;
+    private float subtitleBaselineRelativeToTitleBottom;
+    private float subtitleBottomRelativeToTitleBottom;
 
     Step(@NonNull View innerView, @NonNull VerticalStepper.InternalTouchView touchView,
          @NonNull AppCompatButton continueButton, @NonNull Common common) {
@@ -61,7 +61,7 @@ class Step {
     void initTextValues(@NonNull VerticalStepper.LayoutParams lp) {
         this.title = lp.getTitle();
         validateTitle();
-        this.summary = lp.getSummary();
+        this.subtitle = lp.getSummary();
     }
 
     @VisibleForTesting
@@ -132,16 +132,17 @@ class Step {
     }
 
     void setSummary(@NonNull String summary) {
-        this.summary = summary;
+        // TODO There should be a separate field for summary
+        this.subtitle = summary;
     }
 
     @Nullable
-    String getSummary() {
-        return summary;
+    String getSubtitle() {
+        return subtitle;
     }
 
-    float getSummaryWidth() {
-        return summaryWidth;
+    float getSubtitleWidth() {
+        return subtitleWidth;
     }
 
     float getTitleBaselineRelativeToStepTop() {
@@ -152,12 +153,12 @@ class Step {
         return titleBottomRelativeToStepTop;
     }
 
-    float getSummaryBaselineRelativeToTitleBottom() {
-        return summaryBaselineRelativeToTitleBottom;
+    float getSubtitleBaselineRelativeToTitleBottom() {
+        return subtitleBaselineRelativeToTitleBottom;
     }
 
-    float getSummaryBottomRelativeToTitleBottom() {
-        return summaryBottomRelativeToTitleBottom;
+    float getSubtitleBottomRelativeToTitleBottom() {
+        return subtitleBottomRelativeToTitleBottom;
     }
 
     void measureTitleHorizontalDimensions() {
@@ -168,12 +169,12 @@ class Step {
         titleWidth = width;
     }
 
-    void measureSummaryHorizontalDimensions() {
+    void measureSubtitleHorizontalDimensions() {
         float width = 0f;
-        if (!TextUtils.isEmpty(summary)) {
-            width = getSummaryTextPaint().measureText(summary);
+        if (!TextUtils.isEmpty(subtitle)) {
+            width = getSubtitleTextPaint().measureText(subtitle);
         }
-        summaryWidth = width;
+        subtitleWidth = width;
     }
 
     void measureTitleVerticalDimensions(int heightToCenterIn) {
@@ -186,14 +187,14 @@ class Step {
                 title, heightToCenterIn, getTitleTextPaint(), getTempRectForTitleTextBounds());
     }
 
-    void measureSummaryVerticalDimensions() {
-        measureSummaryBaseline();
-        summaryBottomRelativeToTitleBottom =
-                summaryBaselineRelativeToTitleBottom + getSummaryTextPaint().getFontMetrics().bottom;
+    void measureSubtitleVerticalDimensions() {
+        measureSubtitleBaseline();
+        subtitleBottomRelativeToTitleBottom =
+                subtitleBaselineRelativeToTitleBottom + getSubtitleTextPaint().getFontMetrics().bottom;
     }
 
-    private void measureSummaryBaseline() {
-        summaryBaselineRelativeToTitleBottom = -getSummaryTextPaint().getFontMetrics().ascent;
+    private void measureSubtitleBaseline() {
+        subtitleBaselineRelativeToTitleBottom = -getSubtitleTextPaint().getFontMetrics().ascent;
     }
 
     TextPaint getTitleTextPaint() {
@@ -204,7 +205,8 @@ class Step {
         }
     }
 
-    TextPaint getSummaryTextPaint() {
+    TextPaint getSubtitleTextPaint() {
+        // TODO Add logic depending on the state of the step
         return common.getSummaryTextPaint();
     }
 
@@ -288,16 +290,16 @@ class Step {
 
     float calculateStepDecoratorTextWidth() {
         measureTitleHorizontalDimensions();
-        measureSummaryHorizontalDimensions();
-        return Math.max(getTitleWidth(), getSummaryWidth());
+        measureSubtitleHorizontalDimensions();
+        return Math.max(getTitleWidth(), getSubtitleWidth());
     }
 
     void measureStepDecoratorHeight() {
         int iconDimension = getIconDimension();
         measureTitleVerticalDimensions(iconDimension);
-        measureSummaryVerticalDimensions();
+        measureSubtitleVerticalDimensions();
         int textTotalHeight = (int) (getTitleBottomRelativeToStepTop()
-                + getSummaryBottomRelativeToTitleBottom());
+                + getSubtitleBottomRelativeToTitleBottom());
         decoratorHeight = Math.max(iconDimension, textTotalHeight);
     }
 
@@ -313,7 +315,7 @@ class Step {
     int calculateYDistanceToTextBottom() {
         int dyToTextBottom = (int) getTitleBottomRelativeToStepTop();
         if (!active) {
-            dyToTextBottom += getSummaryBottomRelativeToTitleBottom();
+            dyToTextBottom += getSubtitleBottomRelativeToTitleBottom();
         } else {
             dyToTextBottom += common.getTitleMarginBottomToInnerView();
         }
@@ -395,7 +397,7 @@ class Step {
             titleInactiveTextPaint = createTextPaint(R.color.title_inactive_color, R.dimen.title_font_size);
             titleCompleteTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
 
-            summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
+            summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.subtitle_font_size);
 
             touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
             touchViewBackground = ThemeUtils.getResolvedAttributeData(theme, R.attr.selectableItemBackground, 0);

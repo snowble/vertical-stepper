@@ -89,8 +89,8 @@ public class StepTest {
             doNothing().when(stepSpy).validateTitle();
             doNothing().when(stepSpy).measureTitleHorizontalDimensions();
             doNothing().when(stepSpy).measureTitleVerticalDimensions(anyInt());
-            doNothing().when(stepSpy).measureSummaryHorizontalDimensions();
-            doNothing().when(stepSpy).measureSummaryVerticalDimensions();
+            doNothing().when(stepSpy).measureSubtitleHorizontalDimensions();
+            doNothing().when(stepSpy).measureSubtitleVerticalDimensions();
         }
     }
 
@@ -150,9 +150,9 @@ public class StepTest {
         @Test
         public void calculateStepDecoratorTextWidth_WiderTitle_ShouldReturnTitle() {
             final float titleWidth = 20f;
-            final float summaryWidth = 10f;
+            final float subtitleWidth = 10f;
             when(stepSpy.getTitleWidth()).thenReturn(titleWidth);
-            when(stepSpy.getSummaryWidth()).thenReturn(summaryWidth);
+            when(stepSpy.getSubtitleWidth()).thenReturn(subtitleWidth);
 
             float width = stepSpy.calculateStepDecoratorTextWidth();
 
@@ -160,15 +160,15 @@ public class StepTest {
         }
 
         @Test
-        public void calculateStepDecoratorTextWidth_WiderSummary_ShouldReturnSummary() {
+        public void calculateStepDecoratorTextWidth_WiderSubtitle_ShouldReturnSubtitle() {
             final float titleWidth = 20f;
-            final float summaryWidth = 25f;
+            final float subtitleWidth = 25f;
             when(stepSpy.getTitleWidth()).thenReturn(titleWidth);
-            when(stepSpy.getSummaryWidth()).thenReturn(summaryWidth);
+            when(stepSpy.getSubtitleWidth()).thenReturn(subtitleWidth);
 
             float width = stepSpy.calculateStepDecoratorTextWidth();
 
-            assertThat(width).isEqualTo(summaryWidth);
+            assertThat(width).isEqualTo(subtitleWidth);
         }
 
         @Test
@@ -177,7 +177,7 @@ public class StepTest {
             when(stepSpy.getIconDimension()).thenReturn(iconDimension);
             float lessThanHalfIconDimen = (iconDimension - 2) / 2;
             when(stepSpy.getTitleBottomRelativeToStepTop()).thenReturn(lessThanHalfIconDimen);
-            when(stepSpy.getSummaryBottomRelativeToTitleBottom()).thenReturn(lessThanHalfIconDimen);
+            when(stepSpy.getSubtitleBottomRelativeToTitleBottom()).thenReturn(lessThanHalfIconDimen);
 
             stepSpy.measureStepDecoratorHeight();
             int height = stepSpy.getDecoratorHeight();
@@ -191,7 +191,7 @@ public class StepTest {
             when(stepSpy.getIconDimension()).thenReturn(iconDimension);
             float twiceIconHeight = iconDimension * 2;
             when(stepSpy.getTitleBottomRelativeToStepTop()).thenReturn(twiceIconHeight);
-            when(stepSpy.getSummaryBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
+            when(stepSpy.getSubtitleBottomRelativeToTitleBottom()).thenReturn(twiceIconHeight);
 
             stepSpy.measureStepDecoratorHeight();
             int height = stepSpy.getDecoratorHeight();
@@ -202,14 +202,14 @@ public class StepTest {
 
     public static abstract class GivenStepSpyWithStandardHeights extends GivenAStepSpy {
         static final float STANDARD_TITLE_HEIGHT = 10f;
-        static final float STANDARD_SUMMARY_HEIGHT = 10f;
+        static final float STANDARD_SUBTITLE_HEIGHT = 10f;
         static final int STANDARD_INNER_HEIGHT = 100;
         static final int STANDARD_CONTINUE_HEIGHT = 20;
 
         @Before
         public void givenTestStepWithStandardTextHeights() {
             when(stepSpy.getTitleBottomRelativeToStepTop()).thenReturn(STANDARD_TITLE_HEIGHT);
-            when(stepSpy.getSummaryBottomRelativeToTitleBottom()).thenReturn(STANDARD_SUMMARY_HEIGHT);
+            when(stepSpy.getSubtitleBottomRelativeToTitleBottom()).thenReturn(STANDARD_SUBTITLE_HEIGHT);
 
             when(innerView.getHeight()).thenReturn(STANDARD_INNER_HEIGHT);
             when(continueButton.getHeight()).thenReturn(STANDARD_CONTINUE_HEIGHT);
@@ -230,7 +230,7 @@ public class StepTest {
             int yDistance = stepSpy.calculateYDistanceToNextStep();
 
             assertThat(yDistance)
-                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUMMARY_HEIGHT
+                    .isEqualTo((int) (STANDARD_TITLE_HEIGHT + STANDARD_SUBTITLE_HEIGHT
                             + inactiveBottomMargin));
         }
     }
@@ -319,10 +319,11 @@ public class StepTest {
         }
 
         @Test
-        public void measureSummaryHorizontalDimensions_MeasuresUsingSummaryPaint() {
-            step.measureSummaryHorizontalDimensions();
+        public void measureSubtitleHorizontalDimensions_MeasuresUsingSummaryPaint() {
+            step.measureSubtitleHorizontalDimensions();
 
-            verify(summaryPaint).measureText(step.getSummary());
+            // TODO Should use subtitle paint
+            verify(summaryPaint).measureText(step.getSubtitle());
         }
 
         @Test
@@ -336,9 +337,10 @@ public class StepTest {
         }
 
         @Test
-        public void measureSummaryVerticalDimensions_MeasuresUsingSummaryPaint() {
-            step.measureSummaryVerticalDimensions();
+        public void measureSubtitleVerticalDimensions_MeasuresUsingSummaryPaint() {
+            step.measureSubtitleVerticalDimensions();
 
+            // TODO Should use subtitle paint
             // verify that the baseline and bottom are measured using the font metrics
             verify(summaryPaint, times(2)).getFontMetrics();
         }
