@@ -153,7 +153,6 @@ public class VerticalStepper extends ViewGroup {
      * @param summary the summary to set for the step
      */
     public void setStepSummary(int stepViewId, @NonNull String summary) {
-        // TODO Add tests
         for (Step s : steps) {
             if (s.getInnerView().getId() == stepViewId) {
                 s.setSummary(summary);
