@@ -21,8 +21,8 @@ public abstract class GivenAnActivity {
         activity = activityController.create().get();
     }
 
-    VerticalStepper.LayoutParams createTestLayoutParams( int leftMargin, int topMargin,
-                                                         int rightMargin, int bottomMargin) {
+    VerticalStepper.LayoutParams createTestLayoutParams(int leftMargin, int topMargin,
+                                                        int rightMargin, int bottomMargin) {
         VerticalStepper.LayoutParams lp = createTestLayoutParams();
         lp.leftMargin = leftMargin;
         lp.topMargin = topMargin;
