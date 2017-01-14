@@ -17,7 +17,7 @@
     <dimen name="touch_height">72dp</dimen>
 
     <dimen name="title_font_size">14sp</dimen>
-    <dimen name="summary_font_size">14sp</dimen>
+    <dimen name="subtitle_font_size">14sp</dimen>
     <dimen name="title_margin_bottom_to_inner_view">16dp</dimen>
 
     <dimen name="connector_width">1dp</dimen>
