@@ -1465,8 +1465,7 @@ public class VerticalStepperTest {
         }
     }
 
-    public static class GivenStepperSpyWithExactlyTwoStepsAndStandardActiveDimensions
-            extends GivenStepperSpyWithTwoSteps {
+    public static class GivenStepperSpyWithTwoStepsAndStandardActiveDimensions extends GivenStepperSpyWithTwoSteps {
 
         private static final int MAX_WIDTH = 1080;
         private static final int MAX_HEIGHT = 1920;
