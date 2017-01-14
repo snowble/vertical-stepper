@@ -2,6 +2,8 @@ package com.snowble.android.widget.verticalstepper;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -360,6 +362,10 @@ class Step {
         return common.getTempRectForLayout();
     }
 
+    Bitmap getIconErrorBitmap() {
+        return common.getIconErrorBitmap();
+    }
+
     static class Common {
         private final Resources resources;
         private final Resources.Theme theme;
@@ -371,6 +377,7 @@ class Step {
         private final Paint iconInactiveBackgroundPaint;
         private final Paint iconCompleteBackgroundPaint;
         private final TextPaint iconTextPaint;
+        private final Bitmap iconErrorBitmap;
 
         private final TextPaint titleActiveTextPaint;
         private final TextPaint titleInactiveTextPaint;
@@ -410,6 +417,7 @@ class Step {
             iconInactiveBackgroundPaint = createPaint(iconInactiveColor);
             iconCompleteBackgroundPaint = createPaint(iconCompleteColor);
             iconTextPaint = createTextPaint(R.color.white, R.dimen.icon_font_size);
+            iconErrorBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_warning_24dp);
 
             titleMarginBottomToInnerView = resources.getDimensionPixelSize(R.dimen.title_margin_bottom_to_inner_view);
             titleActiveTextPaint = createTextPaint(R.color.title_active_color, R.dimen.title_font_size);
@@ -579,6 +587,10 @@ class Step {
 
         private Rect getTempRectForLayout() {
             return tempRectForLayout;
+        }
+
+        public Bitmap getIconErrorBitmap() {
+            return iconErrorBitmap;
         }
     }
 }
