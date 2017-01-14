@@ -27,10 +27,11 @@ class Step {
     @NonNull
     private String title;
     @Nullable
-    private String subtitle;
+    private String summary;
+    @Nullable
+    private String error;
     private boolean active;
     private boolean complete;
-    private String error;
 
     @NonNull
     private final Common common;
@@ -61,7 +62,7 @@ class Step {
     void initTextValues(@NonNull VerticalStepper.LayoutParams lp) {
         this.title = lp.getTitle();
         validateTitle();
-        this.subtitle = lp.getSummary();
+        this.summary = lp.getSummary();
     }
 
     @VisibleForTesting
@@ -132,13 +133,13 @@ class Step {
     }
 
     void setSummary(@NonNull String summary) {
-        // TODO There should be a separate field for summary
-        this.subtitle = summary;
+        this.summary = summary;
     }
 
     @Nullable
     String getSubtitle() {
-        return subtitle;
+        // TODO Add logic depending on the state of the step
+        return summary;
     }
 
     float getSubtitleWidth() {
@@ -171,6 +172,7 @@ class Step {
 
     void measureSubtitleHorizontalDimensions() {
         float width = 0f;
+        String subtitle = getSubtitle();
         if (!TextUtils.isEmpty(subtitle)) {
             width = getSubtitleTextPaint().measureText(subtitle);
         }
