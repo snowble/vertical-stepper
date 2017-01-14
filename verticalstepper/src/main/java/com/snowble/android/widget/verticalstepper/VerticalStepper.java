@@ -191,7 +191,8 @@ public class VerticalStepper extends ViewGroup {
     void completeStep(Step step) {
         String error = validator.validate(step.getInnerView());
         if (!TextUtils.isEmpty(error)) {
-            // TODO Update step state and summary to indicate error
+            step.setError(error);
+            // TODO Update step summary to indicate error
         } else {
             step.markComplete();
             toggleStepExpandedState(step);

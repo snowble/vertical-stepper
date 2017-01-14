@@ -30,6 +30,7 @@ class Step {
     private String summary;
     private boolean active;
     private boolean complete;
+    private String error;
 
     @NonNull
     private final Common common;
@@ -99,6 +100,10 @@ class Step {
 
     public void markComplete() {
         this.complete = true;
+    }
+
+    void setError(String error) {
+        this.error = error;
     }
 
     int getDecoratorHeight() {
