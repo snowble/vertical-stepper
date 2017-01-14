@@ -821,12 +821,506 @@ public class VerticalStepperTest {
         }
     }
 
+    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
+        @Test
+        public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initTouchView(mockedStep1.step);
+            verify(mockedStep1.touchView).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            doNothing().when(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).collapseOtherSteps(mockedStep1.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep1.step);
+        }
+
+        @Test
+        public void continueButtonOnClickListener_ShouldCallCompleteStep() {
+            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
+            stepperSpy.initNavButtons(mockedStep1.step);
+            verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
+            View.OnClickListener clickListenerSpy = spy(captor.getValue());
+
+            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
+
+            clickListenerSpy.onClick(mock(View.class));
+
+            verify(stepperSpy).completeStep(mockedStep1.step);
+        }
+
+        @Test
+        public void completeStep_ShouldCollapseCompleteCurrentStep() {
+            mockActiveState(mockedStep1, true);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verify(mockedStep1.step).markComplete();
+            verifyActiveState(mockedStep1, false);
+        }
+
+        @Test
+        public void completeStep_ShouldExpandNextStep() {
+            mockActiveState(mockedStep1, true);
+            mockActiveState(mockedStep2, false);
+
+            stepperSpy.completeStep(mockedStep1.step);
+
+            verifyActiveState(mockedStep2, true);
+        }
+
+        @Test
+        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
+            mockActiveState(mockedStep2, true);
+
+            stepperSpy.completeStep(mockedStep2.step);
+
+            verify(stepperSpy).completeStep(mockedStep2.step);
+            verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
+            verifyActiveState(mockedStep2, false);
+            verifyNoMoreInteractions(stepperSpy);
+        }
+
+        @Test
+        public void measureActiveView_ShouldMeasureActiveViewAccountingForUsedSpace() {
+            int currentHeight = 30;
+            int horizontalPadding = 40;
+            doReturn(horizontalPadding).when(stepperSpy).calculateHorizontalPadding();
+
+            VerticalStepper.LayoutParams innerLp = createTestLayoutParams(5, 10, 5, 10);
+            innerLp.width = VerticalStepper.LayoutParams.WRAP_CONTENT;
+            innerLp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
+            when(mockedStep1.innerView.getLayoutParams()).thenReturn(innerLp);
+
+            int innerHorizontalUsedSpace = 20;
+            when(mockedStep1.step.calculateHorizontalUsedSpace(mockedStep1.innerView))
+                    .thenReturn(innerHorizontalUsedSpace);
+
+            int innerVerticalUsedSpace = 20;
+            when(mockedStep1.step.calculateVerticalUsedSpace(mockedStep1.innerView))
+                    .thenReturn(innerVerticalUsedSpace);
+
+            int maxWidth = 1080;
+            int maxHeight = 1920;
+            int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
+            int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
+
+            int expectedWidthSpec = View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.AT_MOST);
+            int expectedHeightSpec = View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.AT_MOST);
+            doReturn(expectedWidthSpec).when(stepperSpy).nonStaticGetChildMeasureSpec(eq(wms), anyInt(), anyInt());
+            doReturn(expectedHeightSpec).when(stepperSpy).nonStaticGetChildMeasureSpec(eq(hms), anyInt(), anyInt());
+
+            stepperSpy.measureActiveView(mockedStep1.step, mockedStep1.innerView, wms, hms, currentHeight);
+
+            verify(stepperSpy).nonStaticGetChildMeasureSpec(wms, horizontalPadding + innerHorizontalUsedSpace,
+                    VerticalStepper.LayoutParams.WRAP_CONTENT);
+            verify(stepperSpy).nonStaticGetChildMeasureSpec(hms, currentHeight + innerVerticalUsedSpace,
+                    VerticalStepper.LayoutParams.WRAP_CONTENT);
+
+            verify(mockedStep1.innerView).measure(expectedWidthSpec, expectedHeightSpec);
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndInnerViewIds extends GivenStepperSpyWithTwoSteps {
+        private int innerViewId1;
+        private int innerViewId2;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndInnerViewIds() {
+            innerViewId1 = 21;
+            innerViewId2 = 22;
+            when(mockedStep1.innerView.getId()).thenReturn(innerViewId1);
+            when(mockedStep2.innerView.getId()).thenReturn(innerViewId2);
+
+            doNothing().when(stepperSpy).invalidate();
+        }
+
+        @Test
+        public void setStepSummary_UnrecognizedViewId_ShouldDoNothing() {
+            stepperSpy.setStepSummary(-1, "summary");
+
+            verify(mockedStep1.step, never()).setSummary(anyString());
+            verify(stepperSpy, never()).invalidate();
+        }
+
+        @Test
+        public void setStepSummary_ShouldSetStepSummaryAndInvalidate() {
+            String summary = "summary";
+            stepperSpy.setStepSummary(innerViewId1, summary);
+
+            verify(mockedStep1.step).setSummary(summary);
+            verify(stepperSpy).invalidate();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStandardActiveDimensions extends GivenStepperSpyWithTwoSteps {
+
+        private static final int MAX_WIDTH = 1080;
+        private static final int MAX_HEIGHT = 1920;
+        private static final int WMS = View.MeasureSpec.makeMeasureSpec(MAX_WIDTH, View.MeasureSpec.AT_MOST);
+        private static final int HMS = View.MeasureSpec.makeMeasureSpec(MAX_HEIGHT, View.MeasureSpec.AT_MOST);
+
+        private static final int VERTICAL_PADDING = 30;
+        private static final int DECORATOR_HEIGHT = 30;
+        private static final int INNER_ACTIVE_HEIGHT = 200;
+        private static final int CONTINUE_ACTIVE_HEIGHT = 50;
+        private static final int BOTTOM_MARGIN = 30;
+
+        @Before
+        public void givenStepperSpyWithExactlyTwoStepsAndStandardActiveDimensions() {
+            doNothing()
+                    .when(stepperSpy).measureActiveView(any(Step.class), any(View.class), anyInt(), anyInt(), anyInt());
+            doReturn(VERTICAL_PADDING).when(stepperSpy).calculateVerticalPadding();
+            doReturn(DECORATOR_HEIGHT).when(mockedStep1.step).getDecoratorHeight();
+            doReturn(DECORATOR_HEIGHT).when(mockedStep2.step).getDecoratorHeight();
+            doReturn(INNER_ACTIVE_HEIGHT)
+                    .when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.innerView);
+            doReturn(INNER_ACTIVE_HEIGHT)
+                    .when(stepperSpy).calculateActiveHeight(mockedStep2.step, mockedStep2.innerView);
+            doReturn(CONTINUE_ACTIVE_HEIGHT)
+                    .when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.continueButton);
+            doReturn(CONTINUE_ACTIVE_HEIGHT)
+                    .when(stepperSpy).calculateActiveHeight(mockedStep2.step, mockedStep2.continueButton);
+            doReturn(BOTTOM_MARGIN).when(mockedStep1.step).getBottomMarginHeight();
+            doReturn(0).when(mockedStep2.step).getBottomMarginHeight();
+        }
+
+        @Test
+        public void measureActiveViews_ShouldMeasureActiveViewsAccountingForDecorator() {
+            doReturn(0).when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.innerView);
+
+            stepperSpy.measureActiveViews(WMS, HMS);
+
+            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.innerView, WMS, HMS,
+                    VERTICAL_PADDING + DECORATOR_HEIGHT);
+            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
+                    VERTICAL_PADDING + DECORATOR_HEIGHT);
+        }
+
+        @Test
+        public void measureActiveViews_ShouldMeasureNavButtonsAccountingForInnerView() {
+            stepperSpy.measureActiveViews(WMS, HMS);
+
+            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
+                    VERTICAL_PADDING + DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT);
+        }
+
+        @Test
+        public void measureActiveViews_ShouldMeasureActiveViewsAccountingForBottomMargin() {
+            stepperSpy.measureActiveViews(WMS, HMS);
+
+            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.innerView, WMS, HMS,
+                    VERTICAL_PADDING + DECORATOR_HEIGHT);
+            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
+                    VERTICAL_PADDING + DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT);
+            verify(stepperSpy).measureActiveView(mockedStep2.step, mockedStep2.innerView, WMS, HMS,
+                    VERTICAL_PADDING + 2 * DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT
+                            + CONTINUE_ACTIVE_HEIGHT + BOTTOM_MARGIN);
+            verify(stepperSpy).measureActiveView(mockedStep2.step, mockedStep2.continueButton, WMS, HMS,
+                    VERTICAL_PADDING + 2 * (DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT)
+                            + CONTINUE_ACTIVE_HEIGHT + BOTTOM_MARGIN);
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawMethods
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
+            doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
+            doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawConnector(same(canvas), any(Step.class), anyInt());
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawIconTwice() {
+            InOrder order = inOrder(stepperSpy);
+
+            stepperSpy.doDraw(canvas);
+
+            order.verify(stepperSpy).drawIcon(canvas, mockedStep1.step, 1);
+            order.verify(stepperSpy).drawIcon(canvas, mockedStep2.step, 2);
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawTextTwice() {
+            InOrder order = inOrder(stepperSpy);
+
+            stepperSpy.doDraw(canvas);
+
+            order.verify(stepperSpy).drawText(canvas, mockedStep1.step);
+            order.verify(stepperSpy).drawText(canvas, mockedStep2.step);
+        }
+
+        @Test
+        public void doDraw_ShouldCallDrawConnectorOnce() {
+            int distanceToNextStep = 300;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
+            stepperSpy.doDraw(canvas);
+
+            verify(stepperSpy).drawConnector(canvas, mockedStep1.step, distanceToNextStep);
+        }
+
+        @Test
+        public void doDraw_ShouldTranslateByDistanceToNextStep() {
+            InOrder order = inOrder(canvas);
+
+            int leftPadding = 10;
+            int topPadding = 20;
+            int rightPadding = 5;
+            int bottomPadding = 15;
+            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
+
+            int distanceToNextStep = 300;
+            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
+
+            stepperSpy.doDraw(canvas);
+
+            // first translate for the left and top padding
+            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + leftPadding,
+                    stepperSpy.outerVerticalPadding + topPadding);
+
+            // translate for the first step
+            order.verify(canvas).translate(0, 0);
+
+            // translate for the second step
+            order.verify(canvas).translate(0, distanceToNextStep);
+
+            // finally translate for the right and bottom padding
+            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + rightPadding,
+                    stepperSpy.outerVerticalPadding + bottomPadding);
+        }
+
+        @Test
+        public void doDraw_ShouldSaveAndRestoreForEachChild() {
+            InOrder order = inOrder(canvas);
+
+            stepperSpy.doDraw(canvas);
+
+            // for all of doDraw
+            order.verify(canvas).save();
+
+            // first step
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+
+            // second step
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+
+            // for all of doDraw
+            order.verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawIconMethods
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
+            doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawIconText(same(canvas), any(Step.class), anyInt());
+        }
+
+        @Test
+        public void drawIcon_ShouldCallDrawIconBackgroundAndDrawIconText() {
+            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
+
+            verify(stepperSpy).drawIconBackground(canvas, mockedStep1.step);
+            verify(stepperSpy).drawIconText(canvas, mockedStep1.step, 1);
+        }
+
+        @Test
+        public void drawIcon_ShouldCallSaveAndRestore() {
+            InOrder order = inOrder(canvas);
+
+            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
+
+            order.verify(canvas).save();
+            order.verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawTextMethods
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedDrawTextMethods() {
+            doNothing().when(stepperSpy).drawTitle(same(canvas), any(Step.class));
+            doNothing().when(stepperSpy).drawSummary(same(canvas), any(Step.class));
+        }
+
+        @Test
+        public void drawText_ShouldCallDrawTitleAndDrawSummary() {
+            stepperSpy.drawText(canvas, mockedStep1.step);
+
+            verify(stepperSpy).drawTitle(canvas, mockedStep1.step);
+            verify(stepperSpy).drawSummary(canvas, mockedStep1.step);
+        }
+
+        @Test
+        public void drawText_ShouldSaveTranslateByIconWidthAndRestoreCanvas() {
+            InOrder order = inOrder(canvas);
+            int iconWidth = 40;
+            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(iconWidth);
+
+            stepperSpy.drawText(canvas, mockedStep1.step);
+
+            order.verify(canvas).save();
+            order.verify(canvas).translate(iconWidth, 0);
+            order.verify(canvas).restore();
+        }
+    }
+
     public static abstract class GivenStepperSpyWithTwoStepsAndMockCanvas extends GivenStepperSpyWithTwoSteps {
         Canvas canvas;
 
         @Before
         public void givenStepperSpyWithTwoStepsAndMockCanvas() {
             canvas = mock(Canvas.class);
+        }
+    }
+
+    public static class GivenStepperSpyWithExactlyTwoStepsAndMockCanvas
+            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
+        @Test
+        public void drawIconBackground_ShouldDrawCircleWithIconColor() {
+            Paint color = mock(Paint.class);
+            RectF rect = mock(RectF.class);
+            when(mockedStep1.step.getIconBackground()).thenReturn(color);
+            when(mockedStep1.step.getTempRectForIconBackground()).thenReturn(rect);
+
+            stepperSpy.drawIconBackground(canvas, mockedStep1.step);
+
+            verify(canvas).drawArc(rect, 0f, 360f, true, color);
+        }
+
+        @Test
+        public void drawIconText_ShouldDrawStepNumber() {
+            TextPaint paint = mock(TextPaint.class);
+            Rect rect = mock(Rect.class);
+            PointF point = mock(PointF.class);
+            when(mockedStep1.step.getIconTextPaint()).thenReturn(paint);
+            when(mockedStep1.step.getTempRectForIconTextBounds()).thenReturn(rect);
+            when(mockedStep1.step.getTempPointForIconTextCenter()).thenReturn(point);
+            int stepNumber = 4;
+
+            stepperSpy.drawIconText(canvas, mockedStep1.step, stepNumber);
+
+            String stepNumberString = String.valueOf(stepNumber);
+            verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(paint));
+        }
+
+        @Test
+        public void drawTitle_ShouldDrawTextWithStepTitle() {
+            TextPaint paint = mock(TextPaint.class);
+            String title = "vertical stepper";
+            float titleBaseline = 20f;
+            when(mockedStep1.step.getTitle()).thenReturn(title);
+            when(mockedStep1.step.getTitleTextPaint()).thenReturn(paint);
+            when(mockedStep1.step.getTitleBaselineRelativeToStepTop()).thenReturn(titleBaseline);
+
+            stepperSpy.drawTitle(canvas, mockedStep1.step);
+
+            verify(canvas).drawText(title, 0, titleBaseline, paint);
+        }
+
+        @Test
+        public void drawSummary_WhenActive_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(true);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
+            when(mockedStep1.step.getSummary()).thenReturn("summary");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_WhenIncomplete_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(false);
+            when(mockedStep1.step.getSummary()).thenReturn("summary");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_WhenEmpty_ShouldNotDraw() {
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
+            when(mockedStep1.step.getSummary()).thenReturn("");
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
+        }
+
+        @Test
+        public void drawSummary_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
+            InOrder order = inOrder(canvas);
+
+            when(mockedStep1.step.isActive()).thenReturn(false);
+            when(mockedStep1.step.isComplete()).thenReturn(true);
+            String summary = "summary";
+            when(mockedStep1.step.getSummary()).thenReturn(summary);
+            float titleBottom = 15f;
+            when(mockedStep1.step.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
+            float summaryBaseline = 20f;
+            when(mockedStep1.step.getSummaryBaselineRelativeToTitleBottom()).thenReturn(summaryBaseline);
+            TextPaint paint = mock(TextPaint.class);
+            when(mockedStep1.step.getSummaryTextPaint()).thenReturn(paint);
+
+            stepperSpy.drawSummary(canvas, mockedStep1.step);
+
+            order.verify(canvas).translate(0, titleBottom);
+            order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
+        }
+
+        @Test
+        public void drawConnector_ShouldSaveTranslateDrawAndRestore() {
+            InOrder order = inOrder(canvas);
+            Paint paint = mock(Paint.class);
+            float strokeWidth = 3f;
+            when(paint.getStrokeWidth()).thenReturn(strokeWidth);
+            when(mockedStep1.step.getConnectorPaint()).thenReturn(paint);
+
+            stepperSpy.drawConnector(canvas, mockedStep1.step, 0);
+
+            order.verify(canvas).save();
+            order.verify(canvas).translate(anyFloat(), anyFloat());
+            order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), same(paint));
+            order.verify(canvas).restore();
+        }
+    }
+
+    public static class GivenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod
+            extends GivenStepperSpyWithTwoSteps {
+        private Rect rect;
+
+        @Before
+        public void givenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod() {
+            rect = mock(Rect.class);
+            doNothing().when(stepperSpy).layoutActiveView(same(rect), any(View.class));
+        }
+
+        @Test
+        public void layoutInnerView_ShouldCallLayoutActiveViewWithInnerView() {
+            stepperSpy.layoutInnerView(rect, mockedStep1.step);
+
+            verify(stepperSpy).layoutActiveView(rect, mockedStep1.innerView);
+        }
+
+        @Test
+        public void layoutNavButtons_ShouldCallLayoutActiveViewWithContinueButton() {
+            stepperSpy.layoutNavButtons(rect, mockedStep1.step);
+
+            verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
         }
     }
 
@@ -1037,500 +1531,6 @@ public class VerticalStepperTest {
             int buttonsTop = navRect.top;
 
             assertThat(buttonsTop).isEqualTo(innerTop + innerHeight);
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod
-            extends GivenStepperSpyWithTwoSteps {
-        private Rect rect;
-
-        @Before
-        public void givenStepperSpyWithTwoStepsAndStubbedLayoutActiveViewMethod() {
-            rect = mock(Rect.class);
-            doNothing().when(stepperSpy).layoutActiveView(same(rect), any(View.class));
-        }
-
-        @Test
-        public void layoutInnerView_ShouldCallLayoutActiveViewWithInnerView() {
-            stepperSpy.layoutInnerView(rect, mockedStep1.step);
-
-            verify(stepperSpy).layoutActiveView(rect, mockedStep1.innerView);
-        }
-
-        @Test
-        public void layoutNavButtons_ShouldCallLayoutActiveViewWithContinueButton() {
-            stepperSpy.layoutNavButtons(rect, mockedStep1.step);
-
-            verify(stepperSpy).layoutActiveView(rect, mockedStep1.continueButton);
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawMethods
-            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
-        @Before
-        public void givenStepperSpyWithTwoStepsAndStubbedDrawMethods() {
-            doNothing().when(stepperSpy).drawIcon(same(canvas), any(Step.class), anyInt());
-            doNothing().when(stepperSpy).drawText(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawConnector(same(canvas), any(Step.class), anyInt());
-        }
-
-        @Test
-        public void doDraw_ShouldCallDrawIconTwice() {
-            InOrder order = inOrder(stepperSpy);
-
-            stepperSpy.doDraw(canvas);
-
-            order.verify(stepperSpy).drawIcon(canvas, mockedStep1.step, 1);
-            order.verify(stepperSpy).drawIcon(canvas, mockedStep2.step, 2);
-        }
-
-        @Test
-        public void doDraw_ShouldCallDrawTextTwice() {
-            InOrder order = inOrder(stepperSpy);
-
-            stepperSpy.doDraw(canvas);
-
-            order.verify(stepperSpy).drawText(canvas, mockedStep1.step);
-            order.verify(stepperSpy).drawText(canvas, mockedStep2.step);
-        }
-
-        @Test
-        public void doDraw_ShouldCallDrawConnectorOnce() {
-            int distanceToNextStep = 300;
-            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
-
-            stepperSpy.doDraw(canvas);
-
-            verify(stepperSpy).drawConnector(canvas, mockedStep1.step, distanceToNextStep);
-        }
-
-        @Test
-        public void doDraw_ShouldTranslateByDistanceToNextStep() {
-            InOrder order = inOrder(canvas);
-
-            int leftPadding = 10;
-            int topPadding = 20;
-            int rightPadding = 5;
-            int bottomPadding = 15;
-            stepperSpy.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
-
-            int distanceToNextStep = 300;
-            when(mockedStep1.step.calculateYDistanceToNextStep()).thenReturn(distanceToNextStep);
-
-            stepperSpy.doDraw(canvas);
-
-            // first translate for the left and top padding
-            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + leftPadding,
-                    stepperSpy.outerVerticalPadding + topPadding);
-
-            // translate for the first step
-            order.verify(canvas).translate(0, 0);
-
-            // translate for the second step
-            order.verify(canvas).translate(0, distanceToNextStep);
-
-            // finally translate for the right and bottom padding
-            order.verify(canvas).translate(stepperSpy.outerHorizontalPadding + rightPadding,
-                    stepperSpy.outerVerticalPadding + bottomPadding);
-        }
-
-        @Test
-        public void doDraw_ShouldSaveAndRestoreForEachChild() {
-            InOrder order = inOrder(canvas);
-
-            stepperSpy.doDraw(canvas);
-
-            // for all of doDraw
-            order.verify(canvas).save();
-
-            // first step
-            order.verify(canvas).save();
-            order.verify(canvas).restore();
-
-            // second step
-            order.verify(canvas).save();
-            order.verify(canvas).restore();
-
-            // for all of doDraw
-            order.verify(canvas).restore();
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawIconMethods
-        extends GivenStepperSpyWithTwoStepsAndMockCanvas {
-
-        @Before
-        public void givenStepperSpyWithTwoStepsAndStubbedDrawIconMethods() {
-            doNothing().when(stepperSpy).drawIconBackground(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawIconText(same(canvas), any(Step.class), anyInt());
-        }
-
-        @Test
-        public void drawIcon_ShouldCallDrawIconBackgroundAndDrawIconText() {
-            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
-
-            verify(stepperSpy).drawIconBackground(canvas, mockedStep1.step);
-            verify(stepperSpy).drawIconText(canvas, mockedStep1.step, 1);
-        }
-
-        @Test
-        public void drawIcon_ShouldCallSaveAndRestore() {
-            InOrder order = inOrder(canvas);
-
-            stepperSpy.drawIcon(canvas, mockedStep1.step, 1);
-
-            order.verify(canvas).save();
-            order.verify(canvas).restore();
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndStubbedDrawTextMethods
-            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
-
-        @Before
-        public void givenStepperSpyWithTwoStepsAndStubbedDrawTextMethods() {
-            doNothing().when(stepperSpy).drawTitle(same(canvas), any(Step.class));
-            doNothing().when(stepperSpy).drawSummary(same(canvas), any(Step.class));
-        }
-
-        @Test
-        public void drawText_ShouldCallDrawTitleAndDrawSummary() {
-            stepperSpy.drawText(canvas, mockedStep1.step);
-
-            verify(stepperSpy).drawTitle(canvas, mockedStep1.step);
-            verify(stepperSpy).drawSummary(canvas, mockedStep1.step);
-        }
-
-        @Test
-        public void drawText_ShouldSaveTranslateByIconWidthAndRestoreCanvas() {
-            InOrder order = inOrder(canvas);
-            int iconWidth = 40;
-            when(mockedStep1.step.calculateStepDecoratorIconWidth()).thenReturn(iconWidth);
-
-            stepperSpy.drawText(canvas, mockedStep1.step);
-
-            order.verify(canvas).save();
-            order.verify(canvas).translate(iconWidth, 0);
-            order.verify(canvas).restore();
-        }
-    }
-
-    public static class GivenStepperSpyWithExactlyTwoStepsAndMockCanvas
-            extends GivenStepperSpyWithTwoStepsAndMockCanvas {
-        @Test
-        public void drawIconBackground_ShouldDrawCircleWithIconColor() {
-            Paint color = mock(Paint.class);
-            RectF rect = mock(RectF.class);
-            when(mockedStep1.step.getIconBackground()).thenReturn(color);
-            when(mockedStep1.step.getTempRectForIconBackground()).thenReturn(rect);
-
-            stepperSpy.drawIconBackground(canvas, mockedStep1.step);
-
-            verify(canvas).drawArc(rect, 0f, 360f, true, color);
-        }
-
-        @Test
-        public void drawIconText_ShouldDrawStepNumber() {
-            TextPaint paint = mock(TextPaint.class);
-            Rect rect = mock(Rect.class);
-            PointF point = mock(PointF.class);
-            when(mockedStep1.step.getIconTextPaint()).thenReturn(paint);
-            when(mockedStep1.step.getTempRectForIconTextBounds()).thenReturn(rect);
-            when(mockedStep1.step.getTempPointForIconTextCenter()).thenReturn(point);
-            int stepNumber = 4;
-
-            stepperSpy.drawIconText(canvas, mockedStep1.step, stepNumber);
-
-            String stepNumberString = String.valueOf(stepNumber);
-            verify(canvas).drawText(eq(stepNumberString), anyFloat(), anyFloat(), same(paint));
-        }
-
-        @Test
-        public void drawTitle_ShouldDrawTextWithStepTitle() {
-            TextPaint paint = mock(TextPaint.class);
-            String title = "vertical stepper";
-            float titleBaseline = 20f;
-            when(mockedStep1.step.getTitle()).thenReturn(title);
-            when(mockedStep1.step.getTitleTextPaint()).thenReturn(paint);
-            when(mockedStep1.step.getTitleBaselineRelativeToStepTop()).thenReturn(titleBaseline);
-
-            stepperSpy.drawTitle(canvas, mockedStep1.step);
-
-            verify(canvas).drawText(title, 0, titleBaseline, paint);
-        }
-
-        @Test
-        public void drawSummary_WhenActive_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(true);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
-            when(mockedStep1.step.getSummary()).thenReturn("summary");
-
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
-
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
-        }
-
-        @Test
-        public void drawSummary_WhenIncomplete_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(false);
-            when(mockedStep1.step.getSummary()).thenReturn("summary");
-
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
-
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
-        }
-
-        @Test
-        public void drawSummary_WhenEmpty_ShouldNotDraw() {
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
-            when(mockedStep1.step.getSummary()).thenReturn("");
-
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
-
-            verify(canvas, never()).drawText(anyString(), anyFloat(), anyFloat(), any(Paint.class));
-        }
-
-        @Test
-        public void drawSummary_NotEmptyInactiveComplete_ShouldTranslateAndDraw() {
-            InOrder order = inOrder(canvas);
-
-            when(mockedStep1.step.isActive()).thenReturn(false);
-            when(mockedStep1.step.isComplete()).thenReturn(true);
-            String summary = "summary";
-            when(mockedStep1.step.getSummary()).thenReturn(summary);
-            float titleBottom = 15f;
-            when(mockedStep1.step.getTitleBottomRelativeToStepTop()).thenReturn(titleBottom);
-            float summaryBaseline = 20f;
-            when(mockedStep1.step.getSummaryBaselineRelativeToTitleBottom()).thenReturn(summaryBaseline);
-            TextPaint paint = mock(TextPaint.class);
-            when(mockedStep1.step.getSummaryTextPaint()).thenReturn(paint);
-
-            stepperSpy.drawSummary(canvas, mockedStep1.step);
-
-            order.verify(canvas).translate(0, titleBottom);
-            order.verify(canvas).drawText(summary, 0, summaryBaseline, paint);
-        }
-
-        @Test
-        public void drawConnector_ShouldSaveTranslateDrawAndRestore() {
-            InOrder order = inOrder(canvas);
-            Paint paint = mock(Paint.class);
-            float strokeWidth = 3f;
-            when(paint.getStrokeWidth()).thenReturn(strokeWidth);
-            when(mockedStep1.step.getConnectorPaint()).thenReturn(paint);
-
-            stepperSpy.drawConnector(canvas, mockedStep1.step, 0);
-
-            order.verify(canvas).save();
-            order.verify(canvas).translate(anyFloat(), anyFloat());
-            order.verify(canvas).drawLine(anyFloat(), anyFloat(), anyFloat(), anyFloat(), same(paint));
-            order.verify(canvas).restore();
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndInnerViewIds extends GivenStepperSpyWithTwoSteps {
-        private int innerViewId1;
-        private int innerViewId2;
-
-        @Before
-        public void givenStepperSpyWithTwoStepsAndInnerViewIds() {
-            innerViewId1 = 21;
-            innerViewId2 = 22;
-            when(mockedStep1.innerView.getId()).thenReturn(innerViewId1);
-            when(mockedStep2.innerView.getId()).thenReturn(innerViewId2);
-
-            doNothing().when(stepperSpy).invalidate();
-        }
-
-        @Test
-        public void setStepSummary_UnrecognizedViewId_ShouldDoNothing() {
-            stepperSpy.setStepSummary(-1, "summary");
-
-            verify(mockedStep1.step, never()).setSummary(anyString());
-            verify(stepperSpy, never()).invalidate();
-        }
-
-        @Test
-        public void setStepSummary_ShouldSetStepSummaryAndInvalidate() {
-            String summary = "summary";
-            stepperSpy.setStepSummary(innerViewId1, summary);
-
-            verify(mockedStep1.step).setSummary(summary);
-            verify(stepperSpy).invalidate();
-        }
-    }
-
-    public static class GivenStepperSpyWithExactlyTwoSteps extends GivenStepperSpyWithTwoSteps {
-        @Test
-        public void touchViewOnClickListener_ShouldCallCollapseOtherStepsAndToggle() {
-            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
-            stepperSpy.initTouchView(mockedStep1.step);
-            verify(mockedStep1.touchView).setOnClickListener(captor.capture());
-            View.OnClickListener clickListenerSpy = spy(captor.getValue());
-
-            doNothing().when(stepperSpy).collapseOtherSteps(mockedStep1.step);
-            doNothing().when(stepperSpy).toggleStepExpandedState(mockedStep1.step);
-
-            clickListenerSpy.onClick(mock(View.class));
-
-            verify(stepperSpy).collapseOtherSteps(mockedStep1.step);
-            verify(stepperSpy).toggleStepExpandedState(mockedStep1.step);
-        }
-
-        @Test
-        public void continueButtonOnClickListener_ShouldCallCompleteStep() {
-            ArgumentCaptor<View.OnClickListener> captor = ArgumentCaptor.forClass(View.OnClickListener.class);
-            stepperSpy.initNavButtons(mockedStep1.step);
-            verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
-            View.OnClickListener clickListenerSpy = spy(captor.getValue());
-
-            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
-
-            clickListenerSpy.onClick(mock(View.class));
-
-            verify(stepperSpy).completeStep(mockedStep1.step);
-        }
-
-        @Test
-        public void completeStep_ShouldCollapseCompleteCurrentStep() {
-            mockActiveState(mockedStep1, true);
-
-            stepperSpy.completeStep(mockedStep1.step);
-
-            verify(mockedStep1.step).markComplete();
-            verifyActiveState(mockedStep1, false);
-        }
-
-        @Test
-        public void completeStep_ShouldExpandNextStep() {
-            mockActiveState(mockedStep1, true);
-            mockActiveState(mockedStep2, false);
-
-            stepperSpy.completeStep(mockedStep1.step);
-
-            verifyActiveState(mockedStep2, true);
-        }
-
-        @Test
-        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
-            mockActiveState(mockedStep2, true);
-
-            stepperSpy.completeStep(mockedStep2.step);
-
-            verify(stepperSpy).completeStep(mockedStep2.step);
-            verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
-            verifyActiveState(mockedStep2, false);
-            verifyNoMoreInteractions(stepperSpy);
-        }
-
-        @Test
-        public void measureActiveView_ShouldMeasureActiveViewAccountingForUsedSpace() {
-            int currentHeight = 30;
-            int horizontalPadding = 40;
-            doReturn(horizontalPadding).when(stepperSpy).calculateHorizontalPadding();
-
-            VerticalStepper.LayoutParams innerLp = createTestLayoutParams(5, 10, 5, 10);
-            innerLp.width = VerticalStepper.LayoutParams.WRAP_CONTENT;
-            innerLp.height = VerticalStepper.LayoutParams.WRAP_CONTENT;
-            when(mockedStep1.innerView.getLayoutParams()).thenReturn(innerLp);
-
-            int innerHorizontalUsedSpace = 20;
-            when(mockedStep1.step.calculateHorizontalUsedSpace(mockedStep1.innerView))
-                    .thenReturn(innerHorizontalUsedSpace);
-
-            int innerVerticalUsedSpace = 20;
-            when(mockedStep1.step.calculateVerticalUsedSpace(mockedStep1.innerView))
-                    .thenReturn(innerVerticalUsedSpace);
-
-            int maxWidth = 1080;
-            int maxHeight = 1920;
-            int wms = View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST);
-            int hms = View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST);
-
-            int expectedWidthSpec = View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.AT_MOST);
-            int expectedHeightSpec = View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.AT_MOST);
-            doReturn(expectedWidthSpec).when(stepperSpy).nonStaticGetChildMeasureSpec(eq(wms), anyInt(), anyInt());
-            doReturn(expectedHeightSpec).when(stepperSpy).nonStaticGetChildMeasureSpec(eq(hms), anyInt(), anyInt());
-
-            stepperSpy.measureActiveView(mockedStep1.step, mockedStep1.innerView, wms, hms, currentHeight);
-
-            verify(stepperSpy).nonStaticGetChildMeasureSpec(wms, horizontalPadding + innerHorizontalUsedSpace,
-                    VerticalStepper.LayoutParams.WRAP_CONTENT);
-            verify(stepperSpy).nonStaticGetChildMeasureSpec(hms, currentHeight + innerVerticalUsedSpace,
-                    VerticalStepper.LayoutParams.WRAP_CONTENT);
-
-            verify(mockedStep1.innerView).measure(expectedWidthSpec, expectedHeightSpec);
-        }
-    }
-
-    public static class GivenStepperSpyWithTwoStepsAndStandardActiveDimensions extends GivenStepperSpyWithTwoSteps {
-
-        private static final int MAX_WIDTH = 1080;
-        private static final int MAX_HEIGHT = 1920;
-        private static final int WMS = View.MeasureSpec.makeMeasureSpec(MAX_WIDTH, View.MeasureSpec.AT_MOST);
-        private static final int HMS = View.MeasureSpec.makeMeasureSpec(MAX_HEIGHT, View.MeasureSpec.AT_MOST);
-
-        private static final int VERTICAL_PADDING = 30;
-        private static final int DECORATOR_HEIGHT = 30;
-        private static final int INNER_ACTIVE_HEIGHT = 200;
-        private static final int CONTINUE_ACTIVE_HEIGHT = 50;
-        private static final int BOTTOM_MARGIN = 30;
-
-        @Before
-        public void givenStepperSpyWithExactlyTwoStepsAndStandardActiveDimensions() {
-            doNothing()
-                    .when(stepperSpy).measureActiveView(any(Step.class), any(View.class), anyInt(), anyInt(), anyInt());
-            doReturn(VERTICAL_PADDING).when(stepperSpy).calculateVerticalPadding();
-            doReturn(DECORATOR_HEIGHT).when(mockedStep1.step).getDecoratorHeight();
-            doReturn(DECORATOR_HEIGHT).when(mockedStep2.step).getDecoratorHeight();
-            doReturn(INNER_ACTIVE_HEIGHT)
-                    .when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.innerView);
-            doReturn(INNER_ACTIVE_HEIGHT)
-                    .when(stepperSpy).calculateActiveHeight(mockedStep2.step, mockedStep2.innerView);
-            doReturn(CONTINUE_ACTIVE_HEIGHT)
-                    .when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.continueButton);
-            doReturn(CONTINUE_ACTIVE_HEIGHT)
-                    .when(stepperSpy).calculateActiveHeight(mockedStep2.step, mockedStep2.continueButton);
-            doReturn(BOTTOM_MARGIN).when(mockedStep1.step).getBottomMarginHeight();
-            doReturn(0).when(mockedStep2.step).getBottomMarginHeight();
-        }
-
-        @Test
-        public void measureActiveViews_ShouldMeasureActiveViewsAccountingForDecorator() {
-            doReturn(0).when(stepperSpy).calculateActiveHeight(mockedStep1.step, mockedStep1.innerView);
-
-            stepperSpy.measureActiveViews(WMS, HMS);
-
-            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.innerView, WMS, HMS,
-                    VERTICAL_PADDING + DECORATOR_HEIGHT);
-            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
-                    VERTICAL_PADDING + DECORATOR_HEIGHT);
-        }
-
-        @Test
-        public void measureActiveViews_ShouldMeasureNavButtonsAccountingForInnerView() {
-            stepperSpy.measureActiveViews(WMS, HMS);
-
-            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
-                    VERTICAL_PADDING + DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT);
-        }
-
-        @Test
-        public void measureActiveViews_ShouldMeasureActiveViewsAccountingForBottomMargin() {
-            stepperSpy.measureActiveViews(WMS, HMS);
-
-            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.innerView, WMS, HMS,
-                    VERTICAL_PADDING + DECORATOR_HEIGHT);
-            verify(stepperSpy).measureActiveView(mockedStep1.step, mockedStep1.continueButton, WMS, HMS,
-                    VERTICAL_PADDING + DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT);
-            verify(stepperSpy).measureActiveView(mockedStep2.step, mockedStep2.innerView, WMS, HMS,
-                    VERTICAL_PADDING + 2 * DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT
-                            + CONTINUE_ACTIVE_HEIGHT + BOTTOM_MARGIN);
-            verify(stepperSpy).measureActiveView(mockedStep2.step, mockedStep2.continueButton, WMS, HMS,
-                    VERTICAL_PADDING + 2 * (DECORATOR_HEIGHT + INNER_ACTIVE_HEIGHT)
-                            + CONTINUE_ACTIVE_HEIGHT + BOTTOM_MARGIN);
         }
     }
 }
