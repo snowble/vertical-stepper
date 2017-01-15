@@ -185,8 +185,9 @@ public class StepTest {
         public void calculateStepDecoratorIconWidth_ShouldReturnIconWidthPlusMarginSum() {
             int iconDimension = 24;
             int iconMarginRight = 8;
-            when(common.getIconDimension()).thenReturn(iconDimension);
-            when(common.getIconMarginRight()).thenReturn(iconMarginRight);
+            when(stepSpy.getIconDimension()).thenReturn(iconDimension);
+            when(stepSpy.getIconMarginRight()).thenReturn(iconMarginRight);
+
             int iconWidth = stepSpy.calculateStepDecoratorIconWidth();
 
             assertThat(iconWidth)
@@ -243,6 +244,31 @@ public class StepTest {
             int height = stepSpy.getDecoratorHeight();
 
             assertThat(height).isEqualTo((int) (twiceIconHeight + twiceIconHeight));
+        }
+
+        @Test
+        public void calculateConnectorStartY_ShouldAccountForIcon() {
+            int iconDimension = 24;
+            int iconMarginVertical = 8;
+            when(stepSpy.getIconDimension()).thenReturn(iconDimension);
+            when(stepSpy.getIconMarginVertical()).thenReturn(iconMarginVertical);
+
+            int startY = stepSpy.calculateConnectorStartY();
+
+            assertThat(startY)
+                    .isEqualTo(iconDimension + iconMarginVertical);
+        }
+
+        @Test
+        public void calculateConnectorStopY_ShouldStopAtIconMargin() {
+            int yDistance = 300;
+            int iconMarginVertical = 8;
+            when(stepSpy.getIconMarginVertical()).thenReturn(iconMarginVertical);
+
+            int startY = stepSpy.calculateConnectorStopY(yDistance);
+
+            assertThat(startY)
+                    .isEqualTo(yDistance - iconMarginVertical);
         }
     }
 
@@ -460,31 +486,6 @@ public class StepTest {
             int margin = step.getBottomMarginToNextStep();
 
             assertThat(margin).isEqualTo(inactiveBottomMargin);
-        }
-
-        @Test
-        public void calculateConnectorStartY_ShouldAccountForIcon() {
-            int iconDimension = 24;
-            int iconMarginVertical = 8;
-            when(common.getIconDimension()).thenReturn(iconDimension);
-            when(common.getIconMarginVertical()).thenReturn(iconMarginVertical);
-
-            int startY = step.calculateConnectorStartY();
-
-            assertThat(startY)
-                    .isEqualTo(iconDimension + iconMarginVertical);
-        }
-
-        @Test
-        public void calculateConnectorStopY_ShouldStopAtIconMargin() {
-            int yDistance = 300;
-            int iconMarginVertical = 8;
-            when(common.getIconMarginVertical()).thenReturn(iconMarginVertical);
-
-            int startY = step.calculateConnectorStopY(yDistance);
-
-            assertThat(startY)
-                    .isEqualTo(yDistance - iconMarginVertical);
         }
     }
 
