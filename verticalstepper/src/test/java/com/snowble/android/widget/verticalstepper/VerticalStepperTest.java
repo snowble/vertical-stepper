@@ -502,39 +502,39 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void completeStep_HasValidator_ShouldCallListenerWithInnerView() {
-            stepper.completeStep(mockedStep1.step);
+        public void attemptStepCompletion_HasValidator_ShouldCallListenerWithInnerView() {
+            stepper.attemptStepCompletion(mockedStep1.step);
 
             verify(validator).validate(mockedStep1.innerView, false);
         }
 
         @Test
-        public void completeStep_HasValidator_ShoulClearErrorButNotCompleteIfIncomplete() {
+        public void attemptStepCompletion_HasValidator_ShoulClearErrorButNotCompleteIfIncomplete() {
             when(validator.validate(mockedStep1.innerView, false))
                     .thenReturn(ValidationResult.VALID_INCOMPLETE_RESULT);
 
-            stepper.completeStep(mockedStep1.step);
+            stepper.attemptStepCompletion(mockedStep1.step);
 
             verify(mockedStep1.step).clearError();
             verify(mockedStep1.step, never()).markComplete();
         }
 
         @Test
-        public void completeStep_HasValidator_ShouldCompleteIfStepValidAndComplete() {
-            stepper.completeStep(mockedStep1.step);
+        public void attemptStepCompletion_HasValidator_ShouldCompleteIfStepValidAndComplete() {
+            stepper.attemptStepCompletion(mockedStep1.step);
 
             verify(mockedStep1.step).clearError();
             verify(mockedStep1.step).markComplete();
         }
 
         @Test
-        public void completeStep_removeStepValidator_ShouldComplete() {
+        public void attemptStepCompletion_removeStepValidator_ShouldComplete() {
             String error = "error";
             ValidationResult result = new ValidationResult(error);
             when(validator.validate(mockedStep1.innerView, false)).thenReturn(result);
             stepper.removeStepValidator();
 
-            stepper.completeStep(mockedStep1.step);
+            stepper.attemptStepCompletion(mockedStep1.step);
 
             verify(mockedStep1.step, never()).setError(error);
             verify(mockedStep1.step).clearError();
@@ -842,32 +842,32 @@ public class VerticalStepperTest {
             verify(mockedStep1.continueButton).setOnClickListener(captor.capture());
             View.OnClickListener clickListenerSpy = spy(captor.getValue());
 
-            doNothing().when(stepperSpy).completeStep(mockedStep1.step);
+            doNothing().when(stepperSpy).attemptStepCompletion(mockedStep1.step);
 
             clickListenerSpy.onClick(mock(View.class));
 
-            verify(stepperSpy).completeStep(mockedStep1.step);
+            verify(stepperSpy).attemptStepCompletion(mockedStep1.step);
         }
 
         @Test
-        public void completeStep_HasValidator_ShouldSetErrorAndRelayout() {
+        public void attemptStepCompletion_HasValidator_ShouldSetErrorAndRelayout() {
             StepValidator validator = mock(StepValidator.class);
             String error = "error";
             ValidationResult result = new ValidationResult(error);
             when(validator.validate(mockedStep1.innerView, false)).thenReturn(result);
             stepperSpy.setStepValidator(validator);
 
-            stepperSpy.completeStep(mockedStep1.step);
+            stepperSpy.attemptStepCompletion(mockedStep1.step);
 
             verify(mockedStep1.step).setError(error);
             verify(stepperSpy).requestLayout();
         }
 
         @Test
-        public void completeStep_ShouldCollapseCompleteCurrentStep() {
+        public void attemptStepCompletion_ShouldCollapseCompleteCurrentStep() {
             mockActiveState(mockedStep1, true);
 
-            stepperSpy.completeStep(mockedStep1.step);
+            stepperSpy.attemptStepCompletion(mockedStep1.step);
 
             verify(mockedStep1.step).clearError();
             verify(mockedStep1.step).markComplete();
@@ -875,22 +875,22 @@ public class VerticalStepperTest {
         }
 
         @Test
-        public void completeStep_ShouldExpandNextStep() {
+        public void attemptStepCompletion_ShouldExpandNextStep() {
             mockActiveState(mockedStep1, true);
             mockActiveState(mockedStep2, false);
 
-            stepperSpy.completeStep(mockedStep1.step);
+            stepperSpy.attemptStepCompletion(mockedStep1.step);
 
             verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
         }
 
         @Test
-        public void completeStep_LastStep_ShouldOnlyCollapseCurrentStep() {
+        public void attemptStepCompletion_LastStep_ShouldOnlyCollapseCurrentStep() {
             mockActiveState(mockedStep2, true);
 
-            stepperSpy.completeStep(mockedStep2.step);
+            stepperSpy.attemptStepCompletion(mockedStep2.step);
 
-            verify(stepperSpy).completeStep(mockedStep2.step);
+            verify(stepperSpy).attemptStepCompletion(mockedStep2.step);
             verify(stepperSpy).toggleStepExpandedState(mockedStep2.step);
             verify(stepperSpy).toggleActiveState(mockedStep2.step);
             verify(stepperSpy).syncVisibilityWithActiveState(mockedStep2.step);

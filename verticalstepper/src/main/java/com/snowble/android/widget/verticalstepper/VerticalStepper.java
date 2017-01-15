@@ -237,15 +237,14 @@ public class VerticalStepper extends ViewGroup {
         continueButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                completeStep(step);
+                attemptStepCompletion(step);
             }
         });
         addView(continueButton, lp);
     }
 
-    // TODO Rename completeStep to attemptStepCompletion
     @VisibleForTesting
-    void completeStep(Step step) {
+    void attemptStepCompletion(Step step) {
         ValidationResult validation = validator.validate(step.getInnerView(), step.isOptional());
         @ValidationResult.Result int result = validation.getResult();
         if (result == ValidationResult.INVALID) {
