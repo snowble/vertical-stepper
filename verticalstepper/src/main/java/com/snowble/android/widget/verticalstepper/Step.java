@@ -82,6 +82,7 @@ class Step {
             active = state.active;
             complete = state.complete;
             error = state.error;
+            summary = state.summary;
         }
     }
 
@@ -400,24 +401,29 @@ class Step {
         final boolean complete;
         @VisibleForTesting
         final String error;
+        @VisibleForTesting
+        final String summary;
 
         @VisibleForTesting
-        State(boolean active, boolean complete, String error) {
+        State(boolean active, boolean complete, String error, String summary) {
             this.active = active;
             this.complete = complete;
             this.error = error;
+            this.summary = summary;
         }
 
         State(Step step) {
             active = step.active;
             complete = step.complete;
             error = step.error;
+            summary = step.summary;
         }
 
         State(Parcel in) {
             active = in.readInt() == TRUE;
             complete = in.readInt() == TRUE;
             error = (String) in.readValue(String.class.getClassLoader());
+            summary = (String) in.readValue(String.class.getClassLoader());
         }
 
         @Override
@@ -425,6 +431,7 @@ class Step {
             dest.writeInt(active ? TRUE : FALSE);
             dest.writeInt(complete ? TRUE : FALSE);
             dest.writeValue(error);
+            dest.writeValue(summary);
         }
 
         @Override

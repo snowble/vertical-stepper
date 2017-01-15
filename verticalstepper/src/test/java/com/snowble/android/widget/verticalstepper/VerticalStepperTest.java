@@ -769,21 +769,25 @@ public class VerticalStepperTest {
 
         @Test
         public void initSteps_ShouldSetStatesForSteps() {
-            List<Step.State> states = Arrays.asList(new Step.State(true, true, null),
-                    new Step.State(false, false, "error"));
+            String summary = "summary";
+            String error = "error";
+            List<Step.State> states = Arrays.asList(new Step.State(false, true, null, summary),
+                    new Step.State(true, false, error, null));
             VerticalStepper.SavedState state = new VerticalStepper.SavedState(mock(Parcelable.class), states);
 
             stepperSpy.initSteps(state);
 
             Step step1 = stepperSpy.steps.get(0);
-            assertThat(step1.isActive()).isTrue();
+            assertThat(step1.isActive()).isFalse();
             assertThat(step1.isComplete()).isTrue();
             assertThat(step1.hasError()).isFalse();
+            assertThat(step1.getSubtitle()).isEqualTo(summary);
 
             Step step2 = stepperSpy.steps.get(1);
-            assertThat(step2.isActive()).isFalse();
+            assertThat(step2.isActive()).isTrue();
             assertThat(step2.isComplete()).isFalse();
             assertThat(step2.hasError()).isTrue();
+            assertThat(step2.getSubtitle()).isEqualTo(error);
         }
     }
 
