@@ -38,6 +38,7 @@
         <LinearLayout
             app:step_title="Rate the app"
             app:step_summary="Summary if needed"
+            app:step_optional="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">

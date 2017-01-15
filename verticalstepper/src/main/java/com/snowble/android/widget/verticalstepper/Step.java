@@ -36,6 +36,7 @@ class Step {
     private String error;
     private boolean active;
     private boolean complete;
+    private boolean isOptional;
 
     @NonNull
     private final Common common;
@@ -59,14 +60,15 @@ class Step {
         this.continueButton = continueButton;
         this.active = false;
         this.common = common;
-        initTextValues((VerticalStepper.LayoutParams) innerView.getLayoutParams());
+        initValuesFromLayoutParams((VerticalStepper.LayoutParams) innerView.getLayoutParams());
         setState(initialState);
     }
 
-    private void initTextValues(@NonNull VerticalStepper.LayoutParams lp) {
+    private void initValuesFromLayoutParams(@NonNull VerticalStepper.LayoutParams lp) {
         this.title = lp.getTitle();
         validateTitle();
         this.summary = lp.getSummary();
+        this.isOptional = lp.isOptional();
     }
 
     private void validateTitle() {
@@ -164,6 +166,8 @@ class Step {
             return error;
         } else if (!active && complete) {
             return summary;
+        } else if (isOptional) {
+            return common.getOptionalSubtitle();
         } else {
             return "";
         }
@@ -239,8 +243,10 @@ class Step {
     TextPaint getSubtitleTextPaint() {
         if (hasError()) {
             return common.getSubtitleErrorTextPaint();
-        } else {
+        } else if (!active && complete) {
             return common.getSummaryTextPaint();
+        } else {
+            return common.getOptionalTextPaint();
         }
     }
 
@@ -462,6 +468,8 @@ class Step {
 
         private final TextPaint summaryTextPaint;
         private final TextPaint subtitleErrorTextPaint;
+        private final TextPaint optionalTextPaint;
+        private final String optionalSubtitle;
 
         private final int touchViewHeight;
         private final int touchViewBackground;
@@ -504,6 +512,8 @@ class Step {
 
             summaryTextPaint = createTextPaint(R.color.summary_color, R.dimen.summary_font_size);
             subtitleErrorTextPaint = createTextPaint(R.color.error_color, R.dimen.subtitle_font_size);
+            optionalTextPaint = createTextPaint(R.color.optional_color, R.dimen.subtitle_font_size);
+            optionalSubtitle = resources.getString(R.string.optional_subtitle);
 
             touchViewHeight = resources.getDimensionPixelSize(R.dimen.touch_height);
             touchViewBackground = ThemeUtils.getResolvedAttributeData(theme, R.attr.selectableItemBackground, 0);
@@ -611,6 +621,15 @@ class Step {
         @VisibleForTesting
         TextPaint getSubtitleErrorTextPaint() {
             return subtitleErrorTextPaint;
+        }
+
+        @VisibleForTesting
+        TextPaint getOptionalTextPaint() {
+            return optionalTextPaint;
+        }
+
+        String getOptionalSubtitle() {
+            return optionalSubtitle;
         }
 
         private int getTouchViewHeight() {
