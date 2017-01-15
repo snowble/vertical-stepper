@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="bg_active_icon">#2196F3</color>
-    <color name="bg_inactive_icon">#61000000</color>
+    <color name="black_38">#61000000</color>
+    <color name="black_54">#8A000000</color>
+    <color name="black_87">#DE000000</color>
 
-    <color name="title_active_color">#DE000000</color>
-    <color name="title_inactive_color">#8A000000</color>
-    <color name="summary_color">#61000000</color>
+    <color name="bg_active_icon">#2196F3</color>
+    <color name="bg_inactive_icon">@color/black_38</color>
+
+    <color name="title_active_color">@color/black_87</color>
+    <color name="title_inactive_color">@color/black_54</color>
+    <color name="summary_color">@color/black_38</color>
     <color name="error_color">#F44336</color>
 
     <color name="connector_color">#BDBDBD</color>
