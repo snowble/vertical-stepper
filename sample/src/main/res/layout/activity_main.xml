@@ -39,16 +39,16 @@
             app:step_title="Rate the app"
             app:step_summary="Summary if needed"
             app:step_optional="true"
+            android:id="@+id/optional_step"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
-                android:text="Here's some text"
+                android:text="Entering text is optional. But if you do enter, it must end in a period"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-            <Button
-                android:text="Click me"
-                android:layout_margin="20dp"
+            <EditText
+                android:id="@+id/optional_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <ImageView

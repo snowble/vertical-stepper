@@ -131,6 +131,14 @@ class Step {
         this.error = error;
     }
 
+    void clearError() {
+        error = "";
+    }
+
+    boolean isOptional() {
+        return isOptional;
+    }
+
     int getDecoratorHeight() {
         return decoratorHeight;
     }
