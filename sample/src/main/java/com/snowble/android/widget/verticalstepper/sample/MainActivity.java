@@ -22,18 +22,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addStepValidation() {
-        final EditText editText = (EditText) findViewById(R.id.required_text);
+        final EditText reqText = (EditText) findViewById(R.id.required_text);
+        final EditText optText = (EditText) findViewById(R.id.optional_text);
         stepper.setStepValidator(new VerticalStepper.StepValidator() {
             @Override
-            public String validate(View v) {
+            public VerticalStepper.ValidationResult validate(View v, boolean isOptional) {
                 if (v.getId() == R.id.step_with_requirement) {
-                    Editable text = editText.getText();
+                    Editable text = reqText.getText();
                     if (TextUtils.isEmpty(text)) {
-                        return "Text cannot be empty";
+                        return new VerticalStepper.ValidationResult("Text cannot be empty");
                     }
                     stepper.setStepSummary(R.id.step_with_requirement, "Satisfied requirement: " + text);
+                } else if (v.getId() == R.id.optional_step) {
+                    Editable text = optText.getText();
+                    if (TextUtils.isEmpty(text)) {
+                        return VerticalStepper.ValidationResult.VALID_INCOMPLETE_RESULT;
+                    } else if (text.charAt(text.length() - 1) != '.'){
+                        return new VerticalStepper.ValidationResult("Text must end in a period");
+                    } else {
+                        stepper.setStepSummary(R.id.optional_step, "Satisfied requirement ending in period.");
+                        return VerticalStepper.ValidationResult.VALID_COMPLETE_RESULT;
+                    }
                 }
-                return null;
+                return VerticalStepper.ValidationResult.VALID_COMPLETE_RESULT;
             }
         });
     }
