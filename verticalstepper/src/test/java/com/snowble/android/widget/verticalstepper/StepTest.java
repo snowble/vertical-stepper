@@ -319,6 +319,7 @@ public class StepTest {
             assertThat(state.active).isFalse();
             assertThat(state.complete).isTrue();
             assertThat(state.error).isEmpty();
+            assertThat(state.summary).isEqualTo(summary);
         }
 
         @Test
@@ -503,6 +504,7 @@ public class StepTest {
             assertThat(state.active).isTrue();
             assertThat(state.complete).isFalse();
             assertThat(state.error).isEqualTo(error);
+            assertThat(state.summary).isEqualTo(summary);
         }
 
         @Test
