@@ -31,8 +31,10 @@ public class StepTest {
 
         String title;
         String summary;
+        String optional;
         TextPaint titleInactivePaint;
         TextPaint summaryPaint;
+        TextPaint optionalPaint;
         Rect titleRect;
 
         @Before
@@ -52,6 +54,12 @@ public class StepTest {
             summaryPaint = mock(TextPaint.class);
             when(summaryPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
             when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
+
+            optional = "optional";
+            when(common.getOptionalSubtitle()).thenReturn(optional);
+            optionalPaint = mock(TextPaint.class);
+            when(optionalPaint.getFontMetrics()).thenReturn(mock(Paint.FontMetrics.class));
+            when(common.getOptionalTextPaint()).thenReturn(optionalPaint);
         }
 
         @Before
@@ -71,6 +79,15 @@ public class StepTest {
 
         Step createStep(Step.Common common) {
             return new Step(innerView, touchView, continueButton, common, null);
+        }
+
+        Step createOptionalStep() {
+            VerticalStepper.LayoutParams lp = mock(VerticalStepper.LayoutParams.class);
+            when(lp.getTitle()).thenReturn(title);
+            when(lp.getSummary()).thenReturn(summary);
+            when(lp.isOptional()).thenReturn(true);
+            when(innerView.getLayoutParams()).thenReturn(lp);
+            return createStep(common);
         }
     }
 
@@ -425,6 +442,25 @@ public class StepTest {
         }
 
         @Test
+        public void getSubtitle_IsOptional_ShouldReturnOptional() {
+            Step step = createOptionalStep();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(common.getOptionalSubtitle());
+        }
+
+        @Test
+        public void getSubtitle_IsOptionalAndComplete_ShouldReturnSummary() {
+            Step step = createOptionalStep();
+            step.markComplete();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(summary);
+        }
+
+        @Test
         public void getTitleTextPaint_ShouldReturnInactiveStepPaint() {
             TextPaint inactivePaint = mock(TextPaint.class);
             when(common.getTitleInactiveTextPaint()).thenReturn(inactivePaint);
@@ -476,6 +512,29 @@ public class StepTest {
             TextPaint paint = step.getSubtitleTextPaint();
 
             assertThat(paint).isSameAs(errorPaint);
+        }
+
+        @Test
+        public void getSubtitleTextPaint_IsOptional_ShouldReturnOptionalPaint() {
+            Step step = createOptionalStep();
+            TextPaint optionalPaint = mock(TextPaint.class);
+            when(common.getOptionalTextPaint()).thenReturn(optionalPaint);
+
+            TextPaint paint = step.getSubtitleTextPaint();
+
+            assertThat(paint).isSameAs(optionalPaint);
+        }
+
+        @Test
+        public void getSubtitleTextPaint_IsOptionalAndComplete_ShouldReturnSummaryPaint() {
+            Step step = createOptionalStep();
+            step.markComplete();
+            TextPaint summaryPaint = mock(TextPaint.class);
+            when(common.getSummaryTextPaint()).thenReturn(summaryPaint);
+
+            TextPaint paint = step.getSubtitleTextPaint();
+
+            assertThat(paint).isSameAs(summaryPaint);
         }
 
         @Test
@@ -533,6 +592,39 @@ public class StepTest {
             String subtitle = step.getSubtitle();
 
             assertThat(subtitle).isEmpty();
+        }
+
+        @Test
+        public void getSubtitle_IsOptional_ShouldReturnOptional() {
+            Step step = createOptionalStep();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(common.getOptionalSubtitle());
+        }
+
+        @Test
+        public void getSubtitle_IsOptionalAndComplete_ShouldReturnOptional() {
+            Step step = createOptionalStep();
+            step.setActive(true);
+            step.markComplete();
+
+            String subtitle = step.getSubtitle();
+
+            assertThat(subtitle).isEqualTo(optional);
+        }
+
+        @Test
+        public void getSubtitleTextPaint_IsOptionalAndComplete_ShouldReturnOptionalPaint() {
+            Step step = createOptionalStep();
+            step.setActive(true);
+            step.markComplete();
+            TextPaint optionalPaint = mock(TextPaint.class);
+            when(common.getOptionalTextPaint()).thenReturn(optionalPaint);
+
+            TextPaint paint = step.getSubtitleTextPaint();
+
+            assertThat(paint).isSameAs(optionalPaint);
         }
 
         @Test

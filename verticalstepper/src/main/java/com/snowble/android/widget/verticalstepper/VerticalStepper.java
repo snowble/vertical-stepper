@@ -660,6 +660,7 @@ public class VerticalStepper extends ViewGroup {
         private static final String EMPTY_TITLE = " ";
         private String title;
         private String summary;
+        private boolean isOptional;
 
         LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
@@ -669,6 +670,7 @@ public class VerticalStepper extends ViewGroup {
                 //noinspection ConstantConditions
                 title = a.getString(R.styleable.VerticalStepper_Layout_step_title);
                 summary = a.getString(R.styleable.VerticalStepper_Layout_step_summary);
+                isOptional = a.getBoolean(R.styleable.VerticalStepper_Layout_step_optional, false);
             } finally {
                 a.recycle();
             }
@@ -693,6 +695,10 @@ public class VerticalStepper extends ViewGroup {
 
         String getSummary() {
             return summary;
+        }
+
+        boolean isOptional() {
+            return isOptional;
         }
     }
 

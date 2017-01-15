@@ -16,5 +16,7 @@
         <attr name="step_title" format="string" />
         <!-- the summary of the step -->
         <attr name="step_summary" format="string" />
+        <!-- whether or not the step is optional -->
+        <attr name="step_optional" format="boolean" />
     </declare-styleable>
 </resources>
