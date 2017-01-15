@@ -63,15 +63,13 @@ class Step {
         setState(initialState);
     }
 
-    @VisibleForTesting
-    void initTextValues(@NonNull VerticalStepper.LayoutParams lp) {
+    private void initTextValues(@NonNull VerticalStepper.LayoutParams lp) {
         this.title = lp.getTitle();
         validateTitle();
         this.summary = lp.getSummary();
     }
 
-    @VisibleForTesting
-    void validateTitle() {
+    private void validateTitle() {
         if (TextUtils.isEmpty(title)) {
             throw new IllegalArgumentException("step_title cannot be empty.");
         }
@@ -113,11 +111,11 @@ class Step {
         this.active = active;
     }
 
-    public boolean isComplete() {
+    boolean isComplete() {
         return complete;
     }
 
-    public void markComplete() {
+    void markComplete() {
         error = "";
         complete = true;
     }
@@ -288,10 +286,12 @@ class Step {
         return common.getIconDimension();
     }
 
+    @VisibleForTesting
     int getIconMarginRight() {
         return common.getIconMarginRight();
     }
 
+    @VisibleForTesting
     int getIconMarginVertical() {
         return common.getIconMarginVertical();
     }
@@ -370,7 +370,7 @@ class Step {
         return common.getTempPointForIconTextCenter();
     }
 
-    Rect getTempRectForTitleTextBounds() {
+    private Rect getTempRectForTitleTextBounds() {
         return common.getTempRectForTitleTextBounds();
     }
 
@@ -664,7 +664,7 @@ class Step {
             return tempRectForLayout;
         }
 
-        public Bitmap getIconErrorBitmap() {
+        Bitmap getIconErrorBitmap() {
             return iconErrorBitmap;
         }
     }
