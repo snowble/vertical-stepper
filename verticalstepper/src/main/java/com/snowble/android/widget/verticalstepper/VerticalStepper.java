@@ -10,10 +10,13 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.AbsSavedState;
 import android.support.v7.widget.AppCompatButton;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -49,6 +52,8 @@ public class VerticalStepper extends ViewGroup {
     int iconCompleteColor;
     @VisibleForTesting
     int continueButtonStyle;
+
+    private SavedState savedState;
 
     public VerticalStepper(Context context) {
         super(context);
@@ -163,30 +168,50 @@ public class VerticalStepper extends ViewGroup {
     }
 
     @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        List<Step.State> stepStates = new ArrayList<>(steps.size());
+        for (Step step : steps) {
+            stepStates.add(step.generateState());
+        }
+        return new SavedState(superState, stepStates);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+    }
+
+    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        initSteps();
+        initSteps(savedState);
+        savedState = null;
     }
 
     @VisibleForTesting
-    void initSteps() {
+    void initSteps(@Nullable SavedState savedState) {
         ContextThemeWrapper contextWrapper = new ContextThemeWrapper(context, continueButtonStyle);
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
-            initStep(new Step(getChildAt(i), new InternalTouchView(context),
-                    new AppCompatButton(contextWrapper, null, 0), commonStepValues));
+            Step.State initialState = savedState != null ? savedState.stepStates.get(i) : null;
+            Step step = new Step(getChildAt(i), new InternalTouchView(context),
+                    new AppCompatButton(contextWrapper, null, 0), commonStepValues, initialState);
+            steps.add(step);
         }
 
         for (Step s : steps) {
             initTouchView(s);
             initNavButtons(s);
+            syncVisibilityWithActiveState(s);
         }
-    }
-
-    @VisibleForTesting
-    void initStep(Step step) {
-        steps.add(step);
-        step.getInnerView().setVisibility(View.GONE);
     }
 
     @VisibleForTesting
@@ -206,7 +231,6 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void initNavButtons(final Step step) {
         AppCompatButton continueButton = step.getContinueButton();
-        continueButton.setVisibility(GONE);
         continueButton.setText(R.string.continue_button);
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, step.getNavButtonHeight());
         lp.topMargin = step.getNavButtonTopMargin();
@@ -251,21 +275,19 @@ public class VerticalStepper extends ViewGroup {
     @VisibleForTesting
     void toggleStepExpandedState(Step step) {
         toggleActiveState(step);
-        toggleViewVisibility(step.getInnerView());
-        toggleViewVisibility(step.getContinueButton());
+        syncVisibilityWithActiveState(step);
     }
 
-    private void toggleActiveState(Step step) {
+    @VisibleForTesting
+    void toggleActiveState(Step step) {
         step.setActive(!step.isActive());
     }
 
-    private void toggleViewVisibility(View view) {
-        int visibility = view.getVisibility();
-        if (visibility == VISIBLE) {
-            view.setVisibility(GONE);
-        } else {
-            view.setVisibility(VISIBLE);
-        }
+    @VisibleForTesting
+    void syncVisibilityWithActiveState(Step step) {
+        int visibility = step.isActive() ? View.VISIBLE : View.GONE;
+        step.getInnerView().setVisibility(visibility);
+        step.getContinueButton().setVisibility(visibility);
     }
 
     @Override
@@ -697,6 +719,42 @@ public class VerticalStepper extends ViewGroup {
         @Override
         public String validate(View v) {
             return null;
+        }
+    }
+
+    static class SavedState extends AbsSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+
+        @VisibleForTesting
+        List<Step.State> stepStates;
+
+        SavedState(Parcelable superState, List<Step.State> stepStates) {
+            super(superState);
+            this.stepStates = stepStates;
+        }
+
+        SavedState(Parcel source) {
+            this(source, null);
+        }
+
+        SavedState(Parcel source, ClassLoader loader) {
+            super(source, loader);
+            stepStates = new ArrayList<>();
+            source.readTypedList(stepStates, Step.State.CREATOR);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeTypedList(stepStates);
         }
     }
 }

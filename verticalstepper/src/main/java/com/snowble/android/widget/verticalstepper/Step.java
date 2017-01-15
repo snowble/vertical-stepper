@@ -9,6 +9,8 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -51,13 +53,14 @@ class Step {
     private float subtitleBottomRelativeToTitleBottom;
 
     Step(@NonNull View innerView, @NonNull VerticalStepper.InternalTouchView touchView,
-         @NonNull AppCompatButton continueButton, @NonNull Common common) {
+         @NonNull AppCompatButton continueButton, @NonNull Common common, @Nullable State initialState) {
         this.innerView = innerView;
         this.touchView = touchView;
         this.continueButton = continueButton;
         this.active = false;
         this.common = common;
         initTextValues((VerticalStepper.LayoutParams) innerView.getLayoutParams());
+        setState(initialState);
     }
 
     @VisibleForTesting
@@ -72,6 +75,18 @@ class Step {
         if (TextUtils.isEmpty(title)) {
             throw new IllegalArgumentException("step_title cannot be empty.");
         }
+    }
+
+    private void setState(@Nullable State state) {
+        if (state != null) {
+            active = state.active;
+            complete = state.complete;
+            error = state.error;
+        }
+    }
+
+    State generateState() {
+        return new State(this);
     }
 
     @NonNull
@@ -364,6 +379,59 @@ class Step {
 
     Bitmap getIconErrorBitmap() {
         return common.getIconErrorBitmap();
+    }
+
+    static class State implements Parcelable {
+        private static final int FALSE = 0;
+        private static final int TRUE = 1;
+
+        public static final Parcelable.Creator<State> CREATOR = new Parcelable.Creator<State>() {
+            public State createFromParcel(Parcel in) {
+                return new State(in);
+            }
+
+            public State[] newArray(int size) {
+                return new State[size];
+            }
+        };
+        @VisibleForTesting
+        final boolean active;
+        @VisibleForTesting
+        final boolean complete;
+        @VisibleForTesting
+        final String error;
+
+        @VisibleForTesting
+        State(boolean active, boolean complete, String error) {
+            this.active = active;
+            this.complete = complete;
+            this.error = error;
+        }
+
+        State(Step step) {
+            active = step.active;
+            complete = step.complete;
+            error = step.error;
+        }
+
+        State(Parcel in) {
+            active = in.readInt() == TRUE;
+            complete = in.readInt() == TRUE;
+            error = (String) in.readValue(String.class.getClassLoader());
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(active ? TRUE : FALSE);
+            dest.writeInt(complete ? TRUE : FALSE);
+            dest.writeValue(error);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
     }
 
     static class Common {
