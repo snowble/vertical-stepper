@@ -70,7 +70,7 @@ public class StepTest {
         }
 
         Step createStep(Step.Common common) {
-            return new Step(innerView, touchView, continueButton, common);
+            return new Step(innerView, touchView, continueButton, common, null);
         }
     }
 
@@ -311,6 +311,17 @@ public class StepTest {
         }
 
         @Test
+        public void generateState_Complete_ShouldGenerateStateMatchingStep() {
+            step.markComplete();
+
+            Step.State state = step.generateState();
+
+            assertThat(state.active).isFalse();
+            assertThat(state.complete).isTrue();
+            assertThat(state.error).isEmpty();
+        }
+
+        @Test
         public void getIconBackground_ShouldReturnInactiveStepPaint() {
             Paint paint = step.getIconBackground();
 
@@ -480,6 +491,18 @@ public class StepTest {
         @Before
         public void givenStepIsActive() {
             step.setActive(true);
+        }
+
+        @Test
+        public void generateState_IncompleteWithError_ShouldGenerateStateMatchingStep() {
+            String error = "some error";
+            step.setError(error);
+
+            Step.State state = step.generateState();
+
+            assertThat(state.active).isTrue();
+            assertThat(state.complete).isFalse();
+            assertThat(state.error).isEqualTo(error);
         }
 
         @Test
