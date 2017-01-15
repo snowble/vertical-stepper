@@ -29,6 +29,8 @@ public class StepTest {
 
         Step.Common common;
 
+        String title;
+        String summary;
         TextPaint titleInactivePaint;
         TextPaint summaryPaint;
         Rect titleRect;
@@ -56,6 +58,8 @@ public class StepTest {
         public void givenChildViews() {
             innerView = mock(View.class);
             innerLayoutParams = createTestLayoutParams();
+            title = innerLayoutParams.getTitle();
+            summary = innerLayoutParams.getSummary();
             when(innerView.getLayoutParams()).thenReturn(innerLayoutParams);
 
             touchView = mock(VerticalStepper.InternalTouchView.class);
@@ -85,16 +89,58 @@ public class StepTest {
         @Before
         public void givenATestStep() {
             stepSpy = spy(step);
-            doNothing().when(stepSpy).initTextValues(any(VerticalStepper.LayoutParams.class));
-            doNothing().when(stepSpy).validateTitle();
-            doNothing().when(stepSpy).measureTitleHorizontalDimensions();
-            doNothing().when(stepSpy).measureTitleVerticalDimensions(anyInt());
-            doNothing().when(stepSpy).measureSubtitleHorizontalDimensions();
-            doNothing().when(stepSpy).measureSubtitleVerticalDimensions();
         }
     }
 
     public static class GivenEmptyStepSpy extends GivenAStepSpy {
+        @Test
+        public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
+            TextPaint paint = mock(TextPaint.class);
+            doReturn(paint).when(stepSpy).getTitleTextPaint();
+
+            stepSpy.measureTitleHorizontalDimensions();
+
+            verify(paint).measureText(title);
+        }
+
+        @Test
+        public void measureSubtitleHorizontalDimensions_MeasuresUsingSubtitlePaint() {
+            stepSpy.markComplete();
+            TextPaint paint = mock(TextPaint.class);
+            doReturn(paint).when(stepSpy).getSubtitleTextPaint();
+
+            stepSpy.measureSubtitleHorizontalDimensions();
+
+            verify(paint).measureText(summary);
+        }
+
+        @Test
+        public void measureTitleVerticalDimensions_MeasuresUsingTitlePaint() {
+            TextPaint paint = mock(TextPaint.class);
+            doReturn(mock(Paint.FontMetrics.class)).when(paint).getFontMetrics();
+            doReturn(paint).when(stepSpy).getTitleTextPaint();
+
+            stepSpy.measureTitleVerticalDimensions(0);
+
+            // verify that the baseline is being measured using the text bounds
+            verify(paint).getTextBounds(title, 0, 1, titleRect);
+            // verify that the bottom is being measured using the font metrics
+            verify(paint).getFontMetrics();
+        }
+
+        @Test
+        public void measureSubtitleVerticalDimensions_MeasuresUsingSubtitlePaint() {
+            stepSpy.markComplete();
+            TextPaint paint = mock(TextPaint.class);
+            doReturn(mock(Paint.FontMetrics.class)).when(paint).getFontMetrics();
+            doReturn(paint).when(stepSpy).getSubtitleTextPaint();
+
+            stepSpy.measureSubtitleVerticalDimensions();
+
+            // verify that the baseline and bottom are measured using the font metrics
+            verify(paint, times(2)).getFontMetrics();
+        }
+
         @Test
         public void calculateHorizontalUsedSpace_ShouldReturnPaddingPlusIconLeftAdjustment() {
             int iconWidth = 40;
@@ -402,46 +448,6 @@ public class StepTest {
             int margin = step.getBottomMarginToNextStep();
 
             assertThat(margin).isEqualTo(inactiveBottomMargin);
-        }
-
-        @Test
-        public void measureTitleHorizontalDimensions_MeasuresUsingTitlePaint() {
-            step.measureTitleHorizontalDimensions();
-
-            verify(titleInactivePaint).measureText(step.getTitle());
-        }
-
-        @Test
-        public void measureSubtitleHorizontalDimensions_MeasuresUsingSummaryPaint() {
-            step.setSummary("summary");
-            step.markComplete();
-
-            step.measureSubtitleHorizontalDimensions();
-
-            // TODO Should use subtitle paint
-            verify(summaryPaint).measureText(step.getSubtitle());
-        }
-
-        @Test
-        public void measureTitleVerticalDimensions_MeasuresUsingTitlePaint() {
-            step.measureTitleVerticalDimensions(0);
-
-            // verify that the baseline is being measured using the text bounds
-            verify(titleInactivePaint).getTextBounds(step.getTitle(), 0, 1, titleRect);
-            // verify that the bottom is being measured using the font metrics
-            verify(titleInactivePaint).getFontMetrics();
-        }
-
-        @Test
-        public void measureSubtitleVerticalDimensions_MeasuresUsingSummaryPaint() {
-            step.setSummary("summary");
-            step.markComplete();
-
-            step.measureSubtitleVerticalDimensions();
-
-            // TODO Should use subtitle paint
-            // verify that the baseline and bottom are measured using the font metrics
-            verify(summaryPaint, times(2)).getFontMetrics();
         }
 
         @Test
