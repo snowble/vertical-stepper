@@ -490,13 +490,13 @@ public class VerticalStepperTest {
     }
 
     public static class GivenOneStepAndAStepValidator extends GivenOneStep {
-        private VerticalStepper.StepValidator validator;
+        private StepValidator validator;
 
         @Before
         public void givenStepperSpyWithExactlyTwoStepsAndAStepValidator() {
-            validator = mock(VerticalStepper.StepValidator.class);
+            validator = mock(StepValidator.class);
             when(validator.validate(mockedStep1.innerView, false))
-                    .thenReturn(VerticalStepper.ValidationResult.VALID_COMPLETE_RESULT);
+                    .thenReturn(ValidationResult.VALID_COMPLETE_RESULT);
 
             stepper.setStepValidator(validator);
         }
@@ -511,7 +511,7 @@ public class VerticalStepperTest {
         @Test
         public void completeStep_HasValidator_ShoulClearErrorButNotCompleteIfIncomplete() {
             when(validator.validate(mockedStep1.innerView, false))
-                    .thenReturn(VerticalStepper.ValidationResult.VALID_INCOMPLETE_RESULT);
+                    .thenReturn(ValidationResult.VALID_INCOMPLETE_RESULT);
 
             stepper.completeStep(mockedStep1.step);
 
@@ -530,7 +530,7 @@ public class VerticalStepperTest {
         @Test
         public void completeStep_removeStepValidator_ShouldComplete() {
             String error = "error";
-            VerticalStepper.ValidationResult result = new VerticalStepper.ValidationResult(error);
+            ValidationResult result = new ValidationResult(error);
             when(validator.validate(mockedStep1.innerView, false)).thenReturn(result);
             stepper.removeStepValidator();
 
@@ -851,9 +851,9 @@ public class VerticalStepperTest {
 
         @Test
         public void completeStep_HasValidator_ShouldSetErrorAndRelayout() {
-            VerticalStepper.StepValidator validator = mock(VerticalStepper.StepValidator.class);
+            StepValidator validator = mock(StepValidator.class);
             String error = "error";
-            VerticalStepper.ValidationResult result = new VerticalStepper.ValidationResult(error);
+            ValidationResult result = new ValidationResult(error);
             when(validator.validate(mockedStep1.innerView, false)).thenReturn(result);
             stepperSpy.setStepValidator(validator);
 
